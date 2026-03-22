@@ -1,6 +1,3 @@
-Copie **uniquement** ce bloc dans `App.tsx` (remplace tout le fichier) :
-
-```tsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
