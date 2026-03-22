@@ -1,4 +1,4 @@
-Voici le fichier complet `App.tsx` avec lancement de la musique à la moindre interaction (mouvement souris, clic, touche, touch, scroll) :
+Copie **uniquement** ce bloc dans `App.tsx` (remplace tout le fichier) :
 
 ```tsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -451,3 +451,5 @@ export default function App() {
   );
 }
 ```
+
+Si tu veux, je peux aussi te donner une version plus propre formatée (même logique, juste lisibilité).
