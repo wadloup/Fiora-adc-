@@ -43,7 +43,12 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
-const BACKGROUND_MUSIC_URL = "/audio/come-home-sped-up.mp3";
+
+const BACKGROUND_MUSIC_URLS = [
+  "/audio/come-home-sped-up.mp3",
+  "/audio/Jace%20June%20-%20Come%20Home%20(Sped%20Up).mp3",
+  "/audio/Jace June - Come Home (Sped Up).mp3",
+] as const;
 
 type NarrationEntry = {
   image: string;
@@ -865,6 +870,7 @@ export default function App() {
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [musicBlocked, setMusicBlocked] = useState(false);
   const [musicVolume, setMusicVolume] = useState(0.22);
+  const [musicSrcIndex, setMusicSrcIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const filteredPages = useMemo(() => {
@@ -919,6 +925,20 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [playBackgroundMusic]);
 
+  useEffect(() => {
+    const unlock = () => {
+      void playBackgroundMusic();
+    };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    if (musicSrcIndex > 0) {
+      void playBackgroundMusic();
+    }
+  }, [musicSrcIndex, playBackgroundMusic]);
+
   const goPage = (page: PageName) => {
     setCurrentPage(page);
     setMobileOpen(false);
@@ -939,11 +959,19 @@ export default function App() {
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <audio
         ref={audioRef}
-        src={BACKGROUND_MUSIC_URL}
+        src={BACKGROUND_MUSIC_URLS[musicSrcIndex]}
         loop
         preload="auto"
         onPlay={() => setMusicPlaying(true)}
         onPause={() => setMusicPlaying(false)}
+        onCanPlay={() => setMusicBlocked(false)}
+        onError={() => {
+          setMusicPlaying(false);
+          setMusicBlocked(true);
+          setMusicSrcIndex((i) =>
+            i < BACKGROUND_MUSIC_URLS.length - 1 ? i + 1 : i
+          );
+        }}
       />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,0,60,0.15),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,0,0,0.08),transparent_24%),linear-gradient(to_bottom,#040404,#0b0b0b,#040404)]" />
       <div className="absolute left-1/2 top-0 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-red-600/10 blur-3xl" />
@@ -1043,11 +1071,13 @@ export default function App() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">
-                  Background music is ready
+                  Background music was blocked or file not found
                 </p>
                 <p className="text-sm text-white/65">
-                  Your browser blocked autoplay with sound. Press play once to
-                  enable it.
+                  Click once to start sound. Current source:
+                  <span className="ml-1 text-red-300">
+                    {BACKGROUND_MUSIC_URLS[musicSrcIndex]}
+                  </span>
                 </p>
               </div>
               <button
