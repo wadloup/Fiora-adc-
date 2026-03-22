@@ -39,7 +39,7 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
-const BACKGROUND_MUSIC_URL = "/audio/Jace%20June%20-%20Come%20Home%20(Sped%20Up).mp3";
+const BACKGROUND_MUSIC_URL = "/audio/come-home-sped-up.mp3";
 
 type Matchup = {
   name: string;
@@ -2172,33 +2172,44 @@ export default function FioraADCGuideSite() {
               </div>
             )}
 
-            {currentPage === "Mid/Late Game" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Flame}
-                  title="Mid / Late Game"
-                  subtitle="Cleaner cards for macro priorities, without one heavy text block."
-                />
-                <div className="grid gap-4 md:grid-cols-3">
-                  {[
-                    [
-                      "Pick one plan",
-                      "Split, flank, pick, or group. Do not mix all plans at once.",
-                    ],
-                    [
-                      "Entry timing",
-                      "Fight when enemy CC cooldowns and vision state are favorable.",
-                    ],
-                    [
-                      "Conversion",
-                      "Every kill should become objective pressure immediately.",
-                    ],
-                  ].map(([title, text]) => (
-                    <NeonCard key={title} className="p-5">
-                      <p className="font-bold text-white">{title}</p>
-                      <p className="mt-2 text-white/70">{text}</p>
-                    </NeonCard>
-                  ))}
+           {currentPage === "Mid/Late Game" && (
+  <div className="space-y-6">
+    <SectionTitle
+      icon={Flame}
+      title="Mid / Late Game"
+      subtitle="Cleaner cards for macro priorities, without one heavy text block."
+    />
+    <div className="grid gap-4 md:grid-cols-3">
+      {[
+        [
+          "Pick one plan",
+          "Split, flank, pick, or group. Do not mix all plans at once.",
+        ],
+        [
+          "Entry timing",
+          "Fight when enemy CC cooldowns and vision state are favorable.",
+        ],
+        [
+          "Conversion",
+          "Every kill should become objective pressure immediately.",
+        ],
+      ].map(([title, text]) => (
+        <NeonCard key={title} className="p-5">
+          <p className="font-bold text-white">{title}</p>
+          <p className="mt-2 text-white/70">{text}</p>
+        </NeonCard>
+      ))}
+    </div>
+    <NeonCard className="overflow-hidden p-3">
+      <img
+        src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_6.jpg"
+        alt="Mid late visual"
+        className="h-[280px] w-full rounded-2xl border border-red-500/25 object-cover"
+        style={{ objectPosition: "center 24%" }}
+      />
+    </NeonCard>
+  </div>
+)}
                 </div>
                 <NeonCard className="overflow-hidden p-3">
                   <img
