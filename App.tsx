@@ -39,7 +39,7 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
-const BACKGROUND_MUSIC_URL = "/audio/come-home-sped-up.mp3";
+const BACKGROUND_MUSIC_URL = "/audio/Jace%20June%20-%20Come%20Home%20(Sped%20Up).mp3";
 
 type Matchup = {
   name: string;
