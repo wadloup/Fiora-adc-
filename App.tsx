@@ -2214,7 +2214,7 @@ export default function FioraADCGuideSite() {
                     className="h-[280px] w-full rounded-2xl border border-red-500/25 object-cover"
                     style={{ objectPosition: "center 24%" }}
                   />
-                </div>
+                </NeonCard>
               </div>
             )}
 
