@@ -39,7 +39,7 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
-const BACKGROUND_MUSIC_URL = "/audio/Jace June - Come Home (Sped Up).mp3";
+const BACKGROUND_MUSIC_URL = "/audio/come-home-sped-up.mp3";
 
 type Matchup = {
   name: string;
@@ -1074,14 +1074,7 @@ function FioraSpeaker({
           </div>
         </div>
       </div>
-    <NeonCard className="overflow-hidden p-3">
-  <img
-    src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_6.jpg"
-    alt="Mid late visual"
-    className="h-[280px] w-full rounded-2xl border border-red-500/25 object-cover"
-    style={{ objectPosition: "center 24%" }}
-  />
-</NeonCard>
+    </NeonCard>
   );
 }
 
@@ -2214,7 +2207,7 @@ export default function FioraADCGuideSite() {
                     className="h-[280px] w-full rounded-2xl border border-red-500/25 object-cover"
                     style={{ objectPosition: "center 24%" }}
                   />
-                </NeonCard>
+                </div>
               </div>
             )}
 
