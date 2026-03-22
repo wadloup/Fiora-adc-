@@ -22,6 +22,8 @@ import {
   Target,
   Volume2,
   VolumeX,
+  Music2,
+  Pause,
   X,
   Zap,
 } from "lucide-react";
@@ -41,6 +43,7 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
+const BACKGROUND_MUSIC_URL = "/audio/come-home-sped-up.mp3";
 
 type NarrationEntry = {
   image: string;
@@ -859,12 +862,62 @@ export default function App() {
   const [query, setQuery] = useState("");
   const laneRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const [musicBlocked, setMusicBlocked] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(0.22);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const filteredPages = useMemo(() => {
     if (!query.trim()) return pages;
     return pages.filter((p) => p.toLowerCase().includes(query.toLowerCase()));
   }, [query]);
 
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const playBackgroundMusic = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      audio.volume = musicVolume;
+      audio.muted = false;
+      await audio.play();
+      setMusicPlaying(true);
+      setMusicBlocked(false);
+    } catch {
+      setMusicPlaying(false);
+      setMusicBlocked(true);
+    }
+  }, [musicVolume]);
+
+  const pauseBackgroundMusic = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setMusicPlaying(false);
+  }, []);
+
+  const toggleBackgroundMusic = useCallback(async () => {
+    if (musicPlaying) {
+      pauseBackgroundMusic();
+      return;
+    }
+    await playBackgroundMusic();
+  }, [musicPlaying, pauseBackgroundMusic, playBackgroundMusic]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = musicVolume;
+  }, [musicVolume]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void playBackgroundMusic();
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [playBackgroundMusic]);
 
   const goPage = (page: PageName) => {
     setCurrentPage(page);
@@ -884,6 +937,14 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
+      <audio
+        ref={audioRef}
+        src={BACKGROUND_MUSIC_URL}
+        loop
+        preload="auto"
+        onPlay={() => setMusicPlaying(true)}
+        onPause={() => setMusicPlaying(false)}
+      />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,0,60,0.15),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,0,0,0.08),transparent_24%),linear-gradient(to_bottom,#040404,#0b0b0b,#040404)]" />
       <div className="absolute left-1/2 top-0 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-red-600/10 blur-3xl" />
 
@@ -911,6 +972,33 @@ export default function App() {
               />
             ))}
           </nav>
+
+          <div className="hidden items-center gap-2 xl:flex">
+            <button
+              onClick={() => void toggleBackgroundMusic()}
+              className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-white transition hover:bg-red-500/15"
+            >
+              <span className="inline-flex items-center gap-2">
+                {musicPlaying ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Music2 className="h-4 w-4" />
+                )}
+                {musicPlaying ? "Music ON" : "Music OFF"}
+              </span>
+            </button>
+
+            <div className="w-24">
+              <input
+                type="range"
+                min="0"
+                max="0.5"
+                step="0.01"
+                value={musicVolume}
+                onChange={(e) => setMusicVolume(Number(e.target.value))}
+              />
+            </div>
+          </div>
 
           <button
             className="rounded-xl border border-red-500/30 p-2 xl:hidden"
@@ -950,6 +1038,28 @@ export default function App() {
       </header>
 
       <main className="relative z-10 mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+        {musicBlocked && (
+          <NeonCard className="p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Background music is ready
+                </p>
+                <p className="text-sm text-white/65">
+                  Your browser blocked autoplay with sound. Press play once to
+                  enable it.
+                </p>
+              </div>
+              <button
+                onClick={() => void playBackgroundMusic()}
+                className="rounded-2xl border border-red-400/40 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+              >
+                Enable music
+              </button>
+            </div>
+          </NeonCard>
+        )}
+
         <NeonCard className="p-5 md:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -1680,6 +1790,30 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <div className="fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-2xl border border-red-500/35 bg-black/75 px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl xl:hidden">
+        <button
+          onClick={() => void toggleBackgroundMusic()}
+          className="text-red-300"
+          aria-label="Toggle background music"
+        >
+          {musicPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Music2 className="h-5 w-5" />
+          )}
+        </button>
+
+        <input
+          type="range"
+          min="0"
+          max="0.5"
+          step="0.01"
+          value={musicVolume}
+          onChange={(e) => setMusicVolume(Number(e.target.value))}
+          className="w-20"
+        />
+      </div>
 
       <button
         onClick={scrollTop}
