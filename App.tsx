@@ -869,7 +869,7 @@ export default function App() {
 
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [musicBlocked, setMusicBlocked] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(0.22);
+  const [musicVolume, setMusicVolume] = useState(0.12);
   const [musicSrcIndex, setMusicSrcIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
