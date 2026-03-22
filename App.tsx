@@ -1074,7 +1074,14 @@ function FioraSpeaker({
           </div>
         </div>
       </div>
-    </NeonCard>
+    <NeonCard className="overflow-hidden p-3">
+  <img
+    src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_6.jpg"
+    alt="Mid late visual"
+    className="h-[280px] w-full rounded-2xl border border-red-500/25 object-cover"
+    style={{ objectPosition: "center 24%" }}
+  />
+</NeonCard>
   );
 }
 
