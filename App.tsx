@@ -583,39 +583,6 @@ function ItemPath({
   );
 }
 
-function SupportSwordCluster() {
-  const swords = [
-    {
-      top: "16%",
-      width: 300,
-      rotate: -28,
-      delay: 0,
-      driftX: -16,
-      driftY: -5,
-      opacity: 0.95,
-      scale: 1,
-    },
-    {
-      top: "43%",
-      width: 390,
-      rotate: -12,
-      delay: 0.3,
-      driftX: -22,
-      driftY: 0,
-      opacity: 0.86,
-      scale: 1.04,
-    },
-    {
-      top: "70%",
-      width: 325,
-      rotate: 8,
-      delay: 0.6,
-      driftX: -18,
-      driftY: 4,
-      opacity: 0.9,
-      scale: 0.98,
-    },
-  ];
 
   return (
     <div className="relative hidden h-full min-h-[360px] overflow-hidden lg:block">
