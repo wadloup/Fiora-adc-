@@ -1,3 +1,5 @@
+tu peux mettre cette photo sur ce code remplace ces photos 
+
 "use client";
 
 import React, {
@@ -304,24 +306,27 @@ const supportProfiles = [
   {
     name: "Alistar",
     role: "Hard engage",
-    image: HERO_CERTIFIED_IMAGE,
-    position: "center",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Alistar_0.jpg",
+    position: "center 18%",
     size: "h-72",
     text: "Excellent with Fiora ADC because he gives immediate access to target and creates very clear commit windows.",
   },
   {
     name: "Braum",
     role: "Dive + peel",
-    image: HERO_CERTIFIED_IMAGE,
-    position: "center",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Braum_0.jpg",
+    position: "center 20%",
     size: "h-64",
     text: "A strong hybrid profile. He protects entry, stabilizes chaos, and still helps you commit when the opening is real.",
   },
   {
     name: "Yuumi",
     role: "Sustain + scaling",
-    image: HERO_CERTIFIED_IMAGE,
-    position: "center",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Yuumi_0.jpg",
+    position: "center 28%",
     size: "h-52",
     text: "Special case. She gives healing, shielding, chase comfort, and extended pressure patterns once lane becomes survivable.",
   },
