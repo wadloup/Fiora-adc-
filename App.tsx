@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   useCallback,
   useEffect,
@@ -5,23 +7,25 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Sword,
+  ArrowUp,
+  ChevronRight,
+  Crosshair,
   Flame,
-  Target,
+  HeartHandshake,
+  Menu,
   Music2,
   Pause,
-  ChevronDown,
-  Search,
-  ArrowUp,
   PlayCircle,
+  Search,
   Shield,
-  Zap,
-  Crosshair,
-  Menu,
+  Sword,
+  Target,
+  Volume2,
+  VolumeX,
   X,
-  HeartHandshake,
+  Zap,
 } from "lucide-react";
 
 const pages = [
@@ -39,28 +43,212 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
-const BACKGROUND_MUSIC_URL = "/audio/come-home-sped-up.mp3";
+
+const BACKGROUND_MUSIC_URLS = [
+  "/audio/come-home-sped-up.mp3",
+  "/audio/Jace%20June%20-%20Come%20Home%20(Sped%20Up).mp3",
+  "/audio/Jace June - Come Home (Sped Up).mp3",
+] as const;
+
 const HERO_CERTIFIED_IMAGE = "/netanyahu.png";
+
+type NarrationEntry = {
+  image: string;
+  mood: string;
+  summary: string;
+  position?: string;
+};
+
+const pageMeta: Record<PageName, NarrationEntry> = {
+  Home: {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg",
+    mood: "Cold confidence",
+    summary:
+      "If top lane bores you, this guide turns Fiora ADC into a real plan instead of a random troll pick.",
+    position: "center 22%",
+  },
+  "Why Fiora ADC Works": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_1.jpg",
+    mood: "Calculated arrogance",
+    summary:
+      "This page explains why Fiora ADC creates pressure when enemies misjudge spacing, cooldowns, and all-in timing.",
+    position: "center 24%",
+  },
+  Runes: {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
+    mood: "Precision",
+    summary:
+      "Your rune page changes how the lane starts: immediate burst or stronger mobility and chase comfort.",
+    position: "center 24%",
+  },
+  Build: {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_3.jpg",
+    mood: "Methodical",
+    summary:
+      "The build follows the game state. Start with tempo and sustain, then choose burst, stability, or safety.",
+    position: "78% center",
+  },
+  "Skill Order": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
+    mood: "Discipline",
+    summary:
+      "Early skill points decide whether lane is only survivable or actually threatening.",
+    position: "center 24%",
+  },
+  Matchups: {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
+    mood: "Analysis",
+    summary:
+      "Matchups are trends, not destiny. One first lead changes the whole lane dynamic.",
+    position: "center 24%",
+  },
+  "Lane Phase": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
+    mood: "Aggressive patience",
+    summary:
+      "Lane phase is about timing, brush control, level spikes, and waiting for one committed opening.",
+    position: "62% center",
+  },
+  "Fiora's Support": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
+    mood: "In sync",
+    summary:
+      "Fiora does not need random help. She needs clean access, protected entry, and coordinated timing.",
+    position: "58% center",
+  },
+  "Mid/Late Game": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
+    mood: "Clear-minded",
+    summary:
+      "After lane, pick one plan and execute it well: split, flank, pick, or group with intent.",
+    position: "56% center",
+  },
+  "Mechanical Tips": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
+    mood: "Demanding",
+    summary:
+      "Mechanics are not only speed. They are angle, timing, discipline, and confidence under pressure.",
+    position: "60% center",
+  },
+  "Videos / Clips": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
+    mood: "Showy",
+    summary:
+      "Clips should teach setup and decisions, not just show flashy kills.",
+    position: "center 24%",
+  },
+};
+
+const pageSubtitle: Record<PageName, string> = {
+  Home: "Fast draft read with a support-first priority.",
+  "Why Fiora ADC Works":
+    "Why the pick works when played with structure and intent.",
+  Runes: "Two rune pages, two clear purposes.",
+  Build: "Core route plus adaptations and finishing logic.",
+  "Skill Order": "Early levels and simple baseline progression.",
+  Matchups: "Trend-based reading with practical expectations.",
+  "Lane Phase": "Key lane information without giant unreadable walls.",
+  "Fiora's Support": "What support must actually do for Fiora ADC.",
+  "Mid/Late Game": "How to convert lane advantage into game pressure.",
+  "Mechanical Tips": "Short execution reminders before queue.",
+  "Videos / Clips": "Space for examples, highlights, and teaching clips.",
+};
+
+const voiceText: Record<PageName, string> = {
+  Home:
+    "Welcome to the Fiora ADC lab. This guide is built for players who want a real plan, a carry mindset, and a support-first draft read.",
+  "Why Fiora ADC Works":
+    "Fiora ADC works because she punishes bad spacing, panicked reactions, and bot lanes that do not understand her real all-in windows.",
+  Runes:
+    "Runes define your lane identity before the first trade begins. PTA for short burst windows, Phase Rush for mobility, cleaner access, and safer exits.",
+  Build:
+    "The build is not random. Start with Tiamat and Ravenous Hydra, then choose burst, stability, or defense depending on what the game demands.",
+  "Skill Order":
+    "Your early levels matter a lot. Q for access, E for burst timing, W for Riposte control and safer commits.",
+  Matchups:
+    "Treat matchups as trends. A hard lane can become playable if Fiora gets first lead, better tempo, or one strong support engage.",
+  "Lane Phase":
+    "Lane phase is patience plus violence. Manage HP, control brushes, respect level spikes, then commit completely when the opening is real.",
+  "Fiora's Support":
+    "Support sync is mandatory. Fiora wants a clean entry, vision support, and protection through the first committed action.",
+  "Mid/Late Game":
+    "After lane, pick one plan and commit to it. Splitting, flanking, or grouping all work, but random drifting wastes pressure.",
+  "Mechanical Tips":
+    "Good Fiora mechanics are not just fast fingers. They are calm timing, correct angles, and clean execution under pressure.",
+  "Videos / Clips":
+    "Use clips to study decisions, spacing, entry timing, and reset windows, not only the highlights.",
+};
 
 type Matchup = {
   name: string;
   level: string;
   danger: string;
   image: string;
-  summary: string;
-  position?: string;
+  position: string;
+  explanation: string;
 };
 
-const matchupData: readonly Matchup[] = [
+const matchups: Matchup[] = [
   {
     name: "Jhin",
-    level: "Rather favorable",
+    level: "Favorable",
     danger: "Medium",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jhin_0.jpg",
-    summary:
-      "You can punish him if he walks up too far, but his ranged trades are still annoying.",
+    position: "center 24%",
+    explanation:
+      "Punishable if he oversteps and support setup is not clean. Good opening windows if you take initiative.",
+  },
+  {
+    name: "Jinx",
+    level: "Favorable",
+    danger: "Medium",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jinx_0.jpg",
+    position: "center 24%",
+    explanation:
+      "No dash means one catch can flip lane control quickly when wave and brush state are favorable.",
+  },
+  {
+    name: "Kai'Sa",
+    level: "Playable",
+    danger: "Medium",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Kaisa_0.jpg",
+    position: "center 22%",
+    explanation:
+      "Volatile lane. Support timing and first all-in quality matter more than raw labels.",
+  },
+  {
+    name: "Ashe",
+    level: "Difficult",
+    danger: "High",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ashe_0.jpg",
+    position: "center 22%",
+    explanation:
+      "The slow breaks lane rhythm. You need cleaner HP discipline and more decisive engages.",
+  },
+  {
+    name: "Draven",
+    level: "Difficult",
+    danger: "High",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Draven_0.jpg",
     position: "center 20%",
+    explanation:
+      "If he gets tempo first, the lane becomes very punishing. Every trade needs clear purpose.",
   },
   {
     name: "Caitlyn",
@@ -68,552 +256,218 @@ const matchupData: readonly Matchup[] = [
     danger: "High",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Caitlyn_0.jpg",
-    summary:
-      "Very annoying in lane. Range, poke, and wave control mean you need to play clean.",
-    position: "center 18%",
-  },
-  {
-    name: "Ezreal",
-    level: "Playable",
-    danger: "Medium",
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ezreal_0.jpg",
-    summary:
-      "If he misses his timings and skillshots, you can quickly take over the lane.",
-    position: "center 18%",
-  },
-  {
-    name: "Samira",
-    level: "Explosive",
-    danger: "High",
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Samira_0.jpg",
-    summary:
-      "A volatile lane. Everything depends on spacing, resets, and support presence.",
-    position: "center 22%",
-  },
-  {
-    name: "Ashe",
-    level: "Tricky",
-    danger: "Medium",
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ashe_0.jpg",
-    summary:
-      "The slow ruins your rhythm, but she is still punishable if you find the right opening.",
-    position: "center 18%",
-  },
-  {
-    name: "Kai'Sa",
-    level: "Technical",
-    danger: "Medium",
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Kaisa_0.jpg",
-    summary:
-      "She has burst, but you can surprise her if you take the initiative.",
     position: "center 20%",
+    explanation:
+      "Range, traps, and push punish sloppy movement. Respect lane state, then punish overconfidence.",
   },
 ];
 
-type IconItem = { name: string; image: string };
-
-const runeImageGroups: Record<"pta" | "phaseRush", readonly IconItem[]> = {
+const runeIcons = {
   pta: [
-    {
-      name: "Press the Attack",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png",
-    },
-    {
-      name: "Triumph",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Triumph/Triumph.png",
-    },
-    {
-      name: "Legend: Alacrity",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
-    },
-    {
-      name: "Last Stand",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LastStand/LastStand.png",
-    },
-    {
-      name: "Biscuit Delivery",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/BiscuitDelivery/BiscuitDelivery.png",
-    },
-    {
-      name: "Jack of All Trades",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/JackOfAllTrades/JackOfAllTrades2.png",
-    },
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Triumph/Triumph.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LastStand/LastStand.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/BiscuitDelivery/BiscuitDelivery.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/JackOfAllTrades/JackOfAllTrades2.png",
   ],
-  phaseRush: [
-    {
-      name: "Phase Rush",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png",
-    },
-    {
-      name: "Nimbus Cloak",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/NimbusCloak/6361.png",
-    },
-    {
-      name: "Absolute Focus",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png",
-    },
-    {
-      name: "Gathering Storm",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm.png",
-    },
-    {
-      name: "Legend: Alacrity",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
-    },
-    {
-      name: "Last Stand",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LastStand/LastStand.png",
-    },
+  phase: [
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/NimbusCloak/6361.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
+    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LastStand/LastStand.png",
   ],
 };
 
-const buildImageGroups: Record<
-  "core" | "options" | "defense",
-  readonly IconItem[]
-> = {
-  core: [
-    {
-      name: "Tiamat",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3077.png",
-    },
-    {
-      name: "Ravenous Hydra",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3074.png",
-    },
-  ],
-  options: [
-    {
-      name: "Voltaic Cyclosword",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/6699.png",
-    },
-    {
-      name: "Trinity Force",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3078.png",
-    },
-    {
-      name: "Eclipse",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/6692.png",
-    },
-  ],
-  defense: [
-    {
-      name: "Death's Dance",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/6333.png",
-    },
-    {
-      name: "Iceborn Gauntlet",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/6662.png",
-    },
-    {
-      name: "Maw of Malmortius",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3156.png",
-    },
-    {
-      name: "Spear of Shojin",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3161.png",
-    },
-    {
-      name: "Guardian Angel",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3026.png",
-    },
-    {
-      name: "Bloodthirster",
-      image:
-        "https://ddragon.leagueoflegends.com/cdn/15.21.1/img/item/3072.png",
-    },
-  ],
+const itemIcons = {
+  tiamat: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3077.png",
+  hydra: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3074.png",
+  cyclosword:
+    "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/6699.png",
+  triforce:
+    "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3078.png",
+  eclipse:
+    "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/6692.png",
+  dd: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/6333.png",
+  iceborn:
+    "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/6662.png",
+  maw: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3156.png",
+  shojin:
+    "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3161.png",
+  ga: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3026.png",
+  bt: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3072.png",
 };
 
-type SupportCard = {
-  name: string;
-  role: string;
-  image: string;
-  size: string;
-  position?: string;
-};
-
-const supportShowcase: readonly SupportCard[] = [
+const supportProfiles = [
   {
     name: "Alistar",
     role: "Hard engage",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Alistar_0.jpg",
-    size: "h-72",
     position: "center 18%",
+    size: "h-72",
+    text: "Excellent with Fiora ADC because he gives immediate access to target and creates very clear commit windows.",
   },
   {
     name: "Braum",
-    role: "Dive / peel / stability",
+    role: "Dive + peel",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Braum_0.jpg",
-    size: "h-60",
-    position: "center 18%",
+    position: "center 20%",
+    size: "h-64",
+    text: "A strong hybrid profile. He protects entry, stabilizes chaos, and still helps you commit when the opening is real.",
   },
   {
     name: "Yuumi",
-    role: "Buffs / sustain / scaling",
+    role: "Sustain + scaling",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Yuumi_0.jpg",
-    size: "h-48",
-    position: "center 30%",
-  },
-];
-
-const runeRows = [
-  [
-    "Page 1",
-    "PTA",
-    "Fast burst, short trades, and immediate punishment against fragile ADCs",
-  ],
-  [
-    "Page 2",
-    "Phase Rush",
-    "Gap close, mobility, and safer trades into hard-to-reach lanes",
-  ],
-] as const;
-
-const buildRows = [
-  [
-    "Core path",
-    "Tiamat → Ravenous Hydra",
-    "Better lane comfort, sustain, waveclear, and map presence",
-  ],
-  [
-    "Snowball option",
-    "Voltaic Cyclosword",
-    "When you can kill fast without getting blown up instantly",
-  ],
-  [
-    "Stable option",
-    "Trinity Force",
-    "More stability, more HP, and a less fragile profile",
-  ],
-  ["Safer option", "Eclipse", "Safer into burst with a useful shield"],
-  [
-    "AD adaptation",
-    "Death's Dance / Iceborn Gauntlet",
-    "When physical damage or enemy DPS becomes too heavy",
-  ],
-  [
-    "AP adaptation",
-    "Maw of Malmortius",
-    "Prioritize this if the biggest threat is magic damage",
-  ],
-  [
-    "Late build",
-    "Spear of Shojin / Guardian Angel / Bloodthirster",
-    "To finish the game with more pressure, safety, or raw damage",
-  ],
-] as const;
-
-type LaneTab = {
-  id: "early" | "wave" | "support" | "matchups";
-  label: string;
-  text: string;
-};
-
-const laneTabs: readonly LaneTab[] = [
-  {
-    id: "early",
-    label: "Early Lane",
-    text: `Fiora is a champion without the long range of standard ADCs. That means she can get harassed or punished very easily in lane if she plays too directly. That is why you need to play intelligently, stay patient, and recognize the exact moments when the lane becomes playable. Still, Fiora ADC is not doomed to suffer. In reality, she can play the early levels well if you understand her timings and know what kind of support you have next to you.
-
-Level 1 can be tricky because it depends a lot on your support. If your support has no engage or plays too passively, it becomes hard to exist in a 1v2. On the other hand, if you manage to get push and hit level 2 before the enemy lane, an all-in can immediately become a real option. With Q at level 1 and E at level 2, combined with PTA, Fiora can deal surprisingly high damage. In the best cases, that is enough to kill one of the two enemies or completely flip the lane very early.
-
-As soon as you reach level 3, you can already play much more freely thanks to Riposte. From that point on, very few things can truly surprise you if you correctly identified the enemy crowd control beforehand.`,
-  },
-  {
-    id: "wave",
-    label: "Wave Control",
-    text: `Bushes are a very strong tool for surprising the enemy, as long as they do not have vision inside. For example, hiding in a bush and then Qing toward lane in the direction of a hook support, without necessarily trying to hit him directly, can be enough to surprise him and force a reflex reaction. If he throws his spell too early, that can give you an excellent parry opportunity, a stun, and then an engage. When possible, it is better to stun the ADC instead of the support.
-
-In 2v2s, you should not force random plays. With Fiora ADC, you really need to wait for the right opening — the one where you are ready to invest everything to kill at least one enemy, ideally the ADC. Because you are not always supposed to have push, the enemy lane will often be more extended. In that situation, an aggressive flash onto one of the two enemies, while already being mentally ready to parry the incoming CC, can already be enough to force an enemy flash.
-
-Even if it does not give you an immediate kill, it changes the lane a lot: next time the enemies step up again, they will do it without flash, which makes them much easier to gank for your jungler. That is why having a control ward placed in the bush that covers the enemy jungler’s approach is very important.
-
-Into ranged matchups, the goal is simple: lose as little HP as possible for free, especially if you do not have a support that can heal or protect you consistently. Stay disciplined, avoid unnecessary poke, then wait for the real all-in window.`,
-  },
-  {
-    id: "support",
-    label: "You are Fiora's support",
-    text: `Choosing the right support changes the lane a lot. Fiora ADC usually prefers champions that can create the opening for her, but some more protective supports can also work very well depending on the game plan.`,
-  },
-  {
-    id: "matchups",
-    label: "Matchup Trends",
-    text: `One important thing to remember: if you ever end up in a pure 1v1 against an ADC, at equal items or even slightly behind, Fiora still keeps real kill pressure thanks to her duelist profile, unless the enemy already has a much bigger item spike.
-
-Favorable matchups: Jhin, Jinx, Kai’Sa, Lucian, Senna, Sivir, Miss Fortune.
-
-Harder matchups: Ashe, Draven, Kog’Maw, Varus, Vayne, Twitch, Caitlyn.
-
-Overall, this list is more of a trend than a rule. In practice, almost every matchup can become playable if Fiora gets the lead early. Getting the first kill in lane often gives a massive advantage and lets you play much more freely afterward.`,
-  },
-];
-
-const mechanics = [
-  {
-    title: "Aggressive spacing",
-    content:
-      "Placeholder: learn how to threaten without overexposing yourself. Fiora ADC has to create doubt before she even dashes.",
-  },
-  {
-    title: "Riposte timing",
-    content:
-      "Placeholder: we will explain when to hold W to survive, engage, or turn an all-in around.",
-  },
-  {
-    title: "Punishing mistakes",
-    content:
-      "Placeholder: how to turn a small enemy mistake into a winning trade or kill pressure.",
-  },
-  {
-    title: "Passive and positioning",
-    content: "Placeholder: how to use vital angles in duo lane and teamfights.",
+    position: "center 28%",
+    size: "h-52",
+    text: "Special case. She gives healing, shielding, chase comfort, and extended pressure patterns once lane becomes survivable.",
   },
 ] as const;
 
 const supportClips = [
   {
     title: "Support Clip 1",
-    description: "Opening window and engage timing example.",
+    description: "Opening timing and first engage window.",
     url: "https://youtu.be/ck-PQSpfRDY",
     embed: "https://www.youtube.com/embed/ck-PQSpfRDY",
   },
   {
     title: "Support Clip 2",
-    description: "Follow-up pressure and lane execution example.",
+    description: "Follow-up pressure after first trade.",
     url: "https://youtu.be/sTytoEHfY9w",
     embed: "https://www.youtube.com/embed/sTytoEHfY9w",
   },
   {
     title: "Support Clip 3",
-    description: "Positioning and setup example for Fiora ADC support synergy.",
+    description: "Positioning and setup around engage support.",
     url: "https://youtu.be/4ASFCDwcHco",
     embed: "https://www.youtube.com/embed/4ASFCDwcHco",
   },
   {
     title: "Support Clip 4",
-    description: "Dive or cleanup sequence example.",
+    description: "Dive or cleanup sequence with support sync.",
     url: "https://youtu.be/rNob-ZD26Xs",
     embed: "https://www.youtube.com/embed/rNob-ZD26Xs",
   },
 ] as const;
 
-type FioraNarrationEntry = {
-  image: string;
-  mood: string;
-  text: string;
-  position?: string;
-};
+const laneSections = [
+  {
+    id: "early",
+    title: "Early Lane",
+    summary: "Preserve HP, track spikes, then punish the first real opening.",
+    points: [
+      "Fiora ADC is short range, so losing HP for free is one of the fastest ways to lose lane control.",
+      "Level 2 with Q then E can create surprising kill pressure, especially with PTA and support follow-up.",
+      "At level 3, Riposte changes how confidently you can stand your ground if enemy CC has been identified.",
+    ],
+  },
+  {
+    id: "wave",
+    title: "Wave / Bush Control",
+    summary:
+      "Vision and brush state often decide whether your all-in is fake or real.",
+    points: [
+      "Bush control creates hidden engage angles and can force panic spells from the enemy lane.",
+      "If enemy Flash is burned, the next longer wave often becomes an excellent jungle punish timing.",
+      "Into ranged lanes, preserve HP first and do not convert annoyance into random desperation trades.",
+    ],
+  },
+  {
+    id: "support",
+    title: "Support Sync",
+    summary: "Support timing matters more here than on a standard ADC lane.",
+    points: [
+      "Engage and hook supports are premium because they create direct target access for Fiora.",
+      "After Ravenous Hydra, repeated pressure becomes easier because Fiora can sustain and re-enter more comfortably.",
+      "Protective supports still work if the plan is survive lane, hold health, and spike later with cleaner entries.",
+    ],
+  },
+  {
+    id: "matchups",
+    title: "Matchup Trend",
+    summary: "Treat labels as tendencies, not absolute truths.",
+    points: [
+      "Favorable trends: Jhin, Jinx, Kai'Sa, Lucian, Senna, Sivir, Miss Fortune.",
+      "Harder trends: Ashe, Draven, Kog'Maw, Varus, Vayne, Twitch, Caitlyn.",
+      "Most lanes become far more playable once Fiora gets first lead, better tempo, or superior support timing.",
+    ],
+  },
+] as const;
 
-const fioraNarration: Record<PageName, FioraNarrationEntry> = {
-  Home: {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_0.jpg",
-    mood: "Cold confidence",
-    text: "Welcome. If you are here, it means top lane bores you and you want to turn Fiora ADC into a real weapon. This guide is here for that: understand the pick, commit to it, and punish every enemy mistake.",
-    position: "center 12%",
-  },
-  "Why Fiora ADC Works": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_1.jpg",
-    mood: "Calculated arrogance",
-    text: "Fiora ADC works because she forces a different game. Enemies know the matchup poorly, underestimate your all-in windows, and panic the moment they lose control of spacing.",
-    position: "center 14%",
-  },
-  Runes: {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_2.jpg",
-    mood: "Precision",
-    text: "Runes are not there for decoration. They define your lane angle: PTA to hit fast and hard, Phase Rush to stick, disengage, and go again until the fatal mistake.",
-    position: "center 14%",
-  },
-  Build: {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_3.jpg",
-    mood: "Methodical",
-    text: "Your build has to follow the pace of the game. Tiamat then Hydra for tempo, then you choose: burst, stability, or safety. A duel is often won before the fight even starts.",
-    position: "center 15%",
-  },
-  "Skill Order": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_4.jpg",
-    mood: "Discipline",
-    text: "Every skill point matters. The first levels often decide whether you get bullied or instantly demand respect in bot lane.",
-    position: "center 14%",
-  },
-  Matchups: {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_5.jpg",
-    mood: "Analysis",
-    text: "A matchup is never more than a trend. Even rough lanes can open up if you take initiative at the right moment and burn the right cooldowns.",
-    position: "center 16%",
-  },
-  "Lane Phase": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_6.jpg",
-    mood: "Aggressive",
-    text: "Lane phase is all about timings, bushes, level 2, parry, and above all your ability to wait for the perfect opening. One enemy mistake should be enough.",
-    position: "center 15%",
-  },
-  "Fiora's Support": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_7.jpg",
-    mood: "In sync",
-    text: "If you play with me, create the opening or protect my entry. Engage, hook, peel — anything works as long as it lets me reach my target cleanly and finish the job without hesitation.",
-    position: "center 14%",
-  },
-  "Mid/Late Game": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_8.jpg",
-    mood: "Clear-minded",
-    text: "After lane, you need to choose between side pressure, picks, flanks, or teamfight presence. A useful Fiora ADC does not run everywhere: she chooses where the duel becomes unavoidable.",
-    position: "center 14%",
-  },
-  "Mechanical Tips": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_9.jpg",
-    mood: "Demanding",
-    text: "Raw mechanics are not enough. You also need timing, angle, composure, and the nerve to go in exactly when the enemy thinks they are safe.",
-    position: "center 14%",
-  },
-  "Videos / Clips": {
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_10.jpg",
-    mood: "Showy",
-    text: "Clips are not just for flexing. They show the angles, timings, and decisions that turn a questionable pick into a statement.",
-    position: "center 14%",
-  },
-};
+const DEFAULT_FIORA_IMAGE =
+  "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg";
+const DEFAULT_RUNE_ICON =
+  "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png";
+const DEFAULT_ITEM_ICON =
+  "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3077.png";
 
-function getPageSpeechText(page: PageName, laneTabId: LaneTab["id"]): string {
-  switch (page) {
-    case "Home":
-      return [
-        fioraNarration[page].text,
-        "Welcome to the Fiora ADC lab.",
-        "Identity: black, neon red, white.",
-        "Tone: fun, aggressive, carry mindset.",
-        "Positioning: niche pick, optimized troll.",
-        "Are you the support? Click here before I report you.",
-      ].join(" ");
-    case "Why Fiora ADC Works":
-      return [
-        fioraNarration[page].text,
-        "Fiora ADC relies on surprise, duel pressure, punishing spacing mistakes, and the fact that many bot lane players do not know how to play against her.",
-        "It is not a stable pick in every context, but it is a technical choice for players who want to leave the standard script, play more aggressively, and turn every enemy mistake into an all-in window.",
-      ].join(" ");
-    case "Runes":
-      return [
-        fioraNarration[page].text,
-        "Page 1, PTA: fast burst, short trades, and immediate punishment against fragile ADCs.",
-        "Page 2, Phase Rush: gap close, mobility, and safer trades into hard-to-reach lanes.",
-        "PTA page uses Precision and Inspiration.",
-        "Phase Rush page uses Sorcery and Precision.",
-      ].join(" ");
-    case "Build":
-      return [
-        fioraNarration[page].text,
-        "Core path: Tiamat then Ravenous Hydra.",
-        "Snowball option: Voltaic Cyclosword.",
-        "Stable option: Trinity Force.",
-        "Safer option: Eclipse.",
-        "Adaptations: Death's Dance, Iceborn Gauntlet, Maw of Malmortius, Spear of Shojin, Guardian Angel, and Bloodthirster.",
-      ].join(" ");
-    case "Skill Order":
-      return [
-        fioraNarration[page].text,
-        "This section is still in progress: levels 1 to 3, primary max order, and variations.",
-      ].join(" ");
-    case "Matchups":
-      return [
-        fioraNarration[page].text,
-        ...matchupData.map((m) => `${m.name}: ${m.level}. ${m.summary}`),
-      ].join(" ");
-    case "Lane Phase": {
-      const tab = laneTabs.find((t) => t.id === laneTabId) ?? laneTabs[0];
-      return [fioraNarration[page].text, tab.label, tab.text].join(" ");
-    }
-    case "Fiora's Support":
-      return [
-        fioraNarration[page].text,
-        "Featured profiles: Alistar, Braum, and Yuumi. Four YouTube support clips are also available in this section.",
-        "Engage supports like Alistar, Nautilus, Pyke, or Blitzcrank are especially strong with Fiora ADC.",
-        "Once Ravenous Hydra is completed, Fiora can follow engages more often thanks to sustain.",
-        "Yuumi gives Fiora healing, shielding, movement speed, attack speed, and much more comfort when engaging or chasing.",
-        "In short, Fiora ADC usually prefers supports that can create an opening, but she can also work with more protective supports.",
-      ].join(" ");
-    case "Mid/Late Game":
-      return [
-        fioraNarration[page].text,
-        "Game plan in progress: split, flank, group, or stall depending on team comps and game state.",
-      ].join(" ");
-    case "Mechanical Tips":
-      return [
-        fioraNarration[page].text,
-        ...mechanics.map((m) => `${m.title}. ${m.content}`),
-      ].join(" ");
-    case "Videos / Clips":
-      return [
-        fioraNarration[page].text,
-        "Clip section in progress with demonstrations, guides, and combos.",
-      ].join(" ");
-    default:
-      return fioraNarration[page].text;
+function recoverImage(
+  event: React.SyntheticEvent<HTMLImageElement>,
+  fallback: string = DEFAULT_FIORA_IMAGE
+) {
+  const img = event.currentTarget;
+  if (img.src !== fallback) {
+    img.src = fallback;
   }
 }
 
-function runSanityChecks() {
-  const uniquePages = new Set(pages);
-  const uniqueLaneTabs = new Set(laneTabs.map((tab) => tab.id));
-
-  if (uniquePages.size !== pages.length) {
-    console.warn("Duplicate page names detected.");
-  }
-  if (uniqueLaneTabs.size !== laneTabs.length) {
-    console.warn("Duplicate lane tab ids detected.");
+function recoverAssetImage(
+  event: React.SyntheticEvent<HTMLImageElement>,
+  fallback: string
+) {
+  const img = event.currentTarget;
+  if (img.src !== fallback) {
+    img.src = fallback;
   }
 }
 
-runSanityChecks();
+const mechanics = [
+  {
+    title: "Spacing",
+    content:
+      "Threaten without overcommitting. Good spacing forces panic movement before you even press forward fully.",
+  },
+  {
+    title: "Riposte timing",
+    content:
+      "Parry the spell that actually decides the fight, not the first animation that looks scary.",
+  },
+  {
+    title: "Burst windows",
+    content:
+      "Commit when support sync, target access, and lane state all agree. Do not force half-openings.",
+  },
+  {
+    title: "Vital angle",
+    content:
+      "Use movement to create clean passive angles before full commitment whenever the lane allows it.",
+  },
+] as const;
+
+function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
 
 function NeonCard({
-  children,
   className = "",
+  children,
 }: {
-  children: React.ReactNode;
   className?: string;
+  children: React.ReactNode;
 }) {
   return (
     <div
-      className={`rounded-3xl border border-red-500/30 bg-white/5 backdrop-blur-md shadow-[0_0_25px_rgba(255,0,51,0.12)] ${className}`}
+      className={cn(
+        "rounded-3xl border border-red-500/25 bg-white/[0.04] backdrop-blur-md shadow-[0_0_24px_rgba(255,0,60,0.12)]",
+        className
+      )}
     >
       {children}
     </div>
@@ -627,277 +481,263 @@ function SectionTitle({
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  subtitle?: string;
+  subtitle: string;
 }) {
   return (
-    <div className="mb-6">
-      <div className="mb-2 flex items-center gap-3">
-        <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.25)]">
-          <Icon className="h-5 w-5 text-red-400" />
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
-          {title}
-        </h2>
+    <div className="space-y-3">
+      <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-red-200">
+        <Icon className="h-4 w-4" />
+        Section
       </div>
-      {subtitle ? <p className="max-w-3xl text-white/70">{subtitle}</p> : null}
+      <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
+        {title}
+      </h2>
+      <p className="max-w-3xl text-white/70">{subtitle}</p>
     </div>
   );
 }
 
-function AccordionItem({ title, content }: { title: string; content: string }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-red-500/20 bg-black/30">
-      <button
-        onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-white/5"
-      >
-        <span className="font-semibold text-white">{title}</span>
-        <ChevronDown
-          className={`h-5 w-5 text-red-400 transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-5 text-white/75">{content}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function ImagePlaceholder({
+function PageButton({
+  active,
   label,
-  tall = false,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "rounded-xl border px-3 py-2 text-sm transition",
+        active
+          ? "border-red-500/40 bg-red-500/15 text-red-300"
+          : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  text,
 }: {
   label: string;
-  tall?: boolean;
-}) {
-  return (
-    <div
-      className={`flex items-center justify-center rounded-3xl border border-dashed border-red-400/35 bg-gradient-to-br from-red-500/10 to-white/5 p-6 text-center ${
-        tall ? "min-h-[320px]" : "min-h-[200px]"
-      }`}
-    >
-      <div>
-        <p className="font-semibold text-red-300">Visual placeholder</p>
-        <p className="mt-2 text-sm text-white/60">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-function VisualIcon({
-  name,
-  image,
-  className = "h-16 w-16",
-  rounded = "rounded-2xl",
-}: {
-  name: string;
-  image: string;
-  className?: string;
-  rounded?: string;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-2 text-center">
-      <img
-        src={image}
-        alt={name}
-        className={`${className} ${rounded} border border-red-500/30 object-cover shadow-[0_0_16px_rgba(255,0,60,0.16)]`}
-      />
-      <span className="text-xs text-white/70">{name}</span>
-    </div>
-  );
-}
-
-function ImageStrip({
-  title,
-  items,
-  iconSize = "h-16 w-16",
-}: {
-  title: string;
-  items: readonly IconItem[];
-  iconSize?: string;
+  value: string;
+  text: string;
 }) {
   return (
     <NeonCard className="p-5">
-      <p className="mb-4 font-semibold text-red-300">{title}</p>
-      <div className="flex flex-wrap gap-4">
-        {items.map((item) => (
-          <VisualIcon
-            key={item.name}
-            name={item.name}
-            image={item.image}
-            className={iconSize}
-            rounded="rounded-2xl"
-          />
-        ))}
-      </div>
+      <p className="text-sm uppercase tracking-[0.18em] text-red-300">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-bold text-white">{value}</p>
+      <p className="mt-2 text-sm text-white/65">{text}</p>
     </NeonCard>
   );
 }
 
-function RichTextBlock({ text }: { text: string }) {
-  const paragraphs = text.split("\n\n");
+function IconRow({ icons }: { icons: string[] }) {
   return (
-    <div className="space-y-5 text-white/75">
-      {paragraphs.map((paragraph, index) => (
-        <p key={`${index}-${paragraph.slice(0, 10)}`}>{paragraph}</p>
+    <div className="flex flex-wrap gap-3">
+      {icons.map((src, index) => (
+        <img
+          key={`${src}-${index}`}
+          src={src}
+          alt="rune icon"
+          className="h-14 w-14 rounded-xl border border-red-500/30 bg-black/50 object-cover"
+          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
+        />
       ))}
     </div>
   );
 }
 
-function FioraSpeaker({
-  page,
-  laneTabId,
+function ItemPath({
+  title,
+  items,
+  text,
 }: {
-  page: PageName;
-  laneTabId: LaneTab["id"];
+  title: string;
+  items: string[];
+  text: string;
 }) {
-  const config = fioraNarration[page];
-  const pageSpeechText = useMemo(
-    () => getPageSpeechText(page, laneTabId),
-    [page, laneTabId]
+  return (
+    <NeonCard className="p-5">
+      <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+        {title}
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {items.map((it, i) => (
+          <div key={`${it}-${i}`} className="flex items-center gap-2">
+            <img
+              src={it}
+              alt="item"
+              className="h-12 w-12 rounded-lg border border-red-500/30 bg-black/40 object-cover"
+              onError={(event) => recoverAssetImage(event, DEFAULT_ITEM_ICON)}
+            />
+            {i < items.length - 1 ? (
+              <span className="text-red-300">→</span>
+            ) : null}
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-white/75">{text}</p>
+    </NeonCard>
   );
-  const [visibleText, setVisibleText] = useState("");
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [voicesReady, setVoicesReady] = useState(false);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const [availableVoices, setAvailableVoices] = useState<
-    SpeechSynthesisVoice[]
-  >([]);
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState("");
-  const [speechRate, setSpeechRate] = useState(0.92);
-  const [speechPitch, setSpeechPitch] = useState(0.82);
-  const intervalRef = useRef<number | null>(null);
+}
 
-  const clearTicker = useCallback(() => {
-    if (intervalRef.current !== null) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
+function HomeSupportShowcase() {
+  const heroSupports = [supportProfiles[0], supportProfiles[1], supportProfiles[2]];
+
+  return (
+    <div className="hidden h-full lg:block">
+      <div className="flex h-full flex-col justify-between gap-4 p-6 md:p-8">
+        <div className="rounded-3xl border border-red-500/25 bg-black/25 p-5 backdrop-blur-sm">
+          <p className="text-xs uppercase tracking-[0.28em] text-red-300">
+            AUTO WIN
+          </p>
+          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-red-200">
+            netanyahu certified
+          </p>
+          <div className="mt-4 flex items-start gap-4">
+            <img
+              src={HERO_CERTIFIED_IMAGE}
+              alt="Certified badge"
+              className="h-24 w-24 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
+              onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
+            />
+            <div>
+              <p className="text-lg font-black uppercase tracking-[0.08em] text-white">
+                Support shell
+              </p>
+              <p className="mt-3 max-w-[180px] text-sm text-white/65">
+                Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          {heroSupports.map((support) => (
+            <div
+              key={support.name}
+              className="flex items-center gap-3 rounded-2xl border border-red-500/20 bg-black/25 p-3 backdrop-blur-sm"
+            >
+              <img
+                src={support.image}
+                alt={support.name}
+                className="h-20 w-20 rounded-2xl border border-red-500/25 object-cover"
+                onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
+                style={{ objectPosition: support.position }}
+              />
+              <div>
+                <p className="text-base font-bold text-white">{support.name}</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-red-300">
+                  {support.role}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NarrationPanel({ page }: { page: PageName }) {
+  const config = pageMeta[page];
+  const [auto, setAuto] = useState(true);
+  const [speaking, setSpeaking] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState("");
+  const [rate, setRate] = useState(0.92);
+  const [pitch, setPitch] = useState(0.84);
+  const [displayText, setDisplayText] = useState(voiceText[page]);
+  const tickerRef = useRef<number | null>(null);
+
+  const stop = useCallback(() => {
+    if (tickerRef.current) {
+      window.clearInterval(tickerRef.current);
+      tickerRef.current = null;
     }
-  }, []);
-
-  const stopSpeaking = useCallback(() => {
-    clearTicker();
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
-    setIsSpeaking(false);
-    setVisibleText(pageSpeechText);
-  }, [clearTicker, pageSpeechText]);
+    setSpeaking(false);
+    setDisplayText(voiceText[page]);
+  }, [page]);
 
-  const startSpeaking = useCallback(() => {
-    clearTicker();
-    setVisibleText("");
-
+  const speak = useCallback(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      setVisibleText(pageSpeechText);
-      setIsSpeaking(false);
+      setDisplayText(voiceText[page]);
+      setSpeaking(false);
       return;
     }
 
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(pageSpeechText);
-    const voices = window.speechSynthesis.getVoices();
-    const selectedVoice = voices.find(
-      (voice) => voice.voiceURI === selectedVoiceURI
-    );
-    const vivienneVoice = voices.find((voice) =>
-      /vivienne multilingual/i.test(voice.name)
-    );
-    const preferredEnglishVoice = voices.find(
-      (voice) =>
-        voice.lang.toLowerCase().startsWith("en") &&
-        /female|ava|aria|samantha|victoria|zira|jenny|joanna|serena/i.test(
-          voice.name
-        )
-    );
-    const fallbackEnglishVoice = voices.find((voice) =>
-      voice.lang.toLowerCase().startsWith("en")
+    stop();
+    const text = voiceText[page];
+    setDisplayText("");
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const available = window.speechSynthesis.getVoices();
+    const chosen = available.find((v) => v.voiceURI === selectedVoice);
+    const english = available.find((v) =>
+      v.lang.toLowerCase().startsWith("en")
     );
 
-    utterance.lang =
-      selectedVoice?.lang ||
-      vivienneVoice?.lang ||
-      preferredEnglishVoice?.lang ||
-      fallbackEnglishVoice?.lang ||
-      "en-US";
-    utterance.voice =
-      selectedVoice ||
-      vivienneVoice ||
-      preferredEnglishVoice ||
-      fallbackEnglishVoice ||
-      null;
-    utterance.rate = speechRate;
-    utterance.pitch = speechPitch;
-    utterance.volume = 1;
+    utterance.voice = chosen || english || null;
+    utterance.lang = (chosen || english)?.lang || "en-US";
+    utterance.rate = rate;
+    utterance.pitch = pitch;
+    setSpeaking(true);
 
-    setIsSpeaking(true);
     let index = 0;
-    intervalRef.current = window.setInterval(() => {
+    tickerRef.current = window.setInterval(() => {
       index += 2;
-      setVisibleText(pageSpeechText.slice(0, index));
-      if (index >= pageSpeechText.length) {
-        clearTicker();
+      setDisplayText(text.slice(0, index));
+      if (index >= text.length && tickerRef.current) {
+        window.clearInterval(tickerRef.current);
+        tickerRef.current = null;
       }
     }, 18);
 
     utterance.onend = () => {
-      clearTicker();
-      setVisibleText(pageSpeechText);
-      setIsSpeaking(false);
+      if (tickerRef.current) {
+        window.clearInterval(tickerRef.current);
+        tickerRef.current = null;
+      }
+      setSpeaking(false);
+      setDisplayText(text);
     };
 
     utterance.onerror = () => {
-      clearTicker();
-      setVisibleText(pageSpeechText);
-      setIsSpeaking(false);
+      if (tickerRef.current) {
+        window.clearInterval(tickerRef.current);
+        tickerRef.current = null;
+      }
+      setSpeaking(false);
+      setDisplayText(text);
     };
 
     window.speechSynthesis.speak(utterance);
-  }, [clearTicker, pageSpeechText, selectedVoiceURI, speechPitch, speechRate]);
+  }, [page, pitch, rate, selectedVoice, stop]);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window))
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       return undefined;
+    }
 
     const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      setAvailableVoices(voices);
-      setVoicesReady(true);
-
-      if (!selectedVoiceURI) {
-        const vivienneVoice = voices.find((voice) =>
-          /vivienne multilingual/i.test(voice.name)
-        );
-        const preferredEnglishVoice = voices.find(
-          (voice) =>
-            voice.lang.toLowerCase().startsWith("en") &&
-            /female|ava|aria|samantha|victoria|zira|jenny|joanna|serena/i.test(
-              voice.name
-            )
-        );
-        const fallbackEnglishVoice = voices.find((voice) =>
-          voice.lang.toLowerCase().startsWith("en")
-        );
-        const chosen =
-          vivienneVoice ||
-          preferredEnglishVoice ||
-          fallbackEnglishVoice ||
-          voices[0];
-        if (chosen) setSelectedVoiceURI(chosen.voiceURI);
+      const list = window.speechSynthesis.getVoices();
+      setVoices(list);
+      if (!selectedVoice && list.length) {
+        const english = list.find((v) => v.lang.toLowerCase().startsWith("en"));
+        setSelectedVoice((english || list[0]).voiceURI);
       }
     };
 
@@ -906,96 +746,44 @@ function FioraSpeaker({
 
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
-      window.speechSynthesis.cancel();
-      clearTicker();
+      stop();
     };
-  }, [clearTicker, selectedVoiceURI]);
+  }, [selectedVoice, stop]);
 
   useEffect(() => {
-    setVisibleText("");
-    setIsSpeaking(false);
-
-    if (!autoPlay) {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-      clearTicker();
+    setDisplayText(voiceText[page]);
+    if (!auto) {
+      stop();
       return undefined;
     }
-
-    const timer = window.setTimeout(() => {
-      startSpeaking();
-    }, 250);
-
-    return () => {
-      window.clearTimeout(timer);
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-      clearTicker();
-    };
-  }, [autoPlay, clearTicker, page, laneTabId, startSpeaking]);
-
-  const englishVoices = availableVoices.filter((voice) =>
-    voice.lang.toLowerCase().startsWith("en")
-  );
+    const timer = window.setTimeout(() => speak(), 240);
+    return () => window.clearTimeout(timer);
+  }, [auto, page, speak, stop]);
 
   return (
-    <NeonCard className="mb-8 overflow-hidden">
+    <NeonCard className="overflow-hidden">
       <div className="grid gap-0 lg:grid-cols-[320px_1fr]">
-        <div className="relative min-h-[320px] overflow-hidden bg-black/40">
+        <div className="relative min-h-[300px] overflow-hidden bg-black/40">
           <motion.img
             key={config.image}
             src={config.image}
-            alt={`Fiora - ${page}`}
-            initial={{ scale: 1.04, opacity: 0.85 }}
+            alt={`Fiora ${page}`}
+            initial={{ opacity: 0.8, scale: 1.04 }}
             animate={{
-              scale: 1,
               opacity: 1,
-              y: isSpeaking ? [0, -5, 0, -3, 0] : [0, -2, 0],
-              rotate: isSpeaking ? [0, -0.6, 0.8, -0.4, 0] : [0, -0.15, 0],
+              scale: 1,
+              y: speaking ? [0, -4, 0, -2, 0] : [0, -1, 0],
             }}
             transition={{
-              duration: isSpeaking ? 1.4 : 3.2,
+              duration: speaking ? 1.3 : 3,
               repeat: Infinity,
               ease: "easeInOut",
             }}
             className="absolute inset-0 h-full w-full object-cover"
+            onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
             style={{ objectPosition: config.position || "center 14%" }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-          <div className="absolute bottom-24 right-10 flex flex-col items-center gap-3">
-            <motion.div
-              animate={
-                isSpeaking
-                  ? {
-                      scaleY: [0.5, 1.45, 0.7, 1.25, 0.55],
-                      scaleX: [1, 0.95, 1.05, 0.92, 1],
-                    }
-                  : { scaleY: 0.45, scaleX: 1.05 }
-              }
-              transition={
-                isSpeaking
-                  ? { repeat: Infinity, duration: 0.22 }
-                  : { duration: 0.25 }
-              }
-              className="h-4 w-10 rounded-full border border-red-200/50 bg-gradient-to-r from-red-500 to-red-300 opacity-90 shadow-[0_0_18px_rgba(255,0,60,0.45)]"
-            />
-            <motion.div
-              animate={
-                isSpeaking ? { opacity: [1, 1, 0.15, 1, 1] } : { opacity: 1 }
-              }
-              transition={{
-                repeat: Infinity,
-                duration: 3.8,
-                times: [0, 0.45, 0.5, 0.55, 1],
-              }}
-              className="flex gap-8"
-            >
-              <span className="block h-2.5 w-5 rounded-full bg-white/80" />
-              <span className="block h-2.5 w-5 rounded-full bg-white/80" />
-            </motion.div>
-          </div>
           <div className="absolute bottom-4 left-4 right-4">
             <p className="text-xs uppercase tracking-[0.25em] text-red-300">
               Fiora
@@ -1003,100 +791,102 @@ function FioraSpeaker({
             <p className="mt-1 font-semibold text-white">{config.mood}</p>
             <div className="mt-3 flex items-center gap-2 text-xs text-white/65">
               <span
-                className={`inline-block h-2.5 w-2.5 rounded-full ${
-                  isSpeaking
+                className={cn(
+                  "inline-block h-2.5 w-2.5 rounded-full",
+                  speaking
                     ? "bg-red-400 shadow-[0_0_12px_rgba(255,0,60,0.55)]"
                     : "bg-white/30"
-                }`}
+                )}
               />
-              {isSpeaking ? "Fiora is speaking" : "Fiora is waiting"}
+              {speaking ? "Fiora is speaking" : "Fiora is waiting"}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col justify-center bg-gradient-to-br from-white/5 to-red-500/5 p-6 md:p-8">
-          <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="space-y-4 bg-gradient-to-br from-white/[0.03] to-red-500/[0.08] p-6 md:p-8">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
               <span className="inline-block h-2 w-2 rounded-full bg-red-400" />
               Fiora analysis
             </div>
             <button
-              onClick={startSpeaking}
+              onClick={speak}
               className="rounded-full border border-red-500/30 bg-black/40 px-3 py-1.5 text-xs text-white hover:bg-red-500/10"
             >
-              Speak
+              <span className="inline-flex items-center gap-2">
+                <Volume2 className="h-3.5 w-3.5" />
+                Speak
+              </span>
             </button>
             <button
-              onClick={stopSpeaking}
+              onClick={stop}
               className="rounded-full border border-red-500/30 bg-black/40 px-3 py-1.5 text-xs text-white hover:bg-red-500/10"
             >
-              Stop
+              <span className="inline-flex items-center gap-2">
+                <VolumeX className="h-3.5 w-3.5" />
+                Stop
+              </span>
             </button>
             <button
-              onClick={() => setAutoPlay((value) => !value)}
-              className={`rounded-full border px-3 py-1.5 text-xs ${
-                autoPlay
+              onClick={() => setAuto((v) => !v)}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs",
+                auto
                   ? "border-red-500/40 bg-red-500/10 text-red-200"
                   : "border-white/15 bg-black/40 text-white"
-              }`}
+              )}
             >
-              Auto: {autoPlay ? "ON" : "OFF"}
+              Auto: {auto ? "ON" : "OFF"}
             </button>
-            {!voicesReady && (
-              <span className="text-xs text-white/45">Loading voices…</span>
-            )}
           </div>
 
-          <div className="mb-4 grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-3">
             <label className="flex flex-col gap-2 text-xs text-white/65">
               Voice
               <select
-                value={selectedVoiceURI}
-                onChange={(e) => setSelectedVoiceURI(e.target.value)}
+                value={selectedVoice}
+                onChange={(e) => setSelectedVoice(e.target.value)}
                 className="rounded-xl border border-red-500/25 bg-black/45 px-3 py-2 text-sm text-white outline-none"
               >
-                {(englishVoices.length ? englishVoices : availableVoices).map(
-                  (voice) => (
-                    <option
-                      key={voice.voiceURI}
-                      value={voice.voiceURI}
-                      className="bg-black text-white"
-                    >
-                      {voice.name} ({voice.lang})
+                {voices
+                  .filter((v) => v.lang.toLowerCase().startsWith("en"))
+                  .map((v) => (
+                    <option key={v.voiceURI} value={v.voiceURI}>
+                      {v.name}
                     </option>
-                  )
-                )}
+                  ))}
               </select>
             </label>
+
             <label className="flex flex-col gap-2 text-xs text-white/65">
-              Rate: {speechRate.toFixed(2)}
+              Rate: {rate.toFixed(2)}
+              <input
+                type="range"
+                min="0.75"
+                max="1.05"
+                step="0.01"
+                value={rate}
+                onChange={(e) => setRate(Number(e.target.value))}
+              />
+            </label>
+
+            <label className="flex flex-col gap-2 text-xs text-white/65">
+              Pitch: {pitch.toFixed(2)}
               <input
                 type="range"
                 min="0.7"
-                max="1.05"
+                max="1.1"
                 step="0.01"
-                value={speechRate}
-                onChange={(e) => setSpeechRate(Number(e.target.value))}
-              />
-            </label>
-            <label className="flex flex-col gap-2 text-xs text-white/65">
-              Pitch: {speechPitch.toFixed(2)}
-              <input
-                type="range"
-                min="0.65"
-                max="1.15"
-                step="0.01"
-                value={speechPitch}
-                onChange={(e) => setSpeechPitch(Number(e.target.value))}
+                value={pitch}
+                onChange={(e) => setPitch(Number(e.target.value))}
               />
             </label>
           </div>
 
           <div className="relative rounded-[28px] border border-red-500/25 bg-black/35 p-5 shadow-[0_0_22px_rgba(255,0,60,0.12)] md:p-6">
-            <div className="absolute -left-3 top-8 h-6 w-6 rotate-45 border-b border-l border-red-500/25 bg-black/35" />
             <p className="min-h-[120px] text-lg leading-relaxed text-white md:text-xl">
-              {visibleText || (!isSpeaking ? pageSpeechText : "")}
-              {isSpeaking && (
+              {displayText}
+              {speaking ? (
                 <motion.span
                   animate={{ opacity: [0, 1, 0] }}
                   transition={{ repeat: Infinity, duration: 0.9 }}
@@ -1104,8 +894,9 @@ function FioraSpeaker({
                 >
                   ▋
                 </motion.span>
-              )}
+              ) : null}
             </p>
+            <p className="mt-4 text-sm text-white/60">{config.summary}</p>
           </div>
         </div>
       </div>
@@ -1113,15 +904,16 @@ function FioraSpeaker({
   );
 }
 
-export default function FioraADCGuideSite() {
+export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [laneTab, setLaneTab] = useState<LaneTab["id"]>("early");
+  const laneRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [musicBlocked, setMusicBlocked] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(0.22);
-  const [musicUnlocked, setMusicUnlocked] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(0.06);
+  const [musicSrcIndex, setMusicSrcIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const filteredPages = useMemo(() => {
@@ -1129,16 +921,15 @@ export default function FioraADCGuideSite() {
     return pages.filter((p) => p.toLowerCase().includes(query.toLowerCase()));
   }, [query]);
 
-  const activeLaneTab =
-    laneTabs.find((tab) => tab.id === laneTab) ?? laneTabs[0];
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const playBackgroundMusic = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
+
     try {
-      audio.muted = false;
       audio.volume = musicVolume;
+      audio.muted = false;
       await audio.play();
       setMusicPlaying(true);
       setMusicBlocked(false);
@@ -1156,7 +947,6 @@ export default function FioraADCGuideSite() {
   }, []);
 
   const toggleBackgroundMusic = useCallback(async () => {
-    setMusicUnlocked(true);
     if (musicPlaying) {
       pauseBackgroundMusic();
       return;
@@ -1171,82 +961,87 @@ export default function FioraADCGuideSite() {
   }, [musicVolume]);
 
   useEffect(() => {
-    let triggered = false;
+    const timer = window.setTimeout(() => {
+      void playBackgroundMusic();
+    }, 300);
 
-    const unlockAndPlay = async () => {
-      if (triggered) return;
-      triggered = true;
-      setMusicUnlocked(true);
-      await playBackgroundMusic();
-      detach();
-    };
-
-    const detach = () => {
-      window.removeEventListener("mousemove", unlockAndPlay);
-      window.removeEventListener("click", unlockAndPlay);
-      window.removeEventListener("pointerdown", unlockAndPlay);
-      window.removeEventListener("keydown", unlockAndPlay);
-      window.removeEventListener("touchstart", unlockAndPlay);
-      window.removeEventListener("wheel", unlockAndPlay);
-      window.removeEventListener("scroll", unlockAndPlay);
-    };
-
-    const opts: AddEventListenerOptions = { passive: true };
-    window.addEventListener("mousemove", unlockAndPlay, opts);
-    window.addEventListener("click", unlockAndPlay, opts);
-    window.addEventListener("pointerdown", unlockAndPlay, opts);
-    window.addEventListener("keydown", unlockAndPlay);
-    window.addEventListener("touchstart", unlockAndPlay, opts);
-    window.addEventListener("wheel", unlockAndPlay, opts);
-    window.addEventListener("scroll", unlockAndPlay, opts);
-
-    return detach;
+    return () => window.clearTimeout(timer);
   }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    const unlock = () => {
+      void playBackgroundMusic();
+    };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    if (musicSrcIndex > 0) {
+      void playBackgroundMusic();
+    }
+  }, [musicSrcIndex, playBackgroundMusic]);
+
+  const goPage = (page: PageName) => {
+    setCurrentPage(page);
+    setMobileOpen(false);
+    scrollTop();
+  };
+
+  const goLaneSection = (id: string) => {
+    setCurrentPage("Lane Phase");
+    setTimeout(() => {
+      laneRefs.current[id]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <audio
         ref={audioRef}
-        src={BACKGROUND_MUSIC_URL}
-        autoPlay
-        muted={!musicUnlocked}
+        src={BACKGROUND_MUSIC_URLS[musicSrcIndex]}
         loop
         preload="auto"
         onPlay={() => setMusicPlaying(true)}
         onPause={() => setMusicPlaying(false)}
+        onCanPlay={() => setMusicBlocked(false)}
+        onError={() => {
+          setMusicPlaying(false);
+          setMusicBlocked(true);
+          setMusicSrcIndex((i) =>
+            i < BACKGROUND_MUSIC_URLS.length - 1 ? i + 1 : i
+          );
+        }}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,0,60,0.14),transparent_32%),radial-gradient(circle_at_80%_20%,rgba(255,0,0,0.08),transparent_22%),linear-gradient(to_bottom,#050505,#0c0c0c,#050505)]" />
+
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,0,60,0.15),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,0,0,0.08),transparent_24%),linear-gradient(to_bottom,#040404,#0b0b0b,#040404)]" />
       <div className="absolute left-1/2 top-0 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-red-600/10 blur-3xl" />
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.22)]">
               <Sword className="h-5 w-5 text-red-400" />
             </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-black uppercase tracking-[0.18em] text-white">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.18em]">
                 Fiora ADC
               </p>
-              <p className="truncate text-xs text-white/55">
-                Niche guide, technical playstyle, no boring top lane
-              </p>
+              <p className="text-xs text-white/55">Hybrid final version</p>
             </div>
           </div>
 
           <nav className="hidden items-center gap-2 xl:flex">
             {pages.map((page) => (
-              <button
+              <PageButton
                 key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`rounded-xl px-3 py-2 text-sm transition ${
-                  currentPage === page
-                    ? "border border-red-500/40 bg-red-500/15 text-red-300 shadow-[0_0_14px_rgba(255,0,60,0.18)]"
-                    : "border border-transparent text-white/70 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {page}
-              </button>
+                label={page}
+                active={currentPage === page}
+                onClick={() => goPage(page)}
+              />
             ))}
           </nav>
 
@@ -1278,14 +1073,10 @@ export default function FioraADCGuideSite() {
           </div>
 
           <button
-            className="rounded-xl border border-red-500/30 p-2 text-white xl:hidden"
-            onClick={() => setMobileOpen((value) => !value)}
+            className="rounded-xl border border-red-500/30 p-2 xl:hidden"
+            onClick={() => setMobileOpen((v) => !v)}
           >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
 
@@ -1301,16 +1092,13 @@ export default function FioraADCGuideSite() {
                 {pages.map((page) => (
                   <button
                     key={page}
-                    onClick={() => {
-                      setCurrentPage(page);
-                      setMobileOpen(false);
-                      scrollTop();
-                    }}
-                    className={`rounded-xl px-4 py-3 text-left ${
+                    onClick={() => goPage(page)}
+                    className={cn(
+                      "rounded-xl px-4 py-3 text-left",
                       currentPage === page
                         ? "bg-red-500/15 text-red-300"
-                        : "bg-white/5 text-white/75"
-                    }`}
+                        : "bg-white/5 text-white/80"
+                    )}
                   >
                     {page}
                   </button>
@@ -1321,17 +1109,19 @@ export default function FioraADCGuideSite() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
+      <main className="relative z-10 mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6 md:py-10">
         {musicBlocked && (
-          <NeonCard className="mb-6 p-4">
+          <NeonCard className="p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">
-                  Background music is ready
+                  Background music was blocked or file not found
                 </p>
                 <p className="text-sm text-white/65">
-                  Le navigateur a bloque l'autoplay avec son. Clique une fois
-                  pour activer la musique.
+                  Click once to start sound. Current source:
+                  <span className="ml-1 text-red-300">
+                    {BACKGROUND_MUSIC_URLS[musicSrcIndex]}
+                  </span>
                 </p>
               </div>
               <button
@@ -1344,736 +1134,419 @@ export default function FioraADCGuideSite() {
           </NeonCard>
         )}
 
-        <div className="mb-8">
-          <NeonCard className="p-4 md:p-5">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-red-300">
-                  Experimental guide
-                </p>
-                <h1 className="text-3xl font-black leading-tight md:text-5xl">
-                  Playing{" "}
-                  <span className="text-red-400 drop-shadow-[0_0_14px_rgba(255,0,60,0.5)]">
-                    Fiora ADC
-                  </span>
-                </h1>
-                <p className="mt-3 max-w-3xl text-white/70">
-                  A dark, aggressive site-guide for players who are tired of
-                  standard top lane, want to try a niche pick, and want to
-                  optimize it as far as possible.
-                </p>
-              </div>
-
-              <div className="w-full md:w-[360px]">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300" />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search a page..."
-                    className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white outline-none placeholder:text-white/35 focus:border-red-400/50"
-                  />
-                </div>
-                {!!query && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {filteredPages.length ? (
-                      filteredPages.map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          className="rounded-xl bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-red-500/10 hover:text-red-300"
-                        >
-                          {page}
-                        </button>
-                      ))
-                    ) : (
-                      <span className="text-sm text-white/50">No results.</span>
-                    )}
-                  </div>
+        <NeonCard className="p-5 md:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-red-300">
+                Fiora ADC Guide
+              </p>
+              <h1 className="mt-2 text-3xl font-black leading-tight md:text-5xl">
+                {currentPage === "Home" ? (
+                  <>
+                    Fiora ADC, structured and aggressive.
+                    <span className="block text-red-400">
+                      No autopilot gameplay.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {currentPage}
+                    <span className="mt-1 block text-base font-medium text-white/70 md:text-lg">
+                      {pageSubtitle[currentPage]}
+                    </span>
+                  </>
                 )}
+              </h1>
+            </div>
+
+            <div className="w-full lg:w-[360px]">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search section"
+                  className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
+                />
               </div>
+              {query && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {filteredPages.length ? (
+                    filteredPages.map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => goPage(page)}
+                        className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+                      >
+                        {page}
+                      </button>
+                    ))
+                  ) : (
+                    <span className="text-sm text-white/50">No result.</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </NeonCard>
+
+        {currentPage === "Home" && (
+          <NeonCard className="overflow-hidden">
+            <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="relative min-h-[360px] overflow-hidden">
+                <img
+                  src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_8.jpg"
+                  alt="Aggressive Fiora"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  onError={(event) => recoverImage(event)}
+                  style={{ objectPosition: "center 26%" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
+                <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
+                  <div className="max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
+                    <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-300">
+                      Draft priority
+                    </p>
+                    <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
+                      ARE YOU THE SUPPORT?
+                      <br />
+                      CLICK HERE BEFORE I REPORT YOU
+                    </h2>
+                    <p className="mt-4 max-w-2xl text-white/75">
+                      Support first read: engage timing, lane sync, wave pressure,
+                      brush control, and when Fiora can truly commit.
+                    </p>
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <button
+                        onClick={() => goPage("Fiora's Support")}
+                        className="rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20"
+                      >
+                        Go to Fiora's Support
+                      </button>
+                      <button
+                        onClick={() => goLaneSection("support")}
+                        className="rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10"
+                      >
+                        Open Lane Phase - Support
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <HomeSupportShowcase />
             </div>
           </NeonCard>
-        </div>
+        )}
 
-        <FioraSpeaker page={currentPage} laneTabId={laneTab} />
+        <NarrationPanel page={currentPage} />
 
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.22 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
           >
             {currentPage === "Home" && (
-              <div className="space-y-8">
-                <div className="grid gap-6 lg:grid-cols-[1fr]">
-                  <NeonCard className="p-6 md:p-8">
-                    <SectionTitle
-                      icon={Flame}
-                      title="Welcome to the Fiora ADC lab"
-                      subtitle="A structure ready to host the full guide later on. The design, navigation, and content blocks are already built for a strong and readable result."
-                    />
-                    <div className="mt-6 grid gap-4 md:grid-cols-3">
-                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-sm text-red-300">Identity</p>
-                        <p className="mt-2 font-semibold text-white">
-                          Black / neon red / white
-                        </p>
-                      </div>
-                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-sm text-red-300">Tone</p>
-                        <p className="mt-2 font-semibold text-white">
-                          Fun, aggressive, carry mindset
-                        </p>
-                      </div>
-                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-sm text-red-300">Positioning</p>
-                        <p className="mt-2 font-semibold text-white">
-                          Niche pick, optimized troll
-                        </p>
-                      </div>
-                    </div>
-                  </NeonCard>
-
-                  <NeonCard className="overflow-hidden">
-                    <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-                      <div className="relative min-h-[320px] overflow-hidden">
-                        <img
-                          src={HERO_CERTIFIED_IMAGE}
-                          alt="Aggressive Fiora"
-                          className="absolute inset-0 h-full w-full object-cover"
-                          style={{ objectPosition: "center 16%" }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
-                        <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
-                          <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-300">
-                            Support diff report
-                          </p>
-                          <h3 className="mt-3 max-w-2xl text-3xl font-black leading-tight text-white md:text-5xl">
-                            ARE YOU THE SUPPORT?
-                            <br />
-                            CLICK HERE BEFORE I REPORT YOU
-                          </h3>
-                          <p className="mt-4 max-w-xl text-white/75">
-                            If you are playing with Fiora bot, you need to
-                            understand immediately what she expects from you:
-                            engage, tempo, vision, dives, and protection on
-                            entry.
-                          </p>
-                          <div className="mt-6">
-                            <button
-                              onClick={() => setCurrentPage("Fiora's Support")}
-                              className="rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-red-200 shadow-[0_0_18px_rgba(255,0,60,0.25)] transition hover:scale-[1.02] hover:bg-red-500/20"
-                            >
-                              Go to Fiora's Support
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="hidden lg:block" />
-                    </div>
-                  </NeonCard>
-                </div>
-
+              <>
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {[
-                    ["11", "pages", "multi-page structure"],
-                    ["100%", "mobile", "clean responsive layout"],
-                    ["UI", "gaming", "animations + neon"],
-                    ["Guide", "evolving", "content still being expanded"],
-                  ].map(([value, label, caption]) => (
-                    <NeonCard key={label} className="p-5">
-                      <p className="text-3xl font-black text-red-400">
-                        {value}
-                      </p>
-                      <p className="mt-1 text-lg font-semibold text-white">
-                        {label}
-                      </p>
-                      <p className="mt-2 text-sm text-white/60">{caption}</p>
-                    </NeonCard>
-                  ))}
+                  <StatCard
+                    label="Identity"
+                    value="Black / neon red / white"
+                    text="Aggressive visual language with strong contrast and draft readability."
+                  />
+                  <StatCard
+                    label="Tone"
+                    value="Carry mindset"
+                    text="Direct, niche, practical, and built around pressure instead of autopilot."
+                  />
+                  <StatCard
+                    label="Positioning"
+                    value="Technical pocket pick"
+                    text="Not random troll value. The guide frames it as a real structured strategy."
+                  />
+                  <StatCard
+                    label="Use"
+                    value="Fast draft read"
+                    text="Support-first entry points make the site useful before lane even starts."
+                  />
                 </div>
-              </div>
+
+                <NeonCard className="p-6 md:p-8">
+                  <SectionTitle
+                    icon={Flame}
+                    title="Welcome to the Fiora ADC lab"
+                    subtitle="This version keeps the strongest personality cues but organizes them like a real final site: cleaner hierarchy, clearer pages, and faster access to what matters in draft."
+                  />
+                  <div className="mt-6 grid gap-4 md:grid-cols-3">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-sm text-red-300">Support-first</p>
+                      <p className="mt-2 text-white/75">
+                        The most important lane partner information is pushed forward immediately.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-sm text-red-300">Guide structure</p>
+                      <p className="mt-2 text-white/75">
+                        Runes, build, lane phase, support, mid-game, mechanics, and video sections all share one visual system.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-sm text-red-300">Personality</p>
+                      <p className="mt-2 text-white/75">
+                        The site still feels like Fiora: sharp, confident, and slightly disrespectful in the right way.
+                      </p>
+                    </div>
+                  </div>
+                </NeonCard>
+              </>
             )}
 
             {currentPage === "Why Fiora ADC Works" && (
-              <div className="space-y-6">
+              <>
                 <SectionTitle
                   icon={Target}
                   title="Why Fiora ADC Works"
-                  subtitle="This page is here to defend the concept: why the pick is surprising, where it works, and why it is more than empty troll value."
+                  subtitle="Same concept, cleaner presentation: fewer walls of text, more cards that are readable during draft or quick review."
                 />
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <NeonCard className="space-y-4 p-6">
-                    <h3 className="text-xl font-bold text-white">
-                      General idea
-                    </h3>
-                    <p className="text-white/75">
-                      Fiora ADC relies on surprise, duel pressure, punishing
-                      spacing mistakes, and the fact that many bot lane players
-                      do not know how to play correctly against her.
-                    </p>
-                    <p className="text-white/75">
-                      It is not a stable pick in every context, but it is a
-                      technical choice for players who want to break away from
-                      the standard pattern, play more aggressively, and turn
-                      every enemy mistake into an all-in opening.
-                    </p>
-                  </NeonCard>
-                  <ImagePlaceholder label="Secondary illustration / diagram explaining the identity of the pick" />
-                </div>
-              </div>
-            )}
-
-            {currentPage === "Runes" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Zap}
-                  title="Runes"
-                  subtitle="Two main pages depending on lane needs: one aggressive setup to blow up fragile ADCs fast, and one more mobile setup for hard-to-reach or awkward lanes."
-                />
-
-                <NeonCard className="overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-[640px] w-full text-left">
-                      <thead className="bg-red-500/10">
-                        <tr>
-                          {["Page", "Keystone", "General idea"].map((head) => (
-                            <th
-                              key={head}
-                              className="px-5 py-4 font-semibold text-red-300"
-                            >
-                              {head}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {runeRows.map((row, index) => (
-                          <tr key={index} className="border-t border-white/10">
-                            {row.map((cell, cellIndex) => (
-                              <td
-                                key={cellIndex}
-                                className="px-5 py-4 text-white/75"
-                              >
-                                {cell}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </NeonCard>
-
-                <div className="grid gap-6 xl:grid-cols-2">
-                  <NeonCard className="p-6 md:p-7">
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2">
-                        <Target className="h-5 w-5 text-red-400" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">
-                          PTA Page
-                        </h3>
-                        <p className="text-sm text-white/60">
-                          The page for hitting hard and fast
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-5 text-white/80">
-                      <ImageStrip
-                        title="Main runes"
-                        items={runeImageGroups.pta}
-                        iconSize="h-16 w-16"
-                      />
-                      <div>
-                        <p className="mb-2 font-semibold text-red-300">
-                          Primary tree: Precision
-                        </p>
-                        <ul className="list-disc space-y-2 pl-5 text-white/75">
-                          <li>
-                            <span className="font-medium text-white">
-                              Press the Attack
-                            </span>
-                            : excellent on Fiora ADC for blowing up fragile
-                            targets in short trades.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Triumph
-                            </span>
-                            : very useful in bot lane, where you are almost
-                            always fighting at least two opponents.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Legend: Alacrity
-                            </span>
-                            : attack speed remains valuable for proccing vitals
-                            more smoothly and speeding up trades.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Last Stand
-                            </span>
-                            : perfect on a champion that often turns trades
-                            while playing on the edge.
-                          </li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="mb-2 font-semibold text-red-300">
-                          Secondary tree: Inspiration
-                        </p>
-                        <ul className="list-disc space-y-2 pl-5 text-white/75">
-                          <li>
-                            <span className="font-medium text-white">
-                              Biscuit Delivery
-                            </span>
-                            : helps you survive lane into poke.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Jack of All Trades
-                            </span>
-                            : adds long-term value on an unconventional pick
-                            like Fiora ADC.
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="rounded-2xl border border-red-500/20 bg-black/30 p-4">
-                        <p className="mb-2 font-semibold text-white">
-                          When should you run it?
-                        </p>
-                        <p className="text-white/75">
-                          When you can reach the enemy ADC consistently, when
-                          the lane is punishable in short trades, or when you
-                          want to play very aggressively the moment you find an
-                          opening.
-                        </p>
-                      </div>
-                      <div className="rounded-2xl border border-red-500/20 bg-black/30 p-4">
-                        <p className="mb-2 font-semibold text-white">
-                          Mini runes
-                        </p>
-                        <ul className="list-disc space-y-2 pl-5 text-white/75">
-                          <li>
-                            <span className="font-medium text-white">
-                              Adaptive force
-                            </span>
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Adaptive force
-                            </span>
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">Heal</span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </NeonCard>
-
-                  <NeonCard className="p-6 md:p-7">
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2">
-                        <Flame className="h-5 w-5 text-red-400" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">
-                          Phase Rush Page
-                        </h3>
-                        <p className="text-sm text-white/60">
-                          The page to stick, disengage, and go again
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-5 text-white/80">
-                      <ImageStrip
-                        title="Main runes"
-                        items={runeImageGroups.phaseRush}
-                        iconSize="h-16 w-16"
-                      />
-                      <div>
-                        <p className="mb-2 font-semibold text-red-300">
-                          Primary tree: Sorcery
-                        </p>
-                        <ul className="list-disc space-y-2 pl-5 text-white/75">
-                          <li>
-                            <span className="font-medium text-white">
-                              Phase Rush
-                            </span>
-                            : useful for gap closing on mobile ADCs like Ezreal
-                            or exiting cleanly after a short trade.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Nimbus Cloak
-                            </span>
-                            : gives even more speed during engage windows.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Absolute Focus
-                            </span>
-                            : keeps you threatening while you stay healthy.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Gathering Storm
-                            </span>
-                            : gives you real threat if the game drags on.
-                          </li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="mb-2 font-semibold text-red-300">
-                          Secondary tree: Precision
-                        </p>
-                        <ul className="list-disc space-y-2 pl-5 text-white/75">
-                          <li>
-                            <span className="font-medium text-white">
-                              Legend: Alacrity
-                            </span>
-                            : still very important for Fiora’s overall fluidity.
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Last Stand
-                            </span>
-                            : keeps strong turnaround potential in extended
-                            fights.
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="rounded-2xl border border-red-500/20 bg-black/30 p-4">
-                        <p className="mb-2 font-semibold text-white">
-                          Mini runes
-                        </p>
-                        <ul className="list-disc space-y-2 pl-5 text-white/75">
-                          <li>
-                            <span className="font-medium text-white">
-                              Adaptive force
-                            </span>
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Attack speed
-                            </span>
-                          </li>
-                          <li>
-                            <span className="font-medium text-white">
-                              Scaling heal
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </NeonCard>
-                </div>
-              </div>
-            )}
-
-            {currentPage === "Build" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Shield}
-                  title="Build"
-                  subtitle="A fixed base around Tiamat and Ravenous Hydra, then several branches depending on game state, confidence level, and the kind of threats on the enemy side."
-                />
-                <div className="grid gap-6 lg:grid-cols-3">
-                  <ImageStrip
-                    title="Core"
-                    items={buildImageGroups.core}
-                    iconSize="h-20 w-20"
-                  />
-                  <ImageStrip
-                    title="Offensive options"
-                    items={buildImageGroups.options}
-                    iconSize="h-20 w-20"
-                  />
-                  <ImageStrip
-                    title="Defense / late build"
-                    items={buildImageGroups.defense}
-                    iconSize="h-20 w-20"
-                  />
-                </div>
 
                 <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                  <NeonCard className="overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="min-w-[620px] w-full text-left">
-                        <thead className="bg-red-500/10">
-                          <tr>
-                            {["Step", "Choice", "Comments"].map((head) => (
-                              <th
-                                key={head}
-                                className="px-5 py-4 font-semibold text-red-300"
-                              >
-                                {head}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {buildRows.map((row, index) => (
-                            <tr
-                              key={index}
-                              className="border-t border-white/10"
-                            >
-                              {row.map((cell, cellIndex) => (
-                                <td
-                                  key={cellIndex}
-                                  className="px-5 py-4 text-white/75"
-                                >
-                                  {cell}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  <NeonCard className="p-6">
+                    <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
+                      Core concept
                     </div>
+                    <h3 className="text-2xl font-black text-white md:text-3xl">
+                      You win by forcing bad spacing and panic decisions
+                    </h3>
+                    <p className="mt-4 text-white/75">
+                      Fiora ADC is not standard marksman flow. The pick works when you control timing, punish wrong movement, and convert enemy missteps into short, committed all-ins.
+                    </p>
+                    <p className="mt-4 text-white/75">
+                      It is a technical choice, not a universal blind answer. But in the right structure, it creates discomfort that many bot lanes are not prepared to answer correctly.
+                    </p>
                   </NeonCard>
-                  <ImagePlaceholder
-                    label="Build path visual / purchase order / spike explanation"
-                    tall
-                  />
+
+                  <NeonCard className="overflow-hidden p-3">
+                    <img
+                      src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg"
+                      alt="Fiora visual"
+                      className="h-[260px] w-full rounded-2xl border border-red-500/25 object-cover"
+                      onError={(event) => recoverImage(event)}
+                      style={{ objectPosition: "center 26%" }}
+                    />
+                  </NeonCard>
                 </div>
 
-                <div className="grid gap-6 xl:grid-cols-3">
-                  <NeonCard className="p-6">
-                    <p className="mb-3 font-semibold text-red-300">
-                      Snowball option
-                    </p>
-                    <h3 className="mb-3 text-xl font-bold text-white">
-                      Ravenous Hydra → Voltaic Cyclosword
-                    </h3>
-                    <p className="text-white/75">
-                      If you are confident you can kill quickly without getting
-                      instantly cut down, this option heavily boosts your burst.
-                    </p>
-                  </NeonCard>
-                  <NeonCard className="p-6">
-                    <p className="mb-3 font-semibold text-red-300">
-                      Stable option
-                    </p>
-                    <h3 className="mb-3 text-xl font-bold text-white">
-                      Ravenous Hydra → Trinity Force
-                    </h3>
-                    <p className="text-white/75">
-                      More stability, more HP, and a less fragile profile if the
-                      enemy team is already threatening.
-                    </p>
-                  </NeonCard>
-                  <NeonCard className="p-6">
-                    <p className="mb-3 font-semibold text-red-300">
-                      Safer option
-                    </p>
-                    <h3 className="mb-3 text-xl font-bold text-white">
-                      Ravenous Hydra → Eclipse
-                    </h3>
-                    <p className="text-white/75">
-                      A safer path with a useful shield and real burst threat
-                      without relying entirely on one early all-in.
-                    </p>
-                  </NeonCard>
-                </div>
-              </div>
-            )}
-
-            {currentPage === "Skill Order" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Crosshair}
-                  title="Skill Order"
-                  subtitle="A section ready for max order, variations, and the reasoning behind each choice."
-                />
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
                   {[
-                    [
-                      "Levels 1-3",
-                      "Placeholder for the first levels and early skill logic.",
-                    ],
-                    [
-                      "Main max order",
-                      "Placeholder for the main order to max based on your game plan.",
-                    ],
-                    [
-                      "Variations",
-                      "Placeholder for adjustments in hard lanes or aggressive lanes.",
-                    ],
+                    ["Surprise factor", "Most bot lanes do not know Fiora ADC limits and overtrade at the wrong moments."],
+                    ["Duel pressure", "One clean opening can flip lane state even when the matchup looked uncomfortable on paper."],
+                    ["Execution edge", "Riposte timing plus support sync creates disproportionate value off one enemy mistake."],
+                    ["Snowball conversion", "First lead gives wave tempo, objective setup, and much freer lane movement."],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
-                      <h3 className="text-lg font-bold text-white">{title}</h3>
-                      <p className="mt-3 text-white/70">{text}</p>
+                      <p className="text-lg font-bold text-white">{title}</p>
+                      <p className="mt-2 text-white/70">{text}</p>
                     </NeonCard>
                   ))}
                 </div>
-              </div>
+              </>
+            )}
+
+            {currentPage === "Runes" && (
+              <>
+                <SectionTitle
+                  icon={Zap}
+                  title="Runes"
+                  subtitle="Explained setup choices with icon rows, practical logic, and clean side-by-side comparison."
+                />
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <NeonCard className="space-y-4 p-5">
+                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PTA PAGE</p>
+                    <IconRow icons={runeIcons.pta} />
+                    <div className="space-y-2 text-white/75">
+                      <p><span className="font-semibold text-white">Why PTA:</span> burst profile, short trades, and better punishment against fragile ADCs.</p>
+                      <p><span className="font-semibold text-white">Secondary logic:</span> Biscuits and Jack help survive lane and add long-term value in awkward matchups.</p>
+                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Adaptive Force, Heal.</p>
+                    </div>
+                  </NeonCard>
+
+                  <NeonCard className="space-y-4 p-5">
+                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PHASE RUSH PAGE</p>
+                    <IconRow icons={runeIcons.phase} />
+                    <div className="space-y-2 text-white/75">
+                      <p><span className="font-semibold text-white">Why Phase Rush:</span> easier gap close, cleaner disengage, and better access against mobile or hard-to-reach lanes.</p>
+                      <p><span className="font-semibold text-white">Damage profile:</span> Absolute Focus and Last Stand keep the page threatening at different HP states.</p>
+                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Attack Speed, Scaling Heal.</p>
+                    </div>
+                  </NeonCard>
+                </div>
+              </>
+            )}
+
+            {currentPage === "Build" && (
+              <>
+                <SectionTitle
+                  icon={Shield}
+                  title="Build"
+                  subtitle="Complete routes with icons and explicit conditions, but still quick to scan."
+                />
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  <ItemPath title="Core route" items={[itemIcons.tiamat, itemIcons.hydra]} text="Rush Tiamat then Ravenous Hydra for lane comfort, sustain, wave control, and faster map tempo." />
+                  <ItemPath title="Snowball route" items={[itemIcons.hydra, itemIcons.cyclosword]} text="Take this when you can reach target reliably and kill before getting burst down." />
+                  <ItemPath title="Stable route" items={[itemIcons.hydra, itemIcons.triforce]} text="A steadier profile when enemy damage makes pure glass-cannon play too risky." />
+                  <ItemPath title="Safe burst route" items={[itemIcons.hydra, itemIcons.eclipse]} text="Shield plus burst when you need safer entries and a less greedy second item." />
+                  <ItemPath title="Defensive adaptation" items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]} text="DD for heavy AD, Maw for AP threat, Iceborn as a niche durability option." />
+                  <ItemPath title="Late finish" items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]} text="Shojin for pressure, GA for safety, BT for final damage and sustain finish." />
+                </div>
+              </>
+            )}
+
+            {currentPage === "Skill Order" && (
+              <>
+                <SectionTitle icon={Crosshair} title="Skill Order" subtitle="Current practical baseline with a clearer final-site presentation." />
+                <div className="grid gap-4 md:grid-cols-3">
+                  {[
+                    ["Level 1", "Q for access, repositioning, and creating your first real angle."],
+                    ["Level 2", "E for burst timing, especially when PTA trade windows already look possible."],
+                    ["Level 3", "W for Riposte control, CC answer, and far safer commitment."],
+                  ].map(([title, text]) => (
+                    <NeonCard key={title} className="p-5">
+                      <p className="text-lg font-bold text-white">{title}</p>
+                      <p className="mt-2 text-white/70">{text}</p>
+                    </NeonCard>
+                  ))}
+                </div>
+              </>
             )}
 
             {currentPage === "Matchups" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Sword}
-                  title="Matchups"
-                  subtitle="Readable, stylish cards that are easy to expand later with detailed opinions on each ADC or bot lane duo."
-                />
+              <>
+                <SectionTitle icon={Sword} title="Matchups" subtitle="Readable matchup cards with practical notes and stronger visual framing." />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {matchupData.map((m) => (
-                    <motion.div key={m.name} whileHover={{ y: -4 }}>
-                      <NeonCard className="h-full overflow-hidden p-4">
-                        <img
-                          src={m.image}
-                          alt={m.name}
-                          className="h-44 w-full rounded-2xl border border-red-500/20 object-cover"
-                          style={{ objectPosition: m.position || "center 20%" }}
-                        />
-                        <div className="mt-4 flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-xl font-bold text-white">
-                              {m.name}
-                            </p>
-                            <p className="mt-1 text-sm text-red-300">
-                              {m.level}
-                            </p>
-                          </div>
-                          <span className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-xs text-red-200">
-                            Danger {m.danger}
-                          </span>
-                        </div>
-                        <p className="mt-4 text-white/70">{m.summary}</p>
-                      </NeonCard>
-                    </motion.div>
+                  {matchups.map((m) => (
+                    <NeonCard key={m.name} className="overflow-hidden p-4 transition hover:-translate-y-1">
+                      <img
+                        src={m.image}
+                        alt={m.name}
+                        className="h-44 w-full rounded-2xl border border-red-500/25 object-cover"
+                        onError={(event) => recoverImage(event)}
+                        style={{ objectPosition: m.position }}
+                      />
+                      <div className="mt-4 flex items-center justify-between">
+                        <p className="text-xl font-bold text-white">{m.name}</p>
+                        <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">{m.danger}</span>
+                      </div>
+                      <p className="mt-1 text-sm text-red-300">{m.level}</p>
+                      <p className="mt-3 text-white/70">{m.explanation}</p>
+                    </NeonCard>
                   ))}
                 </div>
-              </div>
+              </>
             )}
 
             {currentPage === "Lane Phase" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Target}
-                  title="Lane Phase"
-                  subtitle="Tabs are here to separate reading: lane timings, bushes, 2v2s, anti-range play, and matchup trends."
-                />
+              <>
+                <SectionTitle icon={Target} title="Lane Phase" subtitle="The best compromise: fast jump buttons plus full sections visible on scroll, without forcing tab-switching to read the guide." />
+
                 <div className="flex flex-wrap gap-2">
-                  {laneTabs.map((tab) => (
+                  {laneSections.map((section) => (
                     <button
-                      key={tab.id}
-                      onClick={() => setLaneTab(tab.id)}
-                      className={`rounded-xl border px-4 py-2 transition ${
-                        laneTab === tab.id
-                          ? "border-red-500/40 bg-red-500/15 text-red-300"
-                          : "border-white/10 bg-white/5 text-white/70 hover:text-white"
-                      }`}
+                      key={section.id}
+                      onClick={() => laneRefs.current[section.id]?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                      className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/75 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
                     >
-                      {tab.label}
+                      {section.title}
                     </button>
                   ))}
                 </div>
-                <NeonCard className="p-6">
-                  <RichTextBlock text={activeLaneTab.text} />
-                </NeonCard>
-              </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <StatCard label="Primary goal" value="Preserve HP" text="Do not waste health before the real engage window exists." />
+                  <StatCard label="First spikes" value="Level 2 and 3" text="Q/E pressure first, Riposte confidence second." />
+                  <StatCard label="Vision rule" value="Ward first" text="Control the lane space before converting into aggression." />
+                </div>
+
+                <div className="space-y-4">
+                  {laneSections.map((section) => (
+                    <NeonCard key={section.id} className="p-6">
+                      <div
+                        ref={(el) => {
+                          laneRefs.current[section.id] = el;
+                        }}
+                        className="scroll-mt-28"
+                      >
+                        <p className="text-xs uppercase tracking-[0.2em] text-red-300">Quick read</p>
+                        <h3 className="mt-2 text-2xl font-black text-white">{section.title}</h3>
+                        <p className="mt-3 text-white/70">{section.summary}</p>
+                        <div className="mt-5 grid gap-4 md:grid-cols-3">
+                          {section.points.map((point) => (
+                            <div key={point} className="rounded-2xl border border-red-500/20 bg-black/35 p-4 text-white/75">
+                              {point}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </NeonCard>
+                  ))}
+                </div>
+              </>
             )}
 
             {currentPage === "Fiora's Support" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={HeartHandshake}
-                  title="Fiora's Support"
-                  subtitle="The best support profiles to pair with Fiora ADC: engage, dives, protection, and scaling depending on the pace you want to set in lane."
-                />
+              <>
+                <SectionTitle icon={HeartHandshake} title="Fiora's Support" subtitle="Global support logic, profile details, and direct connection to lane-phase reading." />
+
+                <NeonCard className="p-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-red-300">Mandatory read</p>
+                  <h3 className="mt-2 text-2xl font-black text-white">Supports must read Lane Phase too</h3>
+                  <p className="mt-3 max-w-3xl text-white/75">
+                    This page explains support priorities, but lane execution details still live in Lane Phase. Read both to avoid desynced engages and fake all-ins.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button onClick={() => goLaneSection("early")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Early</button>
+                    <button onClick={() => goLaneSection("wave")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Wave</button>
+                    <button onClick={() => goLaneSection("support")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Support</button>
+                  </div>
+                </NeonCard>
 
                 <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {supportShowcase.map((support) => (
-                    <NeonCard
-                      key={support.name}
-                      className="flex flex-col items-center justify-end p-4 text-center"
-                    >
+                  {supportProfiles.map((s) => (
+                    <NeonCard key={s.name} className="p-4">
                       <img
-                        src={support.image}
-                        alt={support.name}
-                        className={`w-full ${support.size} rounded-3xl border border-red-500/25 object-cover`}
-                        style={{
-                          objectPosition: support.position || "center 20%",
-                        }}
+                        src={s.image}
+                        alt={s.name}
+                        className={`w-full ${s.size} rounded-3xl border border-red-500/25 object-cover`}
+                        onError={(event) => recoverImage(event)}
+                        style={{ objectPosition: s.position }}
                       />
-                      <p className="mt-4 text-xl font-bold text-white">
-                        {support.name}
-                      </p>
-                      <p className="mt-1 text-sm text-red-300">
-                        {support.role}
-                      </p>
+                      <p className="mt-3 text-xl font-bold text-white">{s.name}</p>
+                      <p className="text-sm text-red-300">{s.role}</p>
+                      <p className="mt-3 text-white/75">{s.text}</p>
                     </NeonCard>
                   ))}
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-3">
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">
-                      Engage / hook
-                    </p>
-                    <p className="text-white/75">
-                      Engage supports like{" "}
-                      <span className="font-medium text-white">Alistar</span>,
-                      or hook supports like{" "}
-                      <span className="font-medium text-white">Nautilus</span>,{" "}
-                      <span className="font-medium text-white">Pyke</span>, or{" "}
-                      <span className="font-medium text-white">Blitzcrank</span>
-                      , are especially strong with Fiora ADC.
-                    </p>
+                    <p className="mb-2 font-semibold text-red-300">Engage / hook</p>
+                    <p className="text-white/75">Supports that create direct access are premium, because Fiora wins hardest when the target cannot freely kite the first commit.</p>
                   </NeonCard>
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">
-                      Dives and constant pressure
-                    </p>
-                    <p className="text-white/75">
-                      Once{" "}
-                      <span className="font-medium text-white">
-                        Ravenous Hydra
-                      </span>{" "}
-                      is completed, Fiora becomes much more comfortable thanks
-                      to sustain. From that point onward, the support can engage
-                      much more often.
-                    </p>
+                    <p className="mb-2 font-semibold text-red-300">Hydra timing</p>
+                    <p className="text-white/75">Once Ravenous Hydra is completed, repeated pressure becomes easier because Fiora can sustain, reset, and re-enter faster.</p>
                   </NeonCard>
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">
-                      Yuumi and protective supports
-                    </p>
-                    <p className="text-white/75">
-                      <span className="font-medium text-white">Yuumi</span>{" "}
-                      almost deserves her own category, because she gives Fiora
-                      healing, shielding, movement speed, attack speed, and much
-                      more comfort when engaging or chasing.
-                    </p>
+                    <p className="mb-2 font-semibold text-red-300">Protective supports</p>
+                    <p className="text-white/75">They still work when the goal is to survive lane, keep HP high, and unlock later spikes with cleaner entries.</p>
                   </NeonCard>
                 </div>
 
-                <NeonCard className="p-5">
-                  <p className="mb-2 font-semibold text-white">In short</p>
-                  <p className="text-white/75">
-                    Fiora ADC usually prefers supports that can create the
-                    opening, but she can also work with more protective supports
-                    if the goal is mainly to survive lane until her first real
-                    spike.
-                  </p>
-                </NeonCard>
-
-                <SectionTitle
-                  icon={PlayCircle}
-                  title="Support Clips"
-                  subtitle="Concrete examples directly added to the Fiora support section."
-                />
+                <SectionTitle icon={PlayCircle} title="Support Clips" subtitle="Integrated examples for support behavior around Fiora ADC." />
                 <div className="grid gap-4 md:grid-cols-2">
                   {supportClips.map((clip) => (
                     <NeonCard key={clip.url} className="overflow-hidden p-4">
@@ -2087,89 +1560,79 @@ export default function FioraADCGuideSite() {
                           referrerPolicy="strict-origin-when-cross-origin"
                         />
                       </div>
-                      <div className="mt-4">
+                      <div className="mt-3">
                         <p className="font-semibold text-white">{clip.title}</p>
-                        <p className="mt-2 text-sm text-white/65">
-                          {clip.description}
-                        </p>
-                        <a
-                          href={clip.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200 hover:bg-red-500/15"
-                        >
+                        <p className="mt-1 text-sm text-white/65">{clip.description}</p>
+                        <a href={clip.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
                           Open on YouTube
                         </a>
                       </div>
                     </NeonCard>
                   ))}
                 </div>
-              </div>
+              </>
             )}
 
             {currentPage === "Mid/Late Game" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Flame}
-                  title="Mid / Late Game"
-                  subtitle="This page will explain the transition out of lane, side pressure, fights, and the mistakes to avoid."
-                />
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <NeonCard className="p-6">
-                    <h3 className="text-xl font-bold">Game plan</h3>
-                    <p className="mt-3 text-white/75">
-                      Placeholder: this is where we will explain whether Fiora
-                      ADC should split, group, flank, or stall depending on team
-                      comp and game state.
-                    </p>
-                  </NeonCard>
-                  <ImagePlaceholder label="Macro diagram / priorities / vision and rotations" />
-                </div>
-              </div>
-            )}
-
-            {currentPage === "Mechanical Tips" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={Zap}
-                  title="Mechanical Tips"
-                  subtitle="A collapsible section built for concrete tips that are fast to read and enjoyable to browse."
-                />
-                <div className="space-y-3">
-                  {mechanics.map((item) => (
-                    <AccordionItem
-                      key={item.title}
-                      title={item.title}
-                      content={item.content}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {currentPage === "Videos / Clips" && (
-              <div className="space-y-6">
-                <SectionTitle
-                  icon={PlayCircle}
-                  title="Videos / Clips"
-                  subtitle="A zone planned for later video embeds, clips, mechanical demos, or montages."
-                />
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {[1, 2, 3].map((n) => (
-                    <NeonCard key={n} className="p-4">
-                      <ImagePlaceholder label={`Video thumbnail / clip ${n}`} />
-                      <div className="mt-4">
-                        <p className="font-semibold text-white">
-                          Video placeholder {n}
-                        </p>
-                        <p className="mt-2 text-sm text-white/65">
-                          Space for a clip, a guide, or a combo demonstration.
-                        </p>
-                      </div>
+              <>
+                <SectionTitle icon={Flame} title="Mid / Late Game" subtitle="Macro priorities in cards, without another giant paragraph block." />
+                <div className="grid gap-4 md:grid-cols-3">
+                  {[
+                    ["Pick one plan", "Split, flank, pick, or group. Do not mix all plans at once."],
+                    ["Entry timing", "Fight after vision and cooldown checks, not just because enemies are visible."],
+                    ["Conversion", "Every successful fight should become objective pressure, tempo, or map space."],
+                  ].map(([title, text]) => (
+                    <NeonCard key={title} className="p-5">
+                      <p className="font-bold text-white">{title}</p>
+                      <p className="mt-2 text-white/70">{text}</p>
                     </NeonCard>
                   ))}
                 </div>
-              </div>
+                <NeonCard className="p-6">
+                  <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-red-300">
+                    Add later <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
+                  </div>
+                </NeonCard>
+              </>
+            )}
+
+            {currentPage === "Mechanical Tips" && (
+              <>
+                <SectionTitle icon={Zap} title="Mechanical Tips" subtitle="Short tactical notes instead of bloated explanation blocks." />
+                <div className="grid gap-4 md:grid-cols-2">
+                  {mechanics.map((item) => (
+                    <NeonCard key={item.title} className="p-5">
+                      <p className="font-bold text-white">{item.title}</p>
+                      <p className="mt-2 text-white/70">{item.content}</p>
+                    </NeonCard>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {currentPage === "Videos / Clips" && (
+              <>
+                <SectionTitle icon={PlayCircle} title="Videos / Clips" subtitle="Visual section ready for future highlight and teaching clip expansion." />
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {[
+                    { title: "Duel highlight", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg", pos: "center 24%" },
+                    { title: "Timing sample", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg", pos: "center 24%" },
+                    { title: "Carry sequence", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_7.jpg", pos: "center 25%" },
+                  ].map((v) => (
+                    <NeonCard key={v.title} className="overflow-hidden p-4">
+                      <img
+                        src={v.image}
+                        alt={v.title}
+                        className="h-56 w-full rounded-2xl border border-red-500/25 object-cover"
+                        onError={(event) => recoverImage(event)}
+                        style={{ objectPosition: v.pos }}
+                      />
+                      <p className="mt-3 font-semibold text-white">{v.title}</p>
+                      <p className="mt-1 text-sm text-white/65">Reserved for your next clip and explanation block.</p>
+                    </NeonCard>
+                  ))}
+                </div>
+              </>
             )}
           </motion.div>
         </AnimatePresence>
@@ -2181,11 +1644,7 @@ export default function FioraADCGuideSite() {
           className="text-red-300"
           aria-label="Toggle background music"
         >
-          {musicPlaying ? (
-            <Pause className="h-5 w-5" />
-          ) : (
-            <Music2 className="h-5 w-5" />
-          )}
+          {musicPlaying ? <Pause className="h-5 w-5" /> : <Music2 className="h-5 w-5" />}
         </button>
 
         <input
@@ -2201,7 +1660,7 @@ export default function FioraADCGuideSite() {
 
       <button
         onClick={scrollTop}
-        className="fixed bottom-5 right-5 z-50 rounded-full border border-red-500/40 bg-black/70 p-3 text-red-300 shadow-[0_0_18px_rgba(255,0,60,0.25)] transition hover:scale-105"
+        className="fixed bottom-5 right-5 z-50 rounded-full border border-red-500/40 bg-black/70 p-3 text-red-300 shadow-[0_0_18px_rgba(255,0,60,0.25)]"
         aria-label="Back to top"
       >
         <ArrowUp className="h-5 w-5" />
