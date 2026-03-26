@@ -1254,8 +1254,8 @@ export default function App() {
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   <StatCard
                     label="Identity"
-                    value="Black / neon red / white"
-                    text="Aggressive visual language with strong contrast and draft readability."
+                    value="Jewish Friendly ???"
+                    text="Aggressive, smoking, extermination"
                   />
                   <StatCard
                     label="Tone"
