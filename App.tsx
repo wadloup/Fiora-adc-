@@ -609,7 +609,7 @@ function HomeSupportShowcase() {
               src={HERO_CERTIFIED_IMAGE}
               alt="Certified badge"
               className="h-24 w-24 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
-              onError={(event) => recoverImage(event, netanyahu.png.png)}
+              onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
             />
             <div>
               <p className="text-lg font-black uppercase tracking-[0.08em] text-white">
