@@ -50,7 +50,7 @@ const BACKGROUND_MUSIC_URLS = [
   "/audio/Jace June - Come Home (Sped Up).mp3",
 ] as const;
 
-const HERO_CERTIFIED_IMAGE = "/netanyahu.png";
+const HERO_CERTIFIED_IMAGE = "/netanyahu.png.png";
 
 type NarrationEntry = {
   image: string;
@@ -609,7 +609,7 @@ function HomeSupportShowcase() {
               src={HERO_CERTIFIED_IMAGE}
               alt="Certified badge"
               className="h-24 w-24 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
-              onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
+              onError={(event) => recoverImage(event, netanyahu.png.png)}
             />
             <div>
               <p className="text-lg font-black uppercase tracking-[0.08em] text-white">
