@@ -50,7 +50,7 @@ const BACKGROUND_MUSIC_URLS = [
   "/audio/Jace June - Come Home (Sped Up).mp3",
 ] as const;
 
-const HERO_CERTIFIED_IMAGE = "/netanyahu.png.png";
+const HERO_CERTIFIED_IMAGE = "/netanyahu.png";
 
 type NarrationEntry = {
   image: string;
