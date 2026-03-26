@@ -1308,7 +1308,7 @@ export default function App() {
               <>
                 <SectionTitle
                   icon={Target}
-                  title="Why Fiora ADC Works"
+                  title="Why Fiora ADC Works ?"
                   subtitle="Same concept, cleaner presentation: fewer walls of text, more cards that are readable during draft or quick review."
                 />
 
