@@ -15,6 +15,8 @@ import {
   Flame,
   HeartHandshake,
   Menu,
+  Music2,
+  Pause,
   PlayCircle,
   Search,
   Shield,
@@ -41,6 +43,14 @@ const pages = [
 ] as const;
 
 type PageName = (typeof pages)[number];
+
+const BACKGROUND_MUSIC_URLS = [
+  "/audio/come-home-sped-up.mp3",
+  "/audio/Jace%20June%20-%20Come%20Home%20(Sped%20Up).mp3",
+  "/audio/Jace June - Come Home (Sped Up).mp3",
+] as const;
+
+const HERO_CERTIFIED_IMAGE = "/netanyahu.png";
 
 type NarrationEntry = {
   image: string;
@@ -289,8 +299,6 @@ const itemIcons = {
   ga: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3026.png",
   bt: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3072.png",
 };
-
-const HERO_CERTIFIED_IMAGE = "data:image/png;base64,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";
 
 const supportProfiles = [
   {
@@ -572,57 +580,12 @@ function ItemPath({
               className="h-12 w-12 rounded-lg border border-red-500/30 bg-black/40 object-cover"
               onError={(event) => recoverAssetImage(event, DEFAULT_ITEM_ICON)}
             />
-            {i < items.length - 1 ? (
-              <span className="text-red-300">→</span>
-            ) : null}
+            {i < items.length - 1 ? <span className="text-red-300">→</span> : null}
           </div>
         ))}
       </div>
       <p className="mt-3 text-white/75">{text}</p>
     </NeonCard>
-  );
-}
-
-
-  return (
-    <div className="relative hidden h-full min-h-[360px] overflow-hidden lg:block">
-      <div className="absolute inset-0 bg-gradient-to-l from-red-500/5 via-transparent to-transparent" />
-
-      {swords.map((sword, index) => (
-        <motion.div
-          key={index}
-          className="absolute right-4 origin-right"
-          style={{ top: sword.top, width: sword.width }}
-          initial={{ opacity: 0, x: 22 }}
-          animate={{
-            opacity: [sword.opacity * 0.72, sword.opacity, sword.opacity * 0.72],
-            x: [0, sword.driftX, 0],
-            y: [0, sword.driftY, 0],
-            rotate: [sword.rotate, sword.rotate - 1.4, sword.rotate],
-            scale: [sword.scale, sword.scale * 1.018, sword.scale],
-          }}
-          transition={{
-            duration: 2.8,
-            delay: sword.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <div className="relative h-[34px]">
-            <div className="absolute right-0 top-1/2 h-[3px] w-[79%] -translate-y-1/2 rounded-full bg-gradient-to-l from-[#f7f5f7] via-[#cdc1c8] to-[#75656f] shadow-[0_0_10px_rgba(255,255,255,0.16)]" />
-            <div className="absolute right-[76.5%] top-1/2 h-[7px] w-[8.5%] -translate-y-1/2 rounded-full bg-gradient-to-r from-[#7e6d76] via-[#d8cdd2] to-[#8f7d86] shadow-[0_0_8px_rgba(255,255,255,0.08)]" />
-            <div className="absolute right-[83%] top-1/2 h-[12px] w-[5.5%] -translate-y-1/2 rounded-full bg-gradient-to-r from-[#261c22] via-[#6b5963] to-[#c6b9c0] shadow-[0_0_12px_rgba(255,0,60,0.14)]" />
-            <div className="absolute right-[87.2%] top-1/2 h-[18px] w-[9%] -translate-y-1/2 rounded-full border border-[#8d7882]/80 bg-gradient-to-r from-[#241a20] via-[#56434b] to-[#9e8d95] shadow-[0_0_14px_rgba(255,0,60,0.16)]" />
-            <div className="absolute right-[88.5%] top-1/2 h-[26px] w-[7.5%] -translate-y-1/2 rounded-full border border-[#9b848e]/75" />
-            <div className="absolute right-[90.5%] top-1/2 h-[24px] w-[8.5%] -translate-y-1/2 rounded-full border border-[#8a757e]/65" />
-            <div className="absolute right-[91.5%] top-1/2 h-[14px] w-[12%] -translate-y-1/2 rounded-full border border-[#8f7984]/70" />
-            <div className="absolute right-[95.8%] top-1/2 h-[15px] w-[4.8%] -translate-y-1/2 rounded-[999px_4px_4px_999px] bg-gradient-to-r from-[#24181e] via-[#4f3b44] to-[#a5959d] shadow-[0_0_12px_rgba(255,0,60,0.18)]" />
-            <div className="absolute right-[99.5%] top-1/2 h-[10px] w-[1.6%] -translate-y-1/2 rounded-full bg-gradient-to-b from-[#d6cdd1] via-[#7f6e76] to-[#3b2d34]" />
-            <div className="absolute right-[18%] top-1/2 h-[8px] w-[56%] -translate-y-1/2 rounded-full bg-gradient-to-l from-transparent via-red-400/10 to-transparent blur-sm" />
-          </div>
-        </motion.div>
-      ))}
-    </div>
   );
 }
 
@@ -634,7 +597,10 @@ function HomeSupportShowcase() {
       <div className="flex h-full flex-col justify-between gap-4 p-6 md:p-8">
         <div className="rounded-3xl border border-red-500/25 bg-black/25 p-5 backdrop-blur-sm">
           <p className="text-xs uppercase tracking-[0.28em] text-red-300">
-            Auto win certified
+            AUTO WIN
+          </p>
+          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-red-200">
+            netanyahu certified
           </p>
           <div className="mt-4 flex items-start gap-4">
             <img
@@ -645,13 +611,10 @@ function HomeSupportShowcase() {
             />
             <div>
               <p className="text-lg font-black uppercase tracking-[0.08em] text-white">
-                AUTO WIN
-              </p>
-              <p className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-red-200">
-                CERTIFIED
+                Support shell
               </p>
               <p className="mt-3 max-w-[180px] text-sm text-white/65">
-                Best-in-slot support shell for forcing entry, tempo, peel, and cleanup.
+                Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core.
               </p>
             </div>
           </div>
@@ -725,13 +688,8 @@ function NarrationPanel({ page }: { page: PageName }) {
       v.lang.toLowerCase().startsWith("en")
     );
 
-    if (chosen || english) {
-      utterance.voice = chosen || english || null;
-      utterance.lang = (chosen || english)?.lang || "en-US";
-    } else {
-      utterance.lang = "en-US";
-    }
-
+    utterance.voice = chosen || english || null;
+    utterance.lang = (chosen || english)?.lang || "en-US";
     utterance.rate = rate;
     utterance.pitch = pitch;
     setSpeaking(true);
@@ -776,11 +734,8 @@ function NarrationPanel({ page }: { page: PageName }) {
       const list = window.speechSynthesis.getVoices();
       setVoices(list);
       if (!selectedVoice && list.length) {
-        const vivienne = list.find((v) => /vivienne/i.test(v.name));
-        const english = list.find((v) =>
-          v.lang.toLowerCase().startsWith("en")
-        );
-        setSelectedVoice((vivienne || english || list[0]).voiceURI);
+        const english = list.find((v) => v.lang.toLowerCase().startsWith("en"));
+        setSelectedVoice((english || list[0]).voiceURI);
       }
     };
 
@@ -823,12 +778,7 @@ function NarrationPanel({ page }: { page: PageName }) {
               ease: "easeInOut",
             }}
             className="absolute inset-0 h-full w-full object-cover"
-            onError={(event) =>
-              recoverImage(
-                event,
-                "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_8.jpg"
-              )
-            }
+            onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
             style={{ objectPosition: config.position || "center 14%" }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
@@ -899,11 +849,7 @@ function NarrationPanel({ page }: { page: PageName }) {
                 {voices
                   .filter((v) => v.lang.toLowerCase().startsWith("en"))
                   .map((v) => (
-                    <option
-                      key={v.voiceURI}
-                      value={v.voiceURI}
-                      className="bg-black text-white"
-                    >
+                    <option key={v.voiceURI} value={v.voiceURI}>
                       {v.name}
                     </option>
                   ))}
@@ -962,12 +908,77 @@ export default function App() {
   const [query, setQuery] = useState("");
   const laneRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const [musicBlocked, setMusicBlocked] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(0.06);
+  const [musicSrcIndex, setMusicSrcIndex] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const filteredPages = useMemo(() => {
     if (!query.trim()) return pages;
     return pages.filter((p) => p.toLowerCase().includes(query.toLowerCase()));
   }, [query]);
 
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const playBackgroundMusic = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      audio.volume = musicVolume;
+      audio.muted = false;
+      await audio.play();
+      setMusicPlaying(true);
+      setMusicBlocked(false);
+    } catch {
+      setMusicPlaying(false);
+      setMusicBlocked(true);
+    }
+  }, [musicVolume]);
+
+  const pauseBackgroundMusic = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setMusicPlaying(false);
+  }, []);
+
+  const toggleBackgroundMusic = useCallback(async () => {
+    if (musicPlaying) {
+      pauseBackgroundMusic();
+      return;
+    }
+    await playBackgroundMusic();
+  }, [musicPlaying, pauseBackgroundMusic, playBackgroundMusic]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = musicVolume;
+  }, [musicVolume]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void playBackgroundMusic();
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    const unlock = () => {
+      void playBackgroundMusic();
+    };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    if (musicSrcIndex > 0) {
+      void playBackgroundMusic();
+    }
+  }, [musicSrcIndex, playBackgroundMusic]);
 
   const goPage = (page: PageName) => {
     setCurrentPage(page);
@@ -987,6 +998,23 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
+      <audio
+        ref={audioRef}
+        src={BACKGROUND_MUSIC_URLS[musicSrcIndex]}
+        loop
+        preload="auto"
+        onPlay={() => setMusicPlaying(true)}
+        onPause={() => setMusicPlaying(false)}
+        onCanPlay={() => setMusicBlocked(false)}
+        onError={() => {
+          setMusicPlaying(false);
+          setMusicBlocked(true);
+          setMusicSrcIndex((i) =>
+            i < BACKGROUND_MUSIC_URLS.length - 1 ? i + 1 : i
+          );
+        }}
+      />
+
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,0,60,0.15),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,0,0,0.08),transparent_24%),linear-gradient(to_bottom,#040404,#0b0b0b,#040404)]" />
       <div className="absolute left-1/2 top-0 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-red-600/10 blur-3xl" />
 
@@ -1014,6 +1042,29 @@ export default function App() {
               />
             ))}
           </nav>
+
+          <div className="hidden items-center gap-2 xl:flex">
+            <button
+              onClick={() => void toggleBackgroundMusic()}
+              className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-white transition hover:bg-red-500/15"
+            >
+              <span className="inline-flex items-center gap-2">
+                {musicPlaying ? <Pause className="h-4 w-4" /> : <Music2 className="h-4 w-4" />}
+                {musicPlaying ? "Music ON" : "Music OFF"}
+              </span>
+            </button>
+
+            <div className="w-24">
+              <input
+                type="range"
+                min="0"
+                max="0.5"
+                step="0.01"
+                value={musicVolume}
+                onChange={(e) => setMusicVolume(Number(e.target.value))}
+              />
+            </div>
+          </div>
 
           <button
             className="rounded-xl border border-red-500/30 p-2 xl:hidden"
@@ -1053,6 +1104,30 @@ export default function App() {
       </header>
 
       <main className="relative z-10 mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+        {musicBlocked && (
+          <NeonCard className="p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Background music was blocked or file not found
+                </p>
+                <p className="text-sm text-white/65">
+                  Click once to start sound. Current source:
+                  <span className="ml-1 text-red-300">
+                    {BACKGROUND_MUSIC_URLS[musicSrcIndex]}
+                  </span>
+                </p>
+              </div>
+              <button
+                onClick={() => void playBackgroundMusic()}
+                className="rounded-2xl border border-red-400/40 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+              >
+                Enable music
+              </button>
+            </div>
+          </NeonCard>
+        )}
+
         <NeonCard className="p-5 md:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -1203,22 +1278,19 @@ export default function App() {
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                       <p className="text-sm text-red-300">Support-first</p>
                       <p className="mt-2 text-white/75">
-                        The most important lane partner information is pushed
-                        forward immediately.
+                        The most important lane partner information is pushed forward immediately.
                       </p>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                       <p className="text-sm text-red-300">Guide structure</p>
                       <p className="mt-2 text-white/75">
-                        Runes, build, lane phase, support, mid-game, mechanics,
-                        and video sections all share one visual system.
+                        Runes, build, lane phase, support, mid-game, mechanics, and video sections all share one visual system.
                       </p>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                       <p className="text-sm text-red-300">Personality</p>
                       <p className="mt-2 text-white/75">
-                        The site still feels like Fiora: sharp, confident, and
-                        slightly disrespectful in the right way.
+                        The site still feels like Fiora: sharp, confident, and slightly disrespectful in the right way.
                       </p>
                     </div>
                   </div>
@@ -1243,14 +1315,10 @@ export default function App() {
                       You win by forcing bad spacing and panic decisions
                     </h3>
                     <p className="mt-4 text-white/75">
-                      Fiora ADC is not standard marksman flow. The pick works
-                      when you control timing, punish wrong movement, and convert
-                      enemy missteps into short, committed all-ins.
+                      Fiora ADC is not standard marksman flow. The pick works when you control timing, punish wrong movement, and convert enemy missteps into short, committed all-ins.
                     </p>
                     <p className="mt-4 text-white/75">
-                      It is a technical choice, not a universal blind answer.
-                      But in the right structure, it creates discomfort that
-                      many bot lanes are not prepared to answer correctly.
+                      It is a technical choice, not a universal blind answer. But in the right structure, it creates discomfort that many bot lanes are not prepared to answer correctly.
                     </p>
                   </NeonCard>
 
@@ -1267,22 +1335,10 @@ export default function App() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {[
-                    [
-                      "Surprise factor",
-                      "Most bot lanes do not know Fiora ADC limits and overtrade at the wrong moments.",
-                    ],
-                    [
-                      "Duel pressure",
-                      "One clean opening can flip lane state even when the matchup looked uncomfortable on paper.",
-                    ],
-                    [
-                      "Execution edge",
-                      "Riposte timing plus support sync creates disproportionate value off one enemy mistake.",
-                    ],
-                    [
-                      "Snowball conversion",
-                      "First lead gives wave tempo, objective setup, and much freer lane movement.",
-                    ],
+                    ["Surprise factor", "Most bot lanes do not know Fiora ADC limits and overtrade at the wrong moments."],
+                    ["Duel pressure", "One clean opening can flip lane state even when the matchup looked uncomfortable on paper."],
+                    ["Execution edge", "Riposte timing plus support sync creates disproportionate value off one enemy mistake."],
+                    ["Snowball conversion", "First lead gives wave tempo, objective setup, and much freer lane movement."],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
                       <p className="text-lg font-bold text-white">{title}</p>
@@ -1303,60 +1359,22 @@ export default function App() {
 
                 <div className="grid gap-4 xl:grid-cols-2">
                   <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">
-                      PTA PAGE
-                    </p>
+                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PTA PAGE</p>
                     <IconRow icons={runeIcons.pta} />
                     <div className="space-y-2 text-white/75">
-                      <p>
-                        <span className="font-semibold text-white">
-                          Why PTA:
-                        </span>{" "}
-                        burst profile, short trades, and better punishment
-                        against fragile ADCs.
-                      </p>
-                      <p>
-                        <span className="font-semibold text-white">
-                          Secondary logic:
-                        </span>{" "}
-                        Biscuits and Jack help survive lane and add long-term
-                        value in awkward matchups.
-                      </p>
-                      <p>
-                        <span className="font-semibold text-white">
-                          Mini runes:
-                        </span>{" "}
-                        Adaptive Force, Adaptive Force, Heal.
-                      </p>
+                      <p><span className="font-semibold text-white">Why PTA:</span> burst profile, short trades, and better punishment against fragile ADCs.</p>
+                      <p><span className="font-semibold text-white">Secondary logic:</span> Biscuits and Jack help survive lane and add long-term value in awkward matchups.</p>
+                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Adaptive Force, Heal.</p>
                     </div>
                   </NeonCard>
 
                   <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">
-                      PHASE RUSH PAGE
-                    </p>
+                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PHASE RUSH PAGE</p>
                     <IconRow icons={runeIcons.phase} />
                     <div className="space-y-2 text-white/75">
-                      <p>
-                        <span className="font-semibold text-white">
-                          Why Phase Rush:
-                        </span>{" "}
-                        easier gap close, cleaner disengage, and better access
-                        against mobile or hard-to-reach lanes.
-                      </p>
-                      <p>
-                        <span className="font-semibold text-white">
-                          Damage profile:
-                        </span>{" "}
-                        Absolute Focus and Last Stand keep the page threatening
-                        at different HP states.
-                      </p>
-                      <p>
-                        <span className="font-semibold text-white">
-                          Mini runes:
-                        </span>{" "}
-                        Adaptive Force, Attack Speed, Scaling Heal.
-                      </p>
+                      <p><span className="font-semibold text-white">Why Phase Rush:</span> easier gap close, cleaner disengage, and better access against mobile or hard-to-reach lanes.</p>
+                      <p><span className="font-semibold text-white">Damage profile:</span> Absolute Focus and Last Stand keep the page threatening at different HP states.</p>
+                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Attack Speed, Scaling Heal.</p>
                     </div>
                   </NeonCard>
                 </div>
@@ -1372,61 +1390,24 @@ export default function App() {
                 />
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  <ItemPath
-                    title="Core route"
-                    items={[itemIcons.tiamat, itemIcons.hydra]}
-                    text="Rush Tiamat then Ravenous Hydra for lane comfort, sustain, wave control, and faster map tempo."
-                  />
-                  <ItemPath
-                    title="Snowball route"
-                    items={[itemIcons.hydra, itemIcons.cyclosword]}
-                    text="Take this when you can reach target reliably and kill before getting burst down."
-                  />
-                  <ItemPath
-                    title="Stable route"
-                    items={[itemIcons.hydra, itemIcons.triforce]}
-                    text="A steadier profile when enemy damage makes pure glass-cannon play too risky."
-                  />
-                  <ItemPath
-                    title="Safe burst route"
-                    items={[itemIcons.hydra, itemIcons.eclipse]}
-                    text="Shield plus burst when you need safer entries and a less greedy second item."
-                  />
-                  <ItemPath
-                    title="Defensive adaptation"
-                    items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]}
-                    text="DD for heavy AD, Maw for AP threat, Iceborn as a niche durability option."
-                  />
-                  <ItemPath
-                    title="Late finish"
-                    items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]}
-                    text="Shojin for pressure, GA for safety, BT for final damage and sustain finish."
-                  />
+                  <ItemPath title="Core route" items={[itemIcons.tiamat, itemIcons.hydra]} text="Rush Tiamat then Ravenous Hydra for lane comfort, sustain, wave control, and faster map tempo." />
+                  <ItemPath title="Snowball route" items={[itemIcons.hydra, itemIcons.cyclosword]} text="Take this when you can reach target reliably and kill before getting burst down." />
+                  <ItemPath title="Stable route" items={[itemIcons.hydra, itemIcons.triforce]} text="A steadier profile when enemy damage makes pure glass-cannon play too risky." />
+                  <ItemPath title="Safe burst route" items={[itemIcons.hydra, itemIcons.eclipse]} text="Shield plus burst when you need safer entries and a less greedy second item." />
+                  <ItemPath title="Defensive adaptation" items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]} text="DD for heavy AD, Maw for AP threat, Iceborn as a niche durability option." />
+                  <ItemPath title="Late finish" items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]} text="Shojin for pressure, GA for safety, BT for final damage and sustain finish." />
                 </div>
               </>
             )}
 
             {currentPage === "Skill Order" && (
               <>
-                <SectionTitle
-                  icon={Crosshair}
-                  title="Skill Order"
-                  subtitle="Current practical baseline with a clearer final-site presentation."
-                />
+                <SectionTitle icon={Crosshair} title="Skill Order" subtitle="Current practical baseline with a clearer final-site presentation." />
                 <div className="grid gap-4 md:grid-cols-3">
                   {[
-                    [
-                      "Level 1",
-                      "Q for access, repositioning, and creating your first real angle.",
-                    ],
-                    [
-                      "Level 2",
-                      "E for burst timing, especially when PTA trade windows already look possible.",
-                    ],
-                    [
-                      "Level 3",
-                      "W for Riposte control, CC answer, and far safer commitment.",
-                    ],
+                    ["Level 1", "Q for access, repositioning, and creating your first real angle."],
+                    ["Level 2", "E for burst timing, especially when PTA trade windows already look possible."],
+                    ["Level 3", "W for Riposte control, CC answer, and far safer commitment."],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
                       <p className="text-lg font-bold text-white">{title}</p>
@@ -1439,17 +1420,10 @@ export default function App() {
 
             {currentPage === "Matchups" && (
               <>
-                <SectionTitle
-                  icon={Sword}
-                  title="Matchups"
-                  subtitle="Readable matchup cards with practical notes and stronger visual framing."
-                />
+                <SectionTitle icon={Sword} title="Matchups" subtitle="Readable matchup cards with practical notes and stronger visual framing." />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {matchups.map((m) => (
-                    <NeonCard
-                      key={m.name}
-                      className="overflow-hidden p-4 transition hover:-translate-y-1"
-                    >
+                    <NeonCard key={m.name} className="overflow-hidden p-4 transition hover:-translate-y-1">
                       <img
                         src={m.image}
                         alt={m.name}
@@ -1459,9 +1433,7 @@ export default function App() {
                       />
                       <div className="mt-4 flex items-center justify-between">
                         <p className="text-xl font-bold text-white">{m.name}</p>
-                        <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
-                          {m.danger}
-                        </span>
+                        <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">{m.danger}</span>
                       </div>
                       <p className="mt-1 text-sm text-red-300">{m.level}</p>
                       <p className="mt-3 text-white/70">{m.explanation}</p>
@@ -1473,22 +1445,13 @@ export default function App() {
 
             {currentPage === "Lane Phase" && (
               <>
-                <SectionTitle
-                  icon={Target}
-                  title="Lane Phase"
-                  subtitle="The best compromise: fast jump buttons plus full sections visible on scroll, without forcing tab-switching to read the guide."
-                />
+                <SectionTitle icon={Target} title="Lane Phase" subtitle="The best compromise: fast jump buttons plus full sections visible on scroll, without forcing tab-switching to read the guide." />
 
                 <div className="flex flex-wrap gap-2">
                   {laneSections.map((section) => (
                     <button
                       key={section.id}
-                      onClick={() =>
-                        laneRefs.current[section.id]?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        })
-                      }
+                      onClick={() => laneRefs.current[section.id]?.scrollIntoView({ behavior: "smooth", block: "start" })}
                       className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/75 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
                     >
                       {section.title}
@@ -1497,21 +1460,9 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                  <StatCard
-                    label="Primary goal"
-                    value="Preserve HP"
-                    text="Do not waste health before the real engage window exists."
-                  />
-                  <StatCard
-                    label="First spikes"
-                    value="Level 2 and 3"
-                    text="Q/E pressure first, Riposte confidence second."
-                  />
-                  <StatCard
-                    label="Vision rule"
-                    value="Ward first"
-                    text="Control the lane space before converting into aggression."
-                  />
+                  <StatCard label="Primary goal" value="Preserve HP" text="Do not waste health before the real engage window exists." />
+                  <StatCard label="First spikes" value="Level 2 and 3" text="Q/E pressure first, Riposte confidence second." />
+                  <StatCard label="Vision rule" value="Ward first" text="Control the lane space before converting into aggression." />
                 </div>
 
                 <div className="space-y-4">
@@ -1523,19 +1474,12 @@ export default function App() {
                         }}
                         className="scroll-mt-28"
                       >
-                        <p className="text-xs uppercase tracking-[0.2em] text-red-300">
-                          Quick read
-                        </p>
-                        <h3 className="mt-2 text-2xl font-black text-white">
-                          {section.title}
-                        </h3>
+                        <p className="text-xs uppercase tracking-[0.2em] text-red-300">Quick read</p>
+                        <h3 className="mt-2 text-2xl font-black text-white">{section.title}</h3>
                         <p className="mt-3 text-white/70">{section.summary}</p>
                         <div className="mt-5 grid gap-4 md:grid-cols-3">
                           {section.points.map((point) => (
-                            <div
-                              key={point}
-                              className="rounded-2xl border border-red-500/20 bg-black/35 p-4 text-white/75"
-                            >
+                            <div key={point} className="rounded-2xl border border-red-500/20 bg-black/35 p-4 text-white/75">
                               {point}
                             </div>
                           ))}
@@ -1549,43 +1493,18 @@ export default function App() {
 
             {currentPage === "Fiora's Support" && (
               <>
-                <SectionTitle
-                  icon={HeartHandshake}
-                  title="Fiora's Support"
-                  subtitle="Global support logic, profile details, and direct connection to lane-phase reading."
-                />
+                <SectionTitle icon={HeartHandshake} title="Fiora's Support" subtitle="Global support logic, profile details, and direct connection to lane-phase reading." />
 
                 <NeonCard className="p-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-red-300">
-                    Mandatory read
-                  </p>
-                  <h3 className="mt-2 text-2xl font-black text-white">
-                    Supports must read Lane Phase too
-                  </h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-red-300">Mandatory read</p>
+                  <h3 className="mt-2 text-2xl font-black text-white">Supports must read Lane Phase too</h3>
                   <p className="mt-3 max-w-3xl text-white/75">
-                    This page explains support priorities, but lane execution
-                    details still live in Lane Phase. Read both to avoid
-                    desynced engages and fake all-ins.
+                    This page explains support priorities, but lane execution details still live in Lane Phase. Read both to avoid desynced engages and fake all-ins.
                   </p>
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <button
-                      onClick={() => goLaneSection("early")}
-                      className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-                    >
-                      Read Lane Phase: Early
-                    </button>
-                    <button
-                      onClick={() => goLaneSection("wave")}
-                      className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-                    >
-                      Read Lane Phase: Wave
-                    </button>
-                    <button
-                      onClick={() => goLaneSection("support")}
-                      className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-                    >
-                      Read Lane Phase: Support
-                    </button>
+                    <button onClick={() => goLaneSection("early")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Early</button>
+                    <button onClick={() => goLaneSection("wave")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Wave</button>
+                    <button onClick={() => goLaneSection("support")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Support</button>
                   </div>
                 </NeonCard>
 
@@ -1599,9 +1518,7 @@ export default function App() {
                         onError={(event) => recoverImage(event)}
                         style={{ objectPosition: s.position }}
                       />
-                      <p className="mt-3 text-xl font-bold text-white">
-                        {s.name}
-                      </p>
+                      <p className="mt-3 text-xl font-bold text-white">{s.name}</p>
                       <p className="text-sm text-red-300">{s.role}</p>
                       <p className="mt-3 text-white/75">{s.text}</p>
                     </NeonCard>
@@ -1610,41 +1527,20 @@ export default function App() {
 
                 <div className="grid gap-4 xl:grid-cols-3">
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">
-                      Engage / hook
-                    </p>
-                    <p className="text-white/75">
-                      Supports that create direct access are premium, because
-                      Fiora wins hardest when the target cannot freely kite the
-                      first commit.
-                    </p>
+                    <p className="mb-2 font-semibold text-red-300">Engage / hook</p>
+                    <p className="text-white/75">Supports that create direct access are premium, because Fiora wins hardest when the target cannot freely kite the first commit.</p>
                   </NeonCard>
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">
-                      Hydra timing
-                    </p>
-                    <p className="text-white/75">
-                      Once Ravenous Hydra is completed, repeated pressure becomes
-                      easier because Fiora can sustain, reset, and re-enter
-                      faster.
-                    </p>
+                    <p className="mb-2 font-semibold text-red-300">Hydra timing</p>
+                    <p className="text-white/75">Once Ravenous Hydra is completed, repeated pressure becomes easier because Fiora can sustain, reset, and re-enter faster.</p>
                   </NeonCard>
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">
-                      Protective supports
-                    </p>
-                    <p className="text-white/75">
-                      They still work when the goal is to survive lane, keep HP
-                      high, and unlock later spikes with cleaner entries.
-                    </p>
+                    <p className="mb-2 font-semibold text-red-300">Protective supports</p>
+                    <p className="text-white/75">They still work when the goal is to survive lane, keep HP high, and unlock later spikes with cleaner entries.</p>
                   </NeonCard>
                 </div>
 
-                <SectionTitle
-                  icon={PlayCircle}
-                  title="Support Clips"
-                  subtitle="Integrated examples for support behavior around Fiora ADC."
-                />
+                <SectionTitle icon={PlayCircle} title="Support Clips" subtitle="Integrated examples for support behavior around Fiora ADC." />
                 <div className="grid gap-4 md:grid-cols-2">
                   {supportClips.map((clip) => (
                     <NeonCard key={clip.url} className="overflow-hidden p-4">
@@ -1660,15 +1556,8 @@ export default function App() {
                       </div>
                       <div className="mt-3">
                         <p className="font-semibold text-white">{clip.title}</p>
-                        <p className="mt-1 text-sm text-white/65">
-                          {clip.description}
-                        </p>
-                        <a
-                          href={clip.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200"
-                        >
+                        <p className="mt-1 text-sm text-white/65">{clip.description}</p>
+                        <a href={clip.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
                           Open on YouTube
                         </a>
                       </div>
@@ -1680,25 +1569,12 @@ export default function App() {
 
             {currentPage === "Mid/Late Game" && (
               <>
-                <SectionTitle
-                  icon={Flame}
-                  title="Mid / Late Game"
-                  subtitle="Macro priorities in cards, without another giant paragraph block."
-                />
+                <SectionTitle icon={Flame} title="Mid / Late Game" subtitle="Macro priorities in cards, without another giant paragraph block." />
                 <div className="grid gap-4 md:grid-cols-3">
                   {[
-                    [
-                      "Pick one plan",
-                      "Split, flank, pick, or group. Do not mix all plans at once.",
-                    ],
-                    [
-                      "Entry timing",
-                      "Fight after vision and cooldown checks, not just because enemies are visible.",
-                    ],
-                    [
-                      "Conversion",
-                      "Every successful fight should become objective pressure, tempo, or map space.",
-                    ],
+                    ["Pick one plan", "Split, flank, pick, or group. Do not mix all plans at once."],
+                    ["Entry timing", "Fight after vision and cooldown checks, not just because enemies are visible."],
+                    ["Conversion", "Every successful fight should become objective pressure, tempo, or map space."],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
                       <p className="font-bold text-white">{title}</p>
@@ -1708,8 +1584,7 @@ export default function App() {
                 </div>
                 <NeonCard className="p-6">
                   <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-red-300">
-                    Add later <ChevronRight className="h-4 w-4" /> Side
-                    pressure / vision setup / fight entry rules
+                    Add later <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
                   </div>
                 </NeonCard>
               </>
@@ -1717,11 +1592,7 @@ export default function App() {
 
             {currentPage === "Mechanical Tips" && (
               <>
-                <SectionTitle
-                  icon={Zap}
-                  title="Mechanical Tips"
-                  subtitle="Short tactical notes instead of bloated explanation blocks."
-                />
+                <SectionTitle icon={Zap} title="Mechanical Tips" subtitle="Short tactical notes instead of bloated explanation blocks." />
                 <div className="grid gap-4 md:grid-cols-2">
                   {mechanics.map((item) => (
                     <NeonCard key={item.title} className="p-5">
@@ -1735,31 +1606,12 @@ export default function App() {
 
             {currentPage === "Videos / Clips" && (
               <>
-                <SectionTitle
-                  icon={PlayCircle}
-                  title="Videos / Clips"
-                  subtitle="Visual section ready for future highlight and teaching clip expansion."
-                />
+                <SectionTitle icon={PlayCircle} title="Videos / Clips" subtitle="Visual section ready for future highlight and teaching clip expansion." />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {[
-                    {
-                      title: "Duel highlight",
-                      image:
-                        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
-                      pos: "center 24%",
-                    },
-                    {
-                      title: "Timing sample",
-                      image:
-                        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
-                      pos: "center 24%",
-                    },
-                    {
-                      title: "Carry sequence",
-                      image:
-                        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_7.jpg",
-                      pos: "center 25%",
-                    },
+                    { title: "Duel highlight", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg", pos: "center 24%" },
+                    { title: "Timing sample", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg", pos: "center 24%" },
+                    { title: "Carry sequence", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_7.jpg", pos: "center 25%" },
                   ].map((v) => (
                     <NeonCard key={v.title} className="overflow-hidden p-4">
                       <img
@@ -1769,12 +1621,8 @@ export default function App() {
                         onError={(event) => recoverImage(event)}
                         style={{ objectPosition: v.pos }}
                       />
-                      <p className="mt-3 font-semibold text-white">
-                        {v.title}
-                      </p>
-                      <p className="mt-1 text-sm text-white/65">
-                        Reserved for your next clip and explanation block.
-                      </p>
+                      <p className="mt-3 font-semibold text-white">{v.title}</p>
+                      <p className="mt-1 text-sm text-white/65">Reserved for your next clip and explanation block.</p>
                     </NeonCard>
                   ))}
                 </div>
@@ -1783,6 +1631,26 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <div className="fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-2xl border border-red-500/35 bg-black/75 px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl xl:hidden">
+        <button
+          onClick={() => void toggleBackgroundMusic()}
+          className="text-red-300"
+          aria-label="Toggle background music"
+        >
+          {musicPlaying ? <Pause className="h-5 w-5" /> : <Music2 className="h-5 w-5" />}
+        </button>
+
+        <input
+          type="range"
+          min="0"
+          max="0.5"
+          step="0.01"
+          value={musicVolume}
+          onChange={(e) => setMusicVolume(Number(e.target.value))}
+          className="w-20"
+        />
+      </div>
 
       <button
         onClick={scrollTop}
