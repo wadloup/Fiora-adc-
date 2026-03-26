@@ -606,7 +606,7 @@ function HomeSupportShowcase() {
           </p>
           <div className="mt-4 flex items-start gap-4">
             <img
-              src={HERO_CERTIFIED_IMAGE}
+              src="/netanyahu.png.png"
               alt="Certified badge"
               className="h-24 w-24 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
               onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
