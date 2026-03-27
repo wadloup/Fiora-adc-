@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { supabase } from "./supabase";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUp,
