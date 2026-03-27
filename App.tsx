@@ -970,83 +970,83 @@ function ReportVoteBlock() {
     setLoading(false);
   };
 
-  const total = counts.up + counts.down + counts.poop;
+ const total = counts.up + counts.down + counts.poop;
 
-  return (
-    <NeonCard className="p-6 md:p-8">
-      <div className="space-y-5">
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-red-300">
-            Community vote
-          </p>
-          <h2 className="mt-2 text-xl font-black text-white md:text-4xl">
-            ARE YOU GOING TO REPORT ME? :3
-          </h2>
-          <p className="mt-2 text-white/65">
-            Pick one only.
-          </p>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-3">
-          <button
-            onClick={() => void handleVote("up")}
-            disabled={!!selected || loading}
-            className={`rounded-xl border px-4 py-5 text-lg font-bold transition ${
-              selected === "up"
-                ? "border-green-400/40 bg-green-500/15 text-green-200"
-                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-          >
-            <div className="text-xl">⬆️</div>
-            <div className="mt-2 text-sm uppercase tracking-[0.16em]">
-              Up
-            </div>
-            <div className="mt-2 text-xl">{counts.up}</div>
-          </button>
-
-          <button
-            onClick={() => void handleVote("down")}
-            disabled={!!selected || loading}
-            className={`rounded-2xl border px-4 py-5 text-lg font-bold transition ${
-              selected === "down"
-                ? "border-red-400/40 bg-red-500/15 text-red-200"
-                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-          >
-            <div className="text-xl">⬇️</div>
-            <div className="mt-2 text-sm uppercase tracking-[0.16em]">
-              Down
-            </div>
-            <div className="mt-2 text-xl">{counts.down}</div>
-          </button>
-
-          <button
-            onClick={() => void handleVote("poop")}
-            disabled={!!selected || loading}
-            className={`rounded-2xl border px-4 py-5 text-lg font-bold transition ${
-              selected === "poop"
-                ? "border-yellow-400/40 bg-yellow-500/15 text-yellow-200"
-                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-          >
-            <div className="text-xl">💩</div>
-            <div className="mt-2 text-sm uppercase tracking-[0.16em]">
-              Poop
-            </div>
-            <div className="mt-2 text-xl">{counts.poop}</div>
-          </button>
-        </div>
-
-        <p className="text-sm text-white/55">Total votes: {total}</p>
-
-        {selected && (
-          <p className="text-sm text-red-300">
-            Your vote has been recorded.
-          </p>
-        )}
+return (
+  <NeonCard className="p-4 md:p-5">
+    <div className="space-y-3">
+      <div>
+        <p className="text-xs uppercase tracking-[0.24em] text-red-300">
+          Community vote
+        </p>
+        <h2 className="mt-2 text-xl font-black text-white md:text-2xl">
+          ARE YOU GOING TO REPORT ME? :3
+        </h2>
+        <p className="mt-1 text-sm text-white/65">
+          Pick one only.
+        </p>
       </div>
-    </NeonCard>
-  );
+
+      <div className="grid gap-2 sm:grid-cols-3">
+        <button
+          onClick={() => void handleVote("up")}
+          disabled={!!selected || loading}
+          className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
+            selected === "up"
+              ? "border-green-400/40 bg-green-500/15 text-green-200"
+              : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+          } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+        >
+          <div className="text-lg">⬆️</div>
+          <div className="mt-1 text-xs uppercase tracking-[0.16em]">
+            Up
+          </div>
+          <div className="mt-1 text-base">{counts.up}</div>
+        </button>
+
+        <button
+          onClick={() => void handleVote("down")}
+          disabled={!!selected || loading}
+          className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
+            selected === "down"
+              ? "border-red-400/40 bg-red-500/15 text-red-200"
+              : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+          } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+        >
+          <div className="text-lg">⬇️</div>
+          <div className="mt-1 text-xs uppercase tracking-[0.16em]">
+            Down
+          </div>
+          <div className="mt-1 text-base">{counts.down}</div>
+        </button>
+
+        <button
+          onClick={() => void handleVote("poop")}
+          disabled={!!selected || loading}
+          className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
+            selected === "poop"
+              ? "border-yellow-400/40 bg-yellow-500/15 text-yellow-200"
+              : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+          } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+        >
+          <div className="text-lg">💩</div>
+          <div className="mt-1 text-xs uppercase tracking-[0.16em]">
+            Poop
+          </div>
+          <div className="mt-1 text-base">{counts.poop}</div>
+        </button>
+      </div>
+
+      <p className="text-xs text-white/55">Total votes: {total}</p>
+
+      {selected && (
+        <p className="text-xs text-red-300">
+          Your vote has been recorded.
+        </p>
+      )}
+    </div>
+  </NeonCard>
+);
 }
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
