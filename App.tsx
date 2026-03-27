@@ -976,8 +976,8 @@ return (
   <NeonCard className="p-4 md:p-5">
     <div className="space-y-3">
       <div>
-        <p className="text-[10px] uppercase tracking-[0.24em] text-red-300">
-          Community vote
+        <p className="text-[30px] uppercase tracking-[0.24em] text-red-300">
+          VOTE HERE
         </p>
         <h2 className="mt-1 text-[18px] font-black text-white md:text-[24px]">
           ARE YOU GOING TO REPORT ME? :3
