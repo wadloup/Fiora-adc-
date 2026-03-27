@@ -976,7 +976,7 @@ return (
   <NeonCard className="p-4 md:p-5">
     <div className="space-y-3">
       <div>
-        <p className="text-[30px] uppercase tracking-[0.24em] text-red-300">
+        <p className="text-[20px] uppercase tracking-[0.24em] text-red-300">
           VOTE HERE
         </p>
         <h2 className="mt-1 text-[18px] font-black text-white md:text-[24px]">
@@ -1290,7 +1290,7 @@ export default function App() {
                     <ReportVoteBlock />
                     Fiora ADC, structured and aggressive.
                     <span className="block text-red-400">
-                      No autopilot gameplay.
+                      SUPPORT CHECK BELOW ↘️⬇️↙️
                     </span>
                   </>
                 ) : (
