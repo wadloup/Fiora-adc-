@@ -904,7 +904,150 @@ function NarrationPanel({ page }: { page: PageName }) {
     </NeonCard>
   );
 }
+function ReportVoteBlock() {
+  const [counts, setCounts] = useState({
+    up: 0,
+    down: 0,
+    poop: 0,
+  });
 
+  const [selected, setSelected] = useState<"up" | "down" | "poop" | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const savedVote = localStorage.getItem("report_vote_choice");
+    if (savedVote === "up" || savedVote === "down" || savedVote === "poop") {
+      setSelected(savedVote);
+    }
+
+    const loadVotes = async () => {
+      const { data, error } = await supabase
+        .from("report_votes")
+        .select("option_key, count");
+
+      if (error || !data) {
+        console.error(error);
+        return;
+      }
+
+      const next = { up: 0, down: 0, poop: 0 };
+
+      for (const row of data) {
+        if (row.option_key === "up") next.up = row.count;
+        if (row.option_key === "down") next.down = row.count;
+        if (row.option_key === "poop") next.poop = row.count;
+      }
+
+      setCounts(next);
+    };
+
+    void loadVotes();
+  }, []);
+
+  const handleVote = async (choice: "up" | "down" | "poop") => {
+    if (loading || selected) return;
+
+    setLoading(true);
+
+    const currentValue = counts[choice];
+
+    const { error } = await supabase
+      .from("report_votes")
+      .update({ count: currentValue + 1 })
+      .eq("option_key", choice);
+
+    if (!error) {
+      setCounts((prev) => ({
+        ...prev,
+        [choice]: currentValue + 1,
+      }));
+      setSelected(choice);
+      localStorage.setItem("report_vote_choice", choice);
+    } else {
+      console.error(error);
+    }
+
+    setLoading(false);
+  };
+
+  const total = counts.up + counts.down + counts.poop;
+
+  return (
+    <NeonCard className="p-6 md:p-8">
+      <div className="space-y-5">
+        <div>
+          <p className="text-xs uppercase tracking-[0.24em] text-red-300">
+            Community vote
+          </p>
+          <h2 className="mt-2 text-3xl font-black text-white md:text-4xl">
+            ARE YOU GOING TO REPORT ME? :3
+          </h2>
+          <p className="mt-2 text-white/65">
+            Pick one only.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button
+            onClick={() => void handleVote("up")}
+            disabled={!!selected || loading}
+            className={`rounded-2xl border px-4 py-5 text-lg font-bold transition ${
+              selected === "up"
+                ? "border-green-400/40 bg-green-500/15 text-green-200"
+                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+          >
+            <div className="text-3xl">⬆️</div>
+            <div className="mt-2 text-sm uppercase tracking-[0.16em]">
+              Up
+            </div>
+            <div className="mt-2 text-xl">{counts.up}</div>
+          </button>
+
+          <button
+            onClick={() => void handleVote("down")}
+            disabled={!!selected || loading}
+            className={`rounded-2xl border px-4 py-5 text-lg font-bold transition ${
+              selected === "down"
+                ? "border-red-400/40 bg-red-500/15 text-red-200"
+                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+          >
+            <div className="text-3xl">⬇️</div>
+            <div className="mt-2 text-sm uppercase tracking-[0.16em]">
+              Down
+            </div>
+            <div className="mt-2 text-xl">{counts.down}</div>
+          </button>
+
+          <button
+            onClick={() => void handleVote("poop")}
+            disabled={!!selected || loading}
+            className={`rounded-2xl border px-4 py-5 text-lg font-bold transition ${
+              selected === "poop"
+                ? "border-yellow-400/40 bg-yellow-500/15 text-yellow-200"
+                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+          >
+            <div className="text-3xl">💩</div>
+            <div className="mt-2 text-sm uppercase tracking-[0.16em]">
+              Poop
+            </div>
+            <div className="mt-2 text-xl">{counts.poop}</div>
+          </button>
+        </div>
+
+        <p className="text-sm text-white/55">Total votes: {total}</p>
+
+        {selected && (
+          <p className="text-sm text-red-300">
+            Your vote has been recorded.
+          </p>
+        )}
+      </div>
+    </NeonCard>
+  );
+}
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -1144,6 +1287,7 @@ export default function App() {
               <h1 className="mt-2 text-3xl font-black leading-tight md:text-5xl">
                 {currentPage === "Home" ? (
                   <>
+                    <ReportVoteBlock />
                     Fiora ADC, structured and aggressive.
                     <span className="block text-red-400">
                       No autopilot gameplay.
