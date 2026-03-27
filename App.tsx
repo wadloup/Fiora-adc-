@@ -979,7 +979,7 @@ function ReportVoteBlock() {
           <p className="text-xs uppercase tracking-[0.24em] text-red-300">
             Community vote
           </p>
-          <h2 className="mt-2 text-3xl font-black text-white md:text-4xl">
+          <h2 className="mt-2 text-xl font-black text-white md:text-4xl">
             ARE YOU GOING TO REPORT ME? :3
           </h2>
           <p className="mt-2 text-white/65">
@@ -991,13 +991,13 @@ function ReportVoteBlock() {
           <button
             onClick={() => void handleVote("up")}
             disabled={!!selected || loading}
-            className={`rounded-2xl border px-4 py-5 text-lg font-bold transition ${
+            className={`rounded-xl border px-4 py-5 text-lg font-bold transition ${
               selected === "up"
                 ? "border-green-400/40 bg-green-500/15 text-green-200"
                 : "border-white/15 bg-white/5 text-white hover:bg-white/10"
             } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
           >
-            <div className="text-3xl">⬆️</div>
+            <div className="text-xl">⬆️</div>
             <div className="mt-2 text-sm uppercase tracking-[0.16em]">
               Up
             </div>
@@ -1013,7 +1013,7 @@ function ReportVoteBlock() {
                 : "border-white/15 bg-white/5 text-white hover:bg-white/10"
             } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
           >
-            <div className="text-3xl">⬇️</div>
+            <div className="text-xl">⬇️</div>
             <div className="mt-2 text-sm uppercase tracking-[0.16em]">
               Down
             </div>
@@ -1029,7 +1029,7 @@ function ReportVoteBlock() {
                 : "border-white/15 bg-white/5 text-white hover:bg-white/10"
             } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
           >
-            <div className="text-3xl">💩</div>
+            <div className="text-xl">💩</div>
             <div className="mt-2 text-sm uppercase tracking-[0.16em]">
               Poop
             </div>
