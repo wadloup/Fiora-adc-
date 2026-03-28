@@ -45,10 +45,52 @@ const pages = [
 
 type PageName = (typeof pages)[number];
 
-const BACKGROUND_MUSIC_URLS = [
-  "/audio/come-home-sped-up.mp3",
-  "/audio/Jace%20June%20-%20Come%20Home%20(Sped%20Up).mp3",
-  "/audio/Jace June - Come Home (Sped Up).mp3",
+const MUSIC_THEMES = [
+  {
+    title: "Come Home",
+    audio: "/audio/come-home-sped-up.mp3",
+    mood: "red",
+    background:
+      "radial-gradient(circle at top, rgba(255,0,60,0.18), transparent 34%), radial-gradient(circle at 85% 18%, rgba(255,0,0,0.08), transparent 24%), linear-gradient(to bottom, #040404, #0b0b0b, #040404)",
+    glow: "rgba(255,0,60,0.14)",
+    particles: "rgba(255,120,120,0.09)",
+  },
+  {
+    title: "LILIUM (Music Box II)",
+    audio: "/audio/lilium-music-box-ii.mp3",
+    mood: "lilium",
+    background:
+      "radial-gradient(circle at top, rgba(255,255,255,0.10), transparent 30%), radial-gradient(circle at 75% 15%, rgba(180,0,0,0.16), transparent 26%), linear-gradient(to bottom, #060606, #140707, #030303)",
+    glow: "rgba(255,255,255,0.10)",
+    particles: "rgba(255,255,255,0.08)",
+  },
+  {
+    title: "Sleaze On It",
+    audio: "/audio/sleaze-on-it.mp3",
+    mood: "sleaze",
+    background:
+      "radial-gradient(circle at top, rgba(255,0,170,0.18), transparent 32%), radial-gradient(circle at 85% 18%, rgba(130,0,255,0.16), transparent 25%), linear-gradient(to bottom, #050308, #13051a, #040307)",
+    glow: "rgba(255,0,200,0.16)",
+    particles: "rgba(255,255,255,0.05)",
+  },
+  {
+    title: "Love Sillage",
+    audio: "/audio/love-sillage.mp3",
+    mood: "love",
+    background:
+      "radial-gradient(circle at top, rgba(255,180,220,0.18), transparent 32%), radial-gradient(circle at 82% 18%, rgba(180,120,255,0.14), transparent 24%), linear-gradient(to bottom, #06050a, #100816, #040408)",
+    glow: "rgba(255,180,220,0.14)",
+    particles: "rgba(255,220,240,0.07)",
+  },
+  {
+    title: "MARIONETA (sped up)",
+    audio: "/audio/marioneta-sped-up.mp3",
+    mood: "marioneta",
+    background:
+      "radial-gradient(circle at top, rgba(255,0,0,0.18), transparent 33%), radial-gradient(circle at 82% 18%, rgba(120,0,0,0.14), transparent 24%), linear-gradient(to bottom, #030303, #120404, #020202)",
+    glow: "rgba(255,0,0,0.15)",
+    particles: "rgba(255,80,80,0.08)",
+  },
 ] as const;
 
 const HERO_CERTIFIED_IMAGE = "/netanyahu.png";
@@ -347,7 +389,7 @@ const supportClips = [
   {
     title: "Support Clip 3",
     description: "Positioning and setup around engage support.",
-    url: "https://youtu.be/4ASFCDwcHco",
+    url: "https://www.youtube.com/embed/4ASFCDwcHco",
     embed: "https://www.youtube.com/embed/4ASFCDwcHco",
   },
   {
@@ -593,7 +635,11 @@ function ItemPath({
 }
 
 function HomeSupportShowcase() {
-  const heroSupports = [supportProfiles[0], supportProfiles[1], supportProfiles[2]];
+  const heroSupports = [
+    supportProfiles[0],
+    supportProfiles[1],
+    supportProfiles[2],
+  ];
 
   return (
     <div className="hidden h-full lg:block">
@@ -609,7 +655,7 @@ function HomeSupportShowcase() {
             <img
               src={HERO_CERTIFIED_IMAGE}
               alt="Certified badge"
-              className="h-55 w-55 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
+              className="h-[180px] w-[180px] rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
               onError={(event) => recoverImage(event, DEFAULT_FIORA_IMAGE)}
             />
             <div>
@@ -617,7 +663,8 @@ function HomeSupportShowcase() {
                 Support shell
               </p>
               <p className="mt-3 max-w-[180px] text-sm text-white/65">
-                Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core.
+                Alistar, Braum, and Yuumi are showcased here as the safest
+                auto-win support core.
               </p>
             </div>
           </div>
@@ -904,6 +951,7 @@ function NarrationPanel({ page }: { page: PageName }) {
     </NeonCard>
   );
 }
+
 function ReportVoteBlock() {
   const [counts, setCounts] = useState({
     up: 0,
@@ -911,7 +959,9 @@ function ReportVoteBlock() {
     poop: 0,
   });
 
-  const [selected, setSelected] = useState<"up" | "down" | "poop" | null>(null);
+  const [selected, setSelected] = useState<"up" | "down" | "poop" | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -970,84 +1020,83 @@ function ReportVoteBlock() {
     setLoading(false);
   };
 
-const total = counts.up + counts.down + counts.poop;
+  const total = counts.up + counts.down + counts.poop;
 
-return (
-  <NeonCard className="p-4 md:p-5">
-    <div className="space-y-3">
-      <div>
-        <p className="text-[20px] uppercase tracking-[0.24em] text-red-300">
-          VOTE HERE
-        </p>
-        <h2 className="mt-1 text-[18px] font-black text-white md:text-[24px]">
-          ARE YOU GOING TO REPORT ME? :3
-        </h2>
-        <p className="mt-1 text-[12px] text-white/65">
-          Pick one only.
-        </p>
+  return (
+    <NeonCard className="p-4 md:p-5">
+      <div className="space-y-3">
+        <div>
+          <p className="text-[20px] uppercase tracking-[0.24em] text-red-300">
+            VOTE HERE
+          </p>
+          <h2 className="mt-1 text-[18px] font-black text-white md:text-[24px]">
+            ARE YOU GOING TO REPORT ME? :3
+          </h2>
+          <p className="mt-1 text-[12px] text-white/65">Pick one only.</p>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-3">
+          <button
+            onClick={() => void handleVote("up")}
+            disabled={!!selected || loading}
+            className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
+              selected === "up"
+                ? "border-green-400/40 bg-green-500/15 text-green-200"
+                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+          >
+            <div className="text-[18px]">⬆️</div>
+            <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
+              Up
+            </div>
+            <div className="mt-1 text-[15px]">{counts.up}</div>
+          </button>
+
+          <button
+            onClick={() => void handleVote("down")}
+            disabled={!!selected || loading}
+            className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
+              selected === "down"
+                ? "border-red-400/40 bg-red-500/15 text-red-200"
+                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+          >
+            <div className="text-[18px]">⬇️</div>
+            <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
+              Down
+            </div>
+            <div className="mt-1 text-[15px]">{counts.down}</div>
+          </button>
+
+          <button
+            onClick={() => void handleVote("poop")}
+            disabled={!!selected || loading}
+            className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
+              selected === "poop"
+                ? "border-yellow-400/40 bg-yellow-500/15 text-yellow-200"
+                : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+          >
+            <div className="text-[18px]">💩</div>
+            <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
+              Poop
+            </div>
+            <div className="mt-1 text-[15px]">{counts.poop}</div>
+          </button>
+        </div>
+
+        <p className="text-[11px] text-white/55">Total votes: {total}</p>
+
+        {selected && (
+          <p className="text-[11px] text-red-300">
+            Your vote has been recorded.
+          </p>
+        )}
       </div>
-
-      <div className="grid gap-2 sm:grid-cols-3">
-        <button
-          onClick={() => void handleVote("up")}
-          disabled={!!selected || loading}
-          className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
-            selected === "up"
-              ? "border-green-400/40 bg-green-500/15 text-green-200"
-              : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-          } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-        >
-          <div className="text-[18px]">⬆️</div>
-          <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
-            Up
-          </div>
-          <div className="mt-1 text-[15px]">{counts.up}</div>
-        </button>
-
-        <button
-          onClick={() => void handleVote("down")}
-          disabled={!!selected || loading}
-          className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
-            selected === "down"
-              ? "border-red-400/40 bg-red-500/15 text-red-200"
-              : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-          } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-        >
-          <div className="text-[18px]">⬇️</div>
-          <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
-            Down
-          </div>
-          <div className="mt-1 text-[15px]">{counts.down}</div>
-        </button>
-
-        <button
-          onClick={() => void handleVote("poop")}
-          disabled={!!selected || loading}
-          className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
-            selected === "poop"
-              ? "border-yellow-400/40 bg-yellow-500/15 text-yellow-200"
-              : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-          } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-        >
-          <div className="text-[18px]">💩</div>
-          <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
-            Poop
-          </div>
-          <div className="mt-1 text-[15px]">{counts.poop}</div>
-        </button>
-      </div>
-
-      <p className="text-[11px] text-white/55">Total votes: {total}</p>
-
-      {selected && (
-        <p className="text-[11px] text-red-300">
-          Your vote has been recorded.
-        </p>
-      )}
-    </div>
-  </NeonCard>
-);
+    </NeonCard>
+  );
 }
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -1098,6 +1147,16 @@ export default function App() {
     await playBackgroundMusic();
   }, [musicPlaying, pauseBackgroundMusic, playBackgroundMusic]);
 
+  const nextMusic = useCallback(() => {
+    setMusicSrcIndex((i) => (i + 1) % MUSIC_THEMES.length);
+  }, []);
+
+  const prevMusic = useCallback(() => {
+    setMusicSrcIndex((i) => (i - 1 + MUSIC_THEMES.length) % MUSIC_THEMES.length);
+  }, []);
+
+  const currentTheme = MUSIC_THEMES[musicSrcIndex];
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -1121,10 +1180,14 @@ export default function App() {
   }, [playBackgroundMusic]);
 
   useEffect(() => {
-    if (musicSrcIndex > 0) {
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+
+    if (musicPlaying) {
       void playBackgroundMusic();
     }
-  }, [musicSrcIndex, playBackgroundMusic]);
+  }, [musicSrcIndex, musicPlaying, playBackgroundMusic]);
 
   const goPage = (page: PageName) => {
     setCurrentPage(page);
@@ -1146,7 +1209,7 @@ export default function App() {
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <audio
         ref={audioRef}
-        src={BACKGROUND_MUSIC_URLS[musicSrcIndex]}
+        src={MUSIC_THEMES[musicSrcIndex].audio}
         loop
         preload="auto"
         onPlay={() => setMusicPlaying(true)}
@@ -1155,14 +1218,81 @@ export default function App() {
         onError={() => {
           setMusicPlaying(false);
           setMusicBlocked(true);
-          setMusicSrcIndex((i) =>
-            i < BACKGROUND_MUSIC_URLS.length - 1 ? i + 1 : i
-          );
+          setMusicSrcIndex((i) => (i < MUSIC_THEMES.length - 1 ? i + 1 : 0));
         }}
       />
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,0,60,0.15),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,0,0,0.08),transparent_24%),linear-gradient(to_bottom,#040404,#0b0b0b,#040404)]" />
-      <div className="absolute left-1/2 top-0 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-red-600/10 blur-3xl" />
+      <motion.div
+        key={currentTheme.title}
+        className="absolute inset-0"
+        initial={{ opacity: 0.75, scale: 1.03 }}
+        animate={{
+          opacity: [0.82, 1, 0.9, 1],
+          scale:
+            currentTheme.mood === "marioneta" ? [1, 1.025, 1] : [1, 1.015, 1],
+        }}
+        transition={{
+          duration: currentTheme.mood === "marioneta" ? 4 : 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{ background: currentTheme.background }}
+      />
+
+      <motion.div
+        className="absolute left-1/2 top-0 h-64 w-[38rem] -translate-x-1/2 rounded-full blur-3xl"
+        animate={{
+          opacity:
+            currentTheme.mood === "sleaze"
+              ? [0.2, 0.32, 0.18, 0.3]
+              : currentTheme.mood === "marioneta"
+              ? [0.14, 0.26, 0.12, 0.24]
+              : [0.12, 0.2, 0.14, 0.18],
+          scale:
+            currentTheme.mood === "lilium"
+              ? [1, 1.04, 1]
+              : currentTheme.mood === "love"
+              ? [1, 1.03, 1]
+              : [1, 1.06, 1],
+        }}
+        transition={{
+          duration: currentTheme.mood === "sleaze" ? 3.5 : 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{ backgroundColor: currentTheme.glow }}
+      />
+
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute rounded-full blur-xl"
+            style={{
+              width: `${18 + i * 4}px`,
+              height: `${18 + i * 4}px`,
+              left: `${(i * 8) % 100}%`,
+              top: `${(i * 11) % 100}%`,
+              background: currentTheme.particles,
+            }}
+            animate={{
+              y: currentTheme.mood === "marioneta" ? [0, -12, 0] : [0, -30, 0],
+              x: currentTheme.mood === "sleaze" ? [0, 8, -6, 0] : [0, 4, 0],
+              opacity:
+                currentTheme.mood === "sleaze"
+                  ? [0.05, 0.18, 0.08]
+                  : [0.04, 0.14, 0.06],
+              scale: [1, 1.15, 1],
+            }}
+            transition={{
+              duration:
+                currentTheme.mood === "sleaze" ? 2.6 + i * 0.12 : 6 + i * 0.25,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
@@ -1191,6 +1321,14 @@ export default function App() {
 
           <div className="hidden items-center gap-2 xl:flex">
             <button
+              onClick={prevMusic}
+              className="rounded-xl border border-red-500/30 bg-black/40 px-3 py-2 text-xs text-white transition hover:bg-red-500/10"
+              aria-label="Previous track"
+            >
+              ◀
+            </button>
+
+            <button
               onClick={() => void toggleBackgroundMusic()}
               className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-white transition hover:bg-red-500/15"
             >
@@ -1203,6 +1341,18 @@ export default function App() {
                 {musicPlaying ? "Music ON" : "Music OFF"}
               </span>
             </button>
+
+            <button
+              onClick={nextMusic}
+              className="rounded-xl border border-red-500/30 bg-black/40 px-3 py-2 text-xs text-white transition hover:bg-red-500/10"
+              aria-label="Next track"
+            >
+              ▶
+            </button>
+
+            <div className="min-w-[150px] text-xs text-white/65">
+              {currentTheme.title}
+            </div>
 
             <div className="w-24">
               <input
@@ -1262,10 +1412,8 @@ export default function App() {
                   Background music was blocked or file not found
                 </p>
                 <p className="text-sm text-white/65">
-                  Click once to start sound. Current source:
-                  <span className="ml-1 text-red-300">
-                    {BACKGROUND_MUSIC_URLS[musicSrcIndex]}
-                  </span>
+                  Click once to start sound. Current track:
+                  <span className="ml-1 text-red-300">{currentTheme.title}</span>
                 </p>
               </div>
               <button
@@ -1287,10 +1435,10 @@ export default function App() {
               <h1 className="mt-2 text-3xl font-black leading-tight md:text-5xl">
                 {currentPage === "Home" ? (
                   <>
-                    <ReportVoteBlock />
                     Fiora ADC, structured and aggressive.
                     <span className="block text-red-400">
-                      SUPPORT CHECK BELOW <span className="text-white-300">☟</span>
+                      SUPPORT CHECK BELOW{" "}
+                      <span className="text-yellow-300">☟</span>
                     </span>
                   </>
                 ) : (
@@ -1334,6 +1482,8 @@ export default function App() {
             </div>
           </div>
         </NeonCard>
+
+        {currentPage === "Home" && <ReportVoteBlock />}
 
         {currentPage === "Home" && (
           <NeonCard className="overflow-hidden">
@@ -1399,8 +1549,8 @@ export default function App() {
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   <StatCard
                     label="Identity"
-                    value="Jewish Friendly ???"
-                    text="Aggressive, smoking, stomp"
+                    value="Black / neon red / white"
+                    text="Aggressive visual language with strong contrast and draft readability."
                   />
                   <StatCard
                     label="Tone"
@@ -1453,7 +1603,7 @@ export default function App() {
               <>
                 <SectionTitle
                   icon={Target}
-                  title="Why Fiora ADC Works ?"
+                  title="Why Fiora ADC Works"
                   subtitle="Same concept, cleaner presentation: fewer walls of text, more cards that are readable during draft or quick review."
                 />
 
@@ -1486,10 +1636,22 @@ export default function App() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {[
-                    ["Surprise factor", "Most bot lanes do not know Fiora ADC limits and overtrade at the wrong moments."],
-                    ["Duel pressure", "One clean opening can flip lane state even when the matchup looked uncomfortable on paper."],
-                    ["Execution edge", "Riposte timing plus support sync creates disproportionate value off one enemy mistake."],
-                    ["Snowball conversion", "First lead gives wave tempo, objective setup, and much freer lane movement."],
+                    [
+                      "Surprise factor",
+                      "Most bot lanes do not know Fiora ADC limits and overtrade at the wrong moments.",
+                    ],
+                    [
+                      "Duel pressure",
+                      "One clean opening can flip lane state even when the matchup looked uncomfortable on paper.",
+                    ],
+                    [
+                      "Execution edge",
+                      "Riposte timing plus support sync creates disproportionate value off one enemy mistake.",
+                    ],
+                    [
+                      "Snowball conversion",
+                      "First lead gives wave tempo, objective setup, and much freer lane movement.",
+                    ],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
                       <p className="text-lg font-bold text-white">{title}</p>
@@ -1510,22 +1672,50 @@ export default function App() {
 
                 <div className="grid gap-4 xl:grid-cols-2">
                   <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PTA PAGE</p>
+                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+                      PTA PAGE
+                    </p>
                     <IconRow icons={runeIcons.pta} />
                     <div className="space-y-2 text-white/75">
-                      <p><span className="font-semibold text-white">Why PTA:</span> burst profile, short trades, and better punishment against fragile ADCs.</p>
-                      <p><span className="font-semibold text-white">Secondary logic:</span> Biscuits and Jack help survive lane and add long-term value in awkward matchups.</p>
-                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Adaptive Force, Heal.</p>
+                      <p>
+                        <span className="font-semibold text-white">Why PTA:</span>{" "}
+                        burst profile, short trades, and better punishment against fragile ADCs.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-white">
+                          Secondary logic:
+                        </span>{" "}
+                        Biscuits and Jack help survive lane and add long-term value in awkward matchups.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-white">Mini runes:</span>{" "}
+                        Adaptive Force, Adaptive Force, Heal.
+                      </p>
                     </div>
                   </NeonCard>
 
                   <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PHASE RUSH PAGE</p>
+                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+                      PHASE RUSH PAGE
+                    </p>
                     <IconRow icons={runeIcons.phase} />
                     <div className="space-y-2 text-white/75">
-                      <p><span className="font-semibold text-white">Why Phase Rush:</span> easier gap close, cleaner disengage, and better access against mobile or hard-to-reach lanes.</p>
-                      <p><span className="font-semibold text-white">Damage profile:</span> Absolute Focus and Last Stand keep the page threatening at different HP states.</p>
-                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Attack Speed, Scaling Heal.</p>
+                      <p>
+                        <span className="font-semibold text-white">
+                          Why Phase Rush:
+                        </span>{" "}
+                        easier gap close, cleaner disengage, and better access against mobile or hard-to-reach lanes.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-white">
+                          Damage profile:
+                        </span>{" "}
+                        Absolute Focus and Last Stand keep the page threatening at different HP states.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-white">Mini runes:</span>{" "}
+                        Adaptive Force, Attack Speed, Scaling Heal.
+                      </p>
                     </div>
                   </NeonCard>
                 </div>
@@ -1541,24 +1731,61 @@ export default function App() {
                 />
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  <ItemPath title="Core route" items={[itemIcons.tiamat, itemIcons.hydra]} text="Rush Tiamat then Ravenous Hydra for lane comfort, sustain, wave control, and faster map tempo." />
-                  <ItemPath title="Snowball route" items={[itemIcons.hydra, itemIcons.cyclosword]} text="Take this when you can reach target reliably and kill before getting burst down." />
-                  <ItemPath title="Stable route" items={[itemIcons.hydra, itemIcons.triforce]} text="A steadier profile when enemy damage makes pure glass-cannon play too risky." />
-                  <ItemPath title="Safe burst route" items={[itemIcons.hydra, itemIcons.eclipse]} text="Shield plus burst when you need safer entries and a less greedy second item." />
-                  <ItemPath title="Defensive adaptation" items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]} text="DD for heavy AD, Maw for AP threat, Iceborn as a niche durability option." />
-                  <ItemPath title="Late finish" items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]} text="Shojin for pressure, GA for safety, BT for final damage and sustain finish." />
+                  <ItemPath
+                    title="Core route"
+                    items={[itemIcons.tiamat, itemIcons.hydra]}
+                    text="Rush Tiamat then Ravenous Hydra for lane comfort, sustain, wave control, and faster map tempo."
+                  />
+                  <ItemPath
+                    title="Snowball route"
+                    items={[itemIcons.hydra, itemIcons.cyclosword]}
+                    text="Take this when you can reach target reliably and kill before getting burst down."
+                  />
+                  <ItemPath
+                    title="Stable route"
+                    items={[itemIcons.hydra, itemIcons.triforce]}
+                    text="A steadier profile when enemy damage makes pure glass-cannon play too risky."
+                  />
+                  <ItemPath
+                    title="Safe burst route"
+                    items={[itemIcons.hydra, itemIcons.eclipse]}
+                    text="Shield plus burst when you need safer entries and a less greedy second item."
+                  />
+                  <ItemPath
+                    title="Defensive adaptation"
+                    items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]}
+                    text="DD for heavy AD, Maw for AP threat, Iceborn as a niche durability option."
+                  />
+                  <ItemPath
+                    title="Late finish"
+                    items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]}
+                    text="Shojin for pressure, GA for safety, BT for final damage and sustain finish."
+                  />
                 </div>
               </>
             )}
 
             {currentPage === "Skill Order" && (
               <>
-                <SectionTitle icon={Crosshair} title="Skill Order" subtitle="Current practical baseline with a clearer final-site presentation." />
+                <SectionTitle
+                  icon={Crosshair}
+                  title="Skill Order"
+                  subtitle="Current practical baseline with a clearer final-site presentation."
+                />
                 <div className="grid gap-4 md:grid-cols-3">
                   {[
-                    ["Level 1", "Q for access, repositioning, and creating your first real angle."],
-                    ["Level 2", "E for burst timing, especially when PTA trade windows already look possible."],
-                    ["Level 3", "W for Riposte control, CC answer, and far safer commitment."],
+                    [
+                      "Level 1",
+                      "Q for access, repositioning, and creating your first real angle.",
+                    ],
+                    [
+                      "Level 2",
+                      "E for burst timing, especially when PTA trade windows already look possible.",
+                    ],
+                    [
+                      "Level 3",
+                      "W for Riposte control, CC answer, and far safer commitment.",
+                    ],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
                       <p className="text-lg font-bold text-white">{title}</p>
@@ -1571,10 +1798,17 @@ export default function App() {
 
             {currentPage === "Matchups" && (
               <>
-                <SectionTitle icon={Sword} title="Matchups" subtitle="Readable matchup cards with practical notes and stronger visual framing." />
+                <SectionTitle
+                  icon={Sword}
+                  title="Matchups"
+                  subtitle="Readable matchup cards with practical notes and stronger visual framing."
+                />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {matchups.map((m) => (
-                    <NeonCard key={m.name} className="overflow-hidden p-4 transition hover:-translate-y-1">
+                    <NeonCard
+                      key={m.name}
+                      className="overflow-hidden p-4 transition hover:-translate-y-1"
+                    >
                       <img
                         src={m.image}
                         alt={m.name}
@@ -1584,7 +1818,9 @@ export default function App() {
                       />
                       <div className="mt-4 flex items-center justify-between">
                         <p className="text-xl font-bold text-white">{m.name}</p>
-                        <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">{m.danger}</span>
+                        <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
+                          {m.danger}
+                        </span>
                       </div>
                       <p className="mt-1 text-sm text-red-300">{m.level}</p>
                       <p className="mt-3 text-white/70">{m.explanation}</p>
@@ -1596,13 +1832,22 @@ export default function App() {
 
             {currentPage === "Lane Phase" && (
               <>
-                <SectionTitle icon={Target} title="Lane Phase" subtitle="The best compromise: fast jump buttons plus full sections visible on scroll, without forcing tab-switching to read the guide." />
+                <SectionTitle
+                  icon={Target}
+                  title="Lane Phase"
+                  subtitle="The best compromise: fast jump buttons plus full sections visible on scroll, without forcing tab-switching to read the guide."
+                />
 
                 <div className="flex flex-wrap gap-2">
                   {laneSections.map((section) => (
                     <button
                       key={section.id}
-                      onClick={() => laneRefs.current[section.id]?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                      onClick={() =>
+                        laneRefs.current[section.id]?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        })
+                      }
                       className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/75 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
                     >
                       {section.title}
@@ -1611,9 +1856,21 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                  <StatCard label="Primary goal" value="Preserve HP" text="Do not waste health before the real engage window exists." />
-                  <StatCard label="First spikes" value="Level 2 and 3" text="Q/E pressure first, Riposte confidence second." />
-                  <StatCard label="Vision rule" value="Ward first" text="Control the lane space before converting into aggression." />
+                  <StatCard
+                    label="Primary goal"
+                    value="Preserve HP"
+                    text="Do not waste health before the real engage window exists."
+                  />
+                  <StatCard
+                    label="First spikes"
+                    value="Level 2 and 3"
+                    text="Q/E pressure first, Riposte confidence second."
+                  />
+                  <StatCard
+                    label="Vision rule"
+                    value="Ward first"
+                    text="Control the lane space before converting into aggression."
+                  />
                 </div>
 
                 <div className="space-y-4">
@@ -1625,12 +1882,19 @@ export default function App() {
                         }}
                         className="scroll-mt-28"
                       >
-                        <p className="text-xs uppercase tracking-[0.2em] text-red-300">Quick read</p>
-                        <h3 className="mt-2 text-2xl font-black text-white">{section.title}</h3>
+                        <p className="text-xs uppercase tracking-[0.2em] text-red-300">
+                          Quick read
+                        </p>
+                        <h3 className="mt-2 text-2xl font-black text-white">
+                          {section.title}
+                        </h3>
                         <p className="mt-3 text-white/70">{section.summary}</p>
                         <div className="mt-5 grid gap-4 md:grid-cols-3">
                           {section.points.map((point) => (
-                            <div key={point} className="rounded-2xl border border-red-500/20 bg-black/35 p-4 text-white/75">
+                            <div
+                              key={point}
+                              className="rounded-2xl border border-red-500/20 bg-black/35 p-4 text-white/75"
+                            >
                               {point}
                             </div>
                           ))}
@@ -1644,18 +1908,41 @@ export default function App() {
 
             {currentPage === "Fiora's Support" && (
               <>
-                <SectionTitle icon={HeartHandshake} title="Fiora's Support" subtitle="Global support logic, profile details, and direct connection to lane-phase reading." />
+                <SectionTitle
+                  icon={HeartHandshake}
+                  title="Fiora's Support"
+                  subtitle="Global support logic, profile details, and direct connection to lane-phase reading."
+                />
 
                 <NeonCard className="p-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-red-300">Mandatory read</p>
-                  <h3 className="mt-2 text-2xl font-black text-white">Supports must read Lane Phase too</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-red-300">
+                    Mandatory read
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black text-white">
+                    Supports must read Lane Phase too
+                  </h3>
                   <p className="mt-3 max-w-3xl text-white/75">
                     This page explains support priorities, but lane execution details still live in Lane Phase. Read both to avoid desynced engages and fake all-ins.
                   </p>
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <button onClick={() => goLaneSection("early")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Early</button>
-                    <button onClick={() => goLaneSection("wave")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Wave</button>
-                    <button onClick={() => goLaneSection("support")} className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200">Read Lane Phase: Support</button>
+                    <button
+                      onClick={() => goLaneSection("early")}
+                      className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+                    >
+                      Read Lane Phase: Early
+                    </button>
+                    <button
+                      onClick={() => goLaneSection("wave")}
+                      className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+                    >
+                      Read Lane Phase: Wave
+                    </button>
+                    <button
+                      onClick={() => goLaneSection("support")}
+                      className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+                    >
+                      Read Lane Phase: Support
+                    </button>
                   </div>
                 </NeonCard>
 
@@ -1665,7 +1952,10 @@ export default function App() {
                       <img
                         src={s.image}
                         alt={s.name}
-                        className={`w-full ${s.size} rounded-3xl border border-red-500/25 object-cover`}
+                        className={cn(
+                          "w-full rounded-3xl border border-red-500/25 object-cover",
+                          s.size
+                        )}
                         onError={(event) => recoverImage(event)}
                         style={{ objectPosition: s.position }}
                       />
@@ -1679,19 +1969,31 @@ export default function App() {
                 <div className="grid gap-4 xl:grid-cols-3">
                   <NeonCard className="p-5">
                     <p className="mb-2 font-semibold text-red-300">Engage / hook</p>
-                    <p className="text-white/75">Supports that create direct access are premium, because Fiora wins hardest when the target cannot freely kite the first commit.</p>
+                    <p className="text-white/75">
+                      Supports that create direct access are premium, because Fiora wins hardest when the target cannot freely kite the first commit.
+                    </p>
                   </NeonCard>
                   <NeonCard className="p-5">
                     <p className="mb-2 font-semibold text-red-300">Hydra timing</p>
-                    <p className="text-white/75">Once Ravenous Hydra is completed, repeated pressure becomes easier because Fiora can sustain, reset, and re-enter faster.</p>
+                    <p className="text-white/75">
+                      Once Ravenous Hydra is completed, repeated pressure becomes easier because Fiora can sustain, reset, and re-enter faster.
+                    </p>
                   </NeonCard>
                   <NeonCard className="p-5">
-                    <p className="mb-2 font-semibold text-red-300">Protective supports</p>
-                    <p className="text-white/75">They still work when the goal is to survive lane, keep HP high, and unlock later spikes with cleaner entries.</p>
+                    <p className="mb-2 font-semibold text-red-300">
+                      Protective supports
+                    </p>
+                    <p className="text-white/75">
+                      They still work when the goal is to survive lane, keep HP high, and unlock later spikes with cleaner entries.
+                    </p>
                   </NeonCard>
                 </div>
 
-                <SectionTitle icon={PlayCircle} title="Support Clips" subtitle="Integrated examples for support behavior around Fiora ADC." />
+                <SectionTitle
+                  icon={PlayCircle}
+                  title="Support Clips"
+                  subtitle="Integrated examples for support behavior around Fiora ADC."
+                />
                 <div className="grid gap-4 md:grid-cols-2">
                   {supportClips.map((clip) => (
                     <NeonCard key={clip.url} className="overflow-hidden p-4">
@@ -1707,8 +2009,15 @@ export default function App() {
                       </div>
                       <div className="mt-3">
                         <p className="font-semibold text-white">{clip.title}</p>
-                        <p className="mt-1 text-sm text-white/65">{clip.description}</p>
-                        <a href={clip.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
+                        <p className="mt-1 text-sm text-white/65">
+                          {clip.description}
+                        </p>
+                        <a
+                          href={clip.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200"
+                        >
                           Open on YouTube
                         </a>
                       </div>
@@ -1720,12 +2029,25 @@ export default function App() {
 
             {currentPage === "Mid/Late Game" && (
               <>
-                <SectionTitle icon={Flame} title="Mid / Late Game" subtitle="Macro priorities in cards, without another giant paragraph block." />
+                <SectionTitle
+                  icon={Flame}
+                  title="Mid / Late Game"
+                  subtitle="Macro priorities in cards, without another giant paragraph block."
+                />
                 <div className="grid gap-4 md:grid-cols-3">
                   {[
-                    ["Pick one plan", "Split, flank, pick, or group. Do not mix all plans at once."],
-                    ["Entry timing", "Fight after vision and cooldown checks, not just because enemies are visible."],
-                    ["Conversion", "Every successful fight should become objective pressure, tempo, or map space."],
+                    [
+                      "Pick one plan",
+                      "Split, flank, pick, or group. Do not mix all plans at once.",
+                    ],
+                    [
+                      "Entry timing",
+                      "Fight after vision and cooldown checks, not just because enemies are visible.",
+                    ],
+                    [
+                      "Conversion",
+                      "Every successful fight should become objective pressure, tempo, or map space.",
+                    ],
                   ].map(([title, text]) => (
                     <NeonCard key={title} className="p-5">
                       <p className="font-bold text-white">{title}</p>
@@ -1735,7 +2057,8 @@ export default function App() {
                 </div>
                 <NeonCard className="p-6">
                   <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-red-300">
-                    Add later <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
+                    Add later <ChevronRight className="h-4 w-4" /> Side pressure /
+                    vision setup / fight entry rules
                   </div>
                 </NeonCard>
               </>
@@ -1743,7 +2066,11 @@ export default function App() {
 
             {currentPage === "Mechanical Tips" && (
               <>
-                <SectionTitle icon={Zap} title="Mechanical Tips" subtitle="Short tactical notes instead of bloated explanation blocks." />
+                <SectionTitle
+                  icon={Zap}
+                  title="Mechanical Tips"
+                  subtitle="Short tactical notes instead of bloated explanation blocks."
+                />
                 <div className="grid gap-4 md:grid-cols-2">
                   {mechanics.map((item) => (
                     <NeonCard key={item.title} className="p-5">
@@ -1757,12 +2084,31 @@ export default function App() {
 
             {currentPage === "Videos / Clips" && (
               <>
-                <SectionTitle icon={PlayCircle} title="Videos / Clips" subtitle="Visual section ready for future highlight and teaching clip expansion." />
+                <SectionTitle
+                  icon={PlayCircle}
+                  title="Videos / Clips"
+                  subtitle="Visual section ready for future highlight and teaching clip expansion."
+                />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {[
-                    { title: "Duel highlight", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg", pos: "center 24%" },
-                    { title: "Timing sample", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg", pos: "center 24%" },
-                    { title: "Carry sequence", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_7.jpg", pos: "center 25%" },
+                    {
+                      title: "Duel highlight",
+                      image:
+                        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
+                      pos: "center 24%",
+                    },
+                    {
+                      title: "Timing sample",
+                      image:
+                        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
+                      pos: "center 24%",
+                    },
+                    {
+                      title: "Carry sequence",
+                      image:
+                        "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_7.jpg",
+                      pos: "center 25%",
+                    },
                   ].map((v) => (
                     <NeonCard key={v.title} className="overflow-hidden p-4">
                       <img
@@ -1773,7 +2119,9 @@ export default function App() {
                         style={{ objectPosition: v.pos }}
                       />
                       <p className="mt-3 font-semibold text-white">{v.title}</p>
-                      <p className="mt-1 text-sm text-white/65">Reserved for your next clip and explanation block.</p>
+                      <p className="mt-1 text-sm text-white/65">
+                        Reserved for your next clip and explanation block.
+                      </p>
                     </NeonCard>
                   ))}
                 </div>
@@ -1783,13 +2131,29 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <div className="fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-2xl border border-red-500/35 bg-black/75 px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl xl:hidden">
+      <div className="fixed bottom-5 left-5 z-50 flex items-center gap-2 rounded-2xl border border-red-500/35 bg-black/75 px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl xl:hidden">
+        <button
+          onClick={prevMusic}
+          className="text-red-300"
+          aria-label="Previous track"
+        >
+          ◀
+        </button>
+
         <button
           onClick={() => void toggleBackgroundMusic()}
           className="text-red-300"
           aria-label="Toggle background music"
         >
           {musicPlaying ? <Pause className="h-5 w-5" /> : <Music2 className="h-5 w-5" />}
+        </button>
+
+        <button
+          onClick={nextMusic}
+          className="text-red-300"
+          aria-label="Next track"
+        >
+          ▶
         </button>
 
         <input
