@@ -1290,7 +1290,7 @@ export default function App() {
                     <ReportVoteBlock />
                     Fiora ADC, structured and aggressive.
                     <span className="block text-red-400">
-                      SUPPORT CHECK BELOW ☟
+                      SUPPORT CHECK BELOW <span className="text-white-300">☟</span>
                     </span>
                   </>
                 ) : (
