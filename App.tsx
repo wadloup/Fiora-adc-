@@ -1400,7 +1400,7 @@ export default function App() {
                   <StatCard
                     label="Identity"
                     value="Jewish Friendly ???"
-                    text="Aggressive, smoking, extermination"
+                    text="Aggressive, smoking, stomp"
                   />
                   <StatCard
                     label="Tone"
