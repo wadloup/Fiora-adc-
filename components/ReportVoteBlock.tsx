@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowBigDown, ArrowBigUp, Bomb } from "lucide-react";
+import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import NeonCard from "./ui/NeonCard";
 import { supabase } from "../supabase";
 
@@ -41,7 +41,7 @@ const voteCards: Array<{
     tone: "POOP",
     label: "Poop",
     accent: "border-yellow-400/40 bg-yellow-500/15 text-yellow-200",
-    icon: Bomb,
+    icon: ArrowBigUp,
   },
 ];
 
@@ -147,6 +147,7 @@ export default function ReportVoteBlock({
         <div className="grid grid-cols-3 gap-2">
           {voteCards.map((voteCard) => {
             const Icon = voteCard.icon;
+            const isPoop = voteCard.key === "poop";
 
             return (
               <button
@@ -165,14 +166,27 @@ export default function ReportVoteBlock({
                     : ""
                 } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
               >
-                <Icon
-                  className={
-                    compact
-                      ? "mx-auto mb-1 h-4 w-4"
-                      : "mx-auto mb-2 h-5 w-5"
-                  }
-                  aria-hidden="true"
-                />
+                {isPoop ? (
+                  <span
+                    className={
+                      compact
+                        ? "mx-auto mb-1 block text-[16px] leading-none"
+                        : "mx-auto mb-2 block text-[20px] leading-none"
+                    }
+                    aria-hidden="true"
+                  >
+                    💩
+                  </span>
+                ) : (
+                  <Icon
+                    className={
+                      compact
+                        ? "mx-auto mb-1 h-4 w-4"
+                        : "mx-auto mb-2 h-5 w-5"
+                    }
+                    aria-hidden="true"
+                  />
+                )}
                 <div
                   className={
                     compact
