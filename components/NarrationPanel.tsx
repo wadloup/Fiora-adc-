@@ -2,7 +2,12 @@
 import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
 import NeonCard from "./ui/NeonCard";
-import { pageMeta, type PageName, voiceText } from "../data/siteData";
+import {
+  narrationAudio,
+  pageMeta,
+  type PageName,
+  voiceText,
+} from "../data/siteData";
 import { cn } from "../utils/cn";
 import { DEFAULT_CHAMPION_IMAGE, recoverImage } from "../utils/imageFallback";
 
@@ -20,6 +25,9 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
   const [pitch, setPitch] = useState(0.84);
   const [displayText, setDisplayText] = useState(voiceText[page]);
   const tickerRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recordedAudioSrc = narrationAudio[page];
+  const hasRecordedNarration = Boolean(recordedAudioSrc);
 
   const stop = useCallback(() => {
     if (tickerRef.current) {
@@ -31,20 +39,46 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
       window.speechSynthesis.cancel();
     }
 
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
     setSpeaking(false);
     setDisplayText(voiceText[page]);
   }, [page]);
 
-  const speak = useCallback(() => {
+  const speak = useCallback(async () => {
+    stop();
+
+    const text = voiceText[page];
+    if (recordedAudioSrc) {
+      const audio = audioRef.current;
+      if (!audio) {
+        setDisplayText(text);
+        setSpeaking(false);
+        return;
+      }
+
+      setDisplayText(text);
+      setSpeaking(true);
+      audio.currentTime = 0;
+
+      try {
+        await audio.play();
+      } catch {
+        setSpeaking(false);
+      }
+
+      return;
+    }
+
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      setDisplayText(voiceText[page]);
+      setDisplayText(text);
       setSpeaking(false);
       return;
     }
 
-    stop();
-
-    const text = voiceText[page];
     setDisplayText("");
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -91,7 +125,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
     };
 
     window.speechSynthesis.speak(utterance);
-  }, [page, pitch, rate, selectedVoice, stop]);
+  }, [page, pitch, rate, recordedAudioSrc, selectedVoice, stop]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -218,50 +252,66 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
             </button>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <label className="flex flex-col gap-2 text-xs text-white/65">
-              Voice
-              <select
-                value={selectedVoice}
-                onChange={(event) => setSelectedVoice(event.target.value)}
-                className="rounded-xl border border-red-500/25 bg-black/45 px-3 py-2 text-sm text-white outline-none"
-              >
-                {voices
-                  .filter((voice) => voice.lang.toLowerCase().startsWith("en"))
-                  .map((voice) => (
-                    <option key={voice.voiceURI} value={voice.voiceURI}>
-                      {voice.name}
-                    </option>
-                  ))}
-              </select>
-            </label>
+          {hasRecordedNarration ? (
+            <div className="rounded-2xl border border-red-500/20 bg-black/30 px-4 py-3 text-sm text-white/70">
+              This page uses a pre-recorded human voice track. Other pages still
+              use browser speech for now.
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-3">
+              <label className="flex flex-col gap-2 text-xs text-white/65">
+                Voice
+                <select
+                  value={selectedVoice}
+                  onChange={(event) => setSelectedVoice(event.target.value)}
+                  className="rounded-xl border border-red-500/25 bg-black/45 px-3 py-2 text-sm text-white outline-none"
+                >
+                  {voices
+                    .filter((voice) => voice.lang.toLowerCase().startsWith("en"))
+                    .map((voice) => (
+                      <option key={voice.voiceURI} value={voice.voiceURI}>
+                        {voice.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
 
-            <label className="flex flex-col gap-2 text-xs text-white/65">
-              Rate: {rate.toFixed(2)}
-              <input
-                type="range"
-                min="0.75"
-                max="1.05"
-                step="0.01"
-                value={rate}
-                onChange={(event) => setRate(Number(event.target.value))}
-              />
-            </label>
+              <label className="flex flex-col gap-2 text-xs text-white/65">
+                Rate: {rate.toFixed(2)}
+                <input
+                  type="range"
+                  min="0.75"
+                  max="1.05"
+                  step="0.01"
+                  value={rate}
+                  onChange={(event) => setRate(Number(event.target.value))}
+                />
+              </label>
 
-            <label className="flex flex-col gap-2 text-xs text-white/65">
-              Pitch: {pitch.toFixed(2)}
-              <input
-                type="range"
-                min="0.7"
-                max="1.1"
-                step="0.01"
-                value={pitch}
-                onChange={(event) => setPitch(Number(event.target.value))}
-              />
-            </label>
-          </div>
+              <label className="flex flex-col gap-2 text-xs text-white/65">
+                Pitch: {pitch.toFixed(2)}
+                <input
+                  type="range"
+                  min="0.7"
+                  max="1.1"
+                  step="0.01"
+                  value={pitch}
+                  onChange={(event) => setPitch(Number(event.target.value))}
+                />
+              </label>
+            </div>
+          )}
 
           <div className="relative rounded-[28px] border border-red-500/25 bg-black/35 p-5 shadow-[0_0_22px_rgba(255,0,60,0.12)] md:p-6">
+            {recordedAudioSrc ? (
+              <audio
+                ref={audioRef}
+                src={recordedAudioSrc}
+                preload="auto"
+                onEnded={() => setSpeaking(false)}
+                onError={() => setSpeaking(false)}
+              />
+            ) : null}
             <p className="min-h-[120px] text-lg leading-relaxed text-white md:text-xl">
               {displayText}
               {speaking ? (

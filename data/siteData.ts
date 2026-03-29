@@ -158,6 +158,10 @@ export const voiceText: Record<PageName, string> = {
     "Use clips to study decisions, spacing, entry timing, and reset windows, not only the highlights.",
 };
 
+export const narrationAudio: Partial<Record<PageName, string>> = {
+  Home: "/voices/home.wav",
+};
+
 export type Matchup = {
   name: string;
   level: string;
