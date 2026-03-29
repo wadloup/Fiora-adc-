@@ -123,51 +123,23 @@ export const musicThemes: MusicTheme[] = [
     mood: "Dirty hyperpop night",
     src: "/audio/sleaze-on-it.mp3",
     background: {
-      base: "radial-gradient(circle at 18% 18%, rgba(255,0,120,0.2), transparent 24%), radial-gradient(circle at 82% 22%, rgba(0,255,240,0.18), transparent 24%), linear-gradient(180deg, #040405 0%, #0d0715 45%, #030305 100%)",
+      base: "linear-gradient(180deg, #010101 0%, #06060a 44%, #010101 100%)",
       overlay:
-        "linear-gradient(135deg, rgba(255, 0, 153, 0.16) 0%, rgba(0, 255, 240, 0.08) 48%, rgba(0,0,0,0) 100%)",
-      pattern:
-        "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-      patternSize: "90px 90px",
-      veil: "radial-gradient(circle at 50% -10%, rgba(255,0,160,0.14), transparent 50%)",
-      glows: [
-        {
-          top: "6%",
-          left: "16%",
-          width: "24rem",
-          height: "24rem",
-          background:
-            "radial-gradient(circle, rgba(255,0,153,0.34) 0%, rgba(255,0,102,0.16) 45%, transparent 72%)",
-          opacity: 0.72,
-          duration: 14,
-          x: [0, 18, 0],
-          y: [0, 12, 0],
-        },
-        {
-          top: "26%",
-          left: "68%",
-          width: "24rem",
-          height: "24rem",
-          background:
-            "radial-gradient(circle, rgba(0,255,240,0.34) 0%, rgba(0,170,255,0.14) 45%, transparent 70%)",
-          opacity: 0.66,
-          duration: 12,
-          x: [0, -22, 0],
-          y: [0, 18, 0],
-        },
-        {
-          top: "72%",
-          left: "42%",
-          width: "20rem",
-          height: "20rem",
-          background:
-            "radial-gradient(circle, rgba(255,255,0,0.22) 0%, rgba(255,120,0,0.08) 42%, transparent 68%)",
-          opacity: 0.4,
-          duration: 10,
-          x: [0, 14, 0],
-          y: [0, -10, 0],
-        },
-      ],
+        "linear-gradient(135deg, rgba(255, 0, 120, 0.06) 0%, rgba(0, 255, 240, 0.04) 48%, rgba(0,0,0,0.14) 100%)",
+      pattern: "none",
+      patternSize: "100% 100%",
+      veil: "radial-gradient(circle at 50% -10%, rgba(255,0,160,0.08), transparent 46%)",
+      artwork: {
+        src: "/backgrounds/sleaze-wallpaper.mp4",
+        kind: "video",
+        posterSrc: "/backgrounds/sleaze-wallpaper.jpg",
+        fit: "cover",
+        position: "center center",
+        opacity: 0.98,
+        scale: 1,
+        filter: "contrast(1.05) saturate(1.08) brightness(0.84)",
+      },
+      glows: [],
     },
   },
   {
