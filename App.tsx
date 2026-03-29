@@ -27,6 +27,7 @@ import {
 } from "./data/musicThemes";
 import { recoverImage } from "./utils/imageFallback";
 import { cn } from "./utils/cn";
+import { trackGuidePageViewed } from "./utils/analytics";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -155,6 +156,10 @@ export default function App() {
       void playBackgroundMusic();
     }
   }, [selectedTrackId, playBackgroundMusic]);
+
+  useEffect(() => {
+    trackGuidePageViewed(currentPage);
+  }, [currentPage]);
 
   const goPage = (page: PageName) => {
     setCurrentPage(page);

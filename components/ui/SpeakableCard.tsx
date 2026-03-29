@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
 import NeonCard from "./NeonCard";
 import { cn } from "../../utils/cn";
+import { trackSpeakableBlockPlayed } from "../../utils/analytics";
 import {
   ACTIVE_SPEAKABLE_EVENT,
   requestNarrationStop,
@@ -71,6 +72,7 @@ function stopSpeakable() {
 
 type SpeakableCardProps = {
   text: string;
+  analyticsLabel?: string;
   className?: string;
   contentClassName?: string;
   children: ReactNode;
@@ -78,6 +80,7 @@ type SpeakableCardProps = {
 
 export default function SpeakableCard({
   text,
+  analyticsLabel,
   className,
   contentClassName,
   children,
@@ -147,6 +150,9 @@ export default function SpeakableCard({
     activeSpeakableId = speakableId;
     setActiveSpeakable(speakableId);
     playActivationSound();
+    trackSpeakableBlockPlayed(
+      analyticsLabel || text.split(".")[0] || text.slice(0, 80)
+    );
 
     utterance.onend = () => {
       if (activeSpeakableId === speakableId) {
