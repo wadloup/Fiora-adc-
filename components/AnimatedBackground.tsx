@@ -224,6 +224,24 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     };
   }, [cursorFxEnabled]);
 
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const root = document.documentElement;
+
+    if (cursorFxEnabled) {
+      root.classList.add("custom-cursor-active");
+    } else {
+      root.classList.remove("custom-cursor-active");
+    }
+
+    return () => {
+      root.classList.remove("custom-cursor-active");
+    };
+  }, [cursorFxEnabled]);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
