@@ -326,7 +326,7 @@ export default function App() {
                   </p>
                   <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
-                      Fiora ADC, structured and aggressive.
+                      Fiora ADC, all pressure, no excuses.
                       <span className="flex items-center gap-2 text-red-400">
                         SUPPORT CHECK BELOW
                         <ArrowDown className="h-7 w-7 text-white/80" />

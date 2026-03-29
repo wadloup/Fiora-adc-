@@ -41,7 +41,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_1.jpg",
     mood: "Calculated arrogance",
     summary:
-      "This page explains why Fiora ADC creates pressure when enemies misjudge spacing, cooldowns, and all-in timing.",
+      "Why this pick creates pressure when enemies misjudge spacing, cooldowns, and all-in timing.",
     position: "center 24%",
   },
   Runes: {
@@ -119,18 +119,18 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
 };
 
 export const pageSubtitle: Record<PageName, string> = {
-  Home: "Fast draft read with a support-first priority.",
+  Home: "Support first. Draft fast.",
   "Why Fiora ADC Works":
-    "Why the pick works when played with structure and intent.",
-  Runes: "Two rune pages, two clear purposes.",
-  Build: "Core route plus adaptations and finishing logic.",
-  "Skill Order": "Early levels and simple baseline progression.",
-  Matchups: "Trend-based reading with practical expectations.",
-  "Lane Phase": "Key lane information without giant unreadable walls.",
-  "Fiora's Support": "What support must actually do for Fiora ADC.",
-  "Mid/Late Game": "How to convert lane advantage into game pressure.",
+    "Where the pressure comes from, and why it works.",
+  Runes: "Two rune pages. Two jobs.",
+  Build: "Core route, pivots, and finishers.",
+  "Skill Order": "What each early point is doing for you.",
+  Matchups: "What feels good, what feels awful, and why.",
+  "Lane Phase": "HP, brush control, spikes, and kill windows.",
+  "Fiora's Support": "What support has to do if this lane is going to work.",
+  "Mid/Late Game": "How to turn lane pressure into something that matters.",
   "Mechanical Tips": "Short execution reminders before queue.",
-  "Videos / Clips": "Space for examples, highlights, and teaching clips.",
+  "Videos / Clips": "Clips for setup, entries, and cleanup.",
 };
 
 export const voiceText: Record<PageName, string> = {
@@ -220,7 +220,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ashe_0.jpg",
     position: "center 22%",
     explanation:
-      "The slow breaks lane rhythm. You need cleaner HP discipline and more decisive engages.",
+      "The slow breaks lane rhythm. You need better HP discipline and more decisive engages.",
   },
   {
     name: "Draven",
@@ -381,7 +381,7 @@ export const laneSections: LaneSection[] = [
     points: [
       "Engage and hook supports are premium because they create direct target access for Fiora.",
       "After Ravenous Hydra, repeated pressure becomes easier because Fiora can sustain and re-enter more comfortably.",
-      "Protective supports still work if the plan is survive lane, hold health, and spike later with cleaner entries.",
+      "Protective supports still work if the plan is survive lane, hold health, and spike later with better entries.",
     ],
   },
   {
@@ -432,19 +432,19 @@ export type SimpleCard = {
 export const homeStatCards: SimpleCard[] = [
   {
     title: "Identity",
-    text: "Aggressive, smoking, stomp",
+    text: "Dark red, hard edges, no soft landing.",
   },
   {
     title: "Tone",
-    text: "Direct, niche, practical, and built around pressure instead of autopilot.",
+    text: "Pressure first, excuses later.",
   },
   {
     title: "Positioning",
-    text: "Not random troll value. The guide frames it as a real structured strategy.",
+    text: "Pocket pick with an actual plan behind it.",
   },
   {
     title: "Use",
-    text: "Support-first entry points make the site useful before lane even starts.",
+    text: "Open this before lane starts, not after it goes bad.",
   },
 ];
 
@@ -452,21 +452,21 @@ export const homeStatValues = [
   "Jewish Friendly ???",
   "Carry mindset",
   "Technical pocket pick",
-  "Fast draft read",
+  "Queue-time read",
 ] as const;
 
 export const homeFeatureCards: SimpleCard[] = [
   {
     title: "Support-first",
-    text: "The most important lane partner information is pushed forward immediately.",
+    text: "Your support should read this before either of you load in.",
   },
   {
     title: "Guide structure",
-    text: "Runes, build, lane phase, support, mid-game, mechanics, and video sections all share one visual system.",
+    text: "Runes, build, lane, support, macro, clips. Nothing buried.",
   },
   {
     title: "Personality",
-    text: "The site still feels like Fiora: sharp, confident, and slightly disrespectful in the right way.",
+    text: "Still Fiora: sharp, smug, and ready to punish mistakes.",
   },
 ];
 
@@ -515,7 +515,7 @@ export const supportPrinciples: SimpleCard[] = [
   },
   {
     title: "Protective supports",
-    text: "They still work when the goal is to survive lane, keep HP high, and unlock later spikes with cleaner entries.",
+    text: "They still work when the goal is to survive lane, keep HP high, and unlock later spikes with better entries.",
   },
 ];
 

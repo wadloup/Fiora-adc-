@@ -74,7 +74,7 @@ export default function PageContent({
             <SectionTitle
               icon={Flame}
               title="Welcome to the Fiora ADC lab"
-              subtitle="This version keeps the strongest personality cues but organizes them like a real final site: cleaner hierarchy, clearer pages, and faster access to what matters in draft."
+              subtitle="Everything that matters is up front: support sync, lane plan, and the parts that actually win draft."
             />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {homeFeatureCards.map((card) => (
@@ -97,7 +97,7 @@ export default function PageContent({
           <SectionTitle
             icon={Target}
             title="Why Fiora ADC Works ?"
-            subtitle="Same concept, cleaner presentation: fewer walls of text, more cards that are readable during draft or quick review."
+            subtitle="No cope, no filler. Just where the pick gets its pressure."
           />
 
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -198,7 +198,7 @@ export default function PageContent({
           <SectionTitle
             icon={Shield}
             title="Build"
-            subtitle="Complete routes with icons and explicit conditions, but still quick to scan."
+            subtitle="Your main route, your pivots, and when to stop being greedy."
           />
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -241,7 +241,7 @@ export default function PageContent({
           <SectionTitle
             icon={Crosshair}
             title="Skill Order"
-            subtitle="Current practical baseline with a clearer final-site presentation."
+            subtitle="Simple order, real purpose behind every early point."
           />
           <div className="grid gap-4 md:grid-cols-3">
             {skillOrderCards.map((card) => (
@@ -263,7 +263,7 @@ export default function PageContent({
           <SectionTitle
             icon={Sword}
             title="Matchups"
-            subtitle="Readable matchup cards with practical notes and stronger visual framing."
+            subtitle="The lanes that feel good, the lanes that feel awful, and why."
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {matchups.map((matchup) => (
@@ -298,7 +298,7 @@ export default function PageContent({
           <SectionTitle
             icon={Target}
             title="Lane Phase"
-            subtitle="The best compromise: fast jump buttons plus full sections visible on scroll, without forcing tab-switching to read the guide."
+            subtitle="HP, brush control, spikes, and the one opening that matters."
           />
 
           <div className="flex flex-wrap gap-2">
@@ -378,7 +378,7 @@ export default function PageContent({
           <SectionTitle
             icon={HeartHandshake}
             title="Fiora's Support"
-            subtitle="Global support logic, profile details, and direct connection to lane-phase reading."
+            subtitle="What your support should do if they want this lane to work."
           />
 
           <NeonCard className="p-6">
@@ -389,7 +389,7 @@ export default function PageContent({
               Supports must read Lane Phase too
             </h3>
             <p className="mt-3 max-w-3xl text-white/75">
-              This page explains support priorities, but lane execution details still live in Lane Phase. Read both to avoid desynced engages and fake all-ins.
+              Read this with Lane Phase or your engages will desync and look fake.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <button
@@ -450,7 +450,7 @@ export default function PageContent({
           <SectionTitle
             icon={PlayCircle}
             title="Support Clips"
-            subtitle="Integrated examples for support behavior around Fiora ADC."
+            subtitle="Watch the timing, not just the kill."
           />
           <div className="grid gap-4 md:grid-cols-2">
             {supportClips.map((clip) => (
@@ -488,7 +488,7 @@ export default function PageContent({
           <SectionTitle
             icon={Flame}
             title="Mid / Late Game"
-            subtitle="Macro priorities in cards, without another giant paragraph block."
+            subtitle="Pick a plan, take space, close the game."
           />
           <div className="grid gap-4 md:grid-cols-3">
             {midLateCards.map((card) => (
@@ -504,7 +504,7 @@ export default function PageContent({
           </div>
           <NeonCard className="p-6">
             <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-red-300">
-              Add later <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
+              Next up <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
             </div>
           </NeonCard>
         </>
@@ -515,7 +515,7 @@ export default function PageContent({
           <SectionTitle
             icon={Zap}
             title="Mechanical Tips"
-            subtitle="Short tactical notes instead of bloated explanation blocks."
+            subtitle="Short reminders before queue, not fake philosophy."
           />
           <div className="grid gap-4 md:grid-cols-2">
             {mechanics.map((item) => (
@@ -537,14 +537,14 @@ export default function PageContent({
           <SectionTitle
             icon={PlayCircle}
             title="Videos / Clips"
-            subtitle="Visual section ready for future highlight and teaching clip expansion."
+            subtitle="Clips for spacing, setups, entries, and finishers."
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {videoCards.map((videoCard) => (
               <SpeakableCard
                 key={videoCard.title}
                 className="overflow-hidden p-4"
-                text={`${videoCard.title}. Reserved for your next clip and explanation block.`}
+                text={`${videoCard.title}. Save this slot for your next clip and the setup behind it.`}
               >
                 <img
                   src={videoCard.image}
@@ -555,7 +555,7 @@ export default function PageContent({
                 />
                 <p className="mt-3 font-semibold text-white">{videoCard.title}</p>
                 <p className="mt-1 text-sm text-white/65">
-                  Reserved for your next clip and explanation block.
+                  Save this slot for your next clip and the setup behind it.
                 </p>
               </SpeakableCard>
             ))}
