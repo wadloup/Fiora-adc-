@@ -175,39 +175,23 @@ export const musicThemes: MusicTheme[] = [
     mood: "Stage lights and tension strings",
     src: "/audio/marioneta-sped-up.mp3",
     background: {
-      base: "radial-gradient(circle at 50% 10%, rgba(255,220,220,0.1), transparent 20%), radial-gradient(circle at 18% 28%, rgba(110,0,40,0.16), transparent 24%), linear-gradient(180deg, #070506 0%, #17070d 42%, #050305 100%)",
+      base: "linear-gradient(180deg, #050305 0%, #12070b 42%, #040204 100%)",
       overlay:
-        "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(100,0,40,0.1) 42%, rgba(0,0,0,0) 100%)",
-      pattern:
-        "linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)",
-      patternSize: "120px 120px",
-      veil: "radial-gradient(circle at 50% -10%, rgba(255,255,255,0.08), transparent 44%)",
-      glows: [
-        {
-          top: "-2%",
-          left: "38%",
-          width: "28rem",
-          height: "18rem",
-          background:
-            "radial-gradient(circle, rgba(255,220,220,0.18) 0%, rgba(255,180,180,0.06) 42%, transparent 72%)",
-          opacity: 0.66,
-          duration: 18,
-          x: [0, 8, 0],
-          y: [0, -10, 0],
-        },
-        {
-          top: "34%",
-          left: "10%",
-          width: "22rem",
-          height: "22rem",
-          background:
-            "radial-gradient(circle, rgba(130,0,60,0.24) 0%, rgba(80,0,40,0.1) 42%, transparent 70%)",
-          opacity: 0.56,
-          duration: 22,
-          x: [0, 12, 0],
-          y: [0, 12, 0],
-        },
-      ],
+        "linear-gradient(180deg, rgba(120,0,40,0.12) 0%, rgba(90,0,40,0.18) 42%, rgba(0,0,0,0.16) 100%)",
+      pattern: "none",
+      patternSize: "100% 100%",
+      veil: "radial-gradient(circle at 50% -10%, rgba(255,255,255,0.04), transparent 40%)",
+      artwork: {
+        src: "/backgrounds/marioneta-wallpaper.mp4",
+        kind: "video",
+        posterSrc: "/backgrounds/marioneta-wallpaper.jpg",
+        fit: "cover",
+        position: "center center",
+        opacity: 0.94,
+        scale: 1,
+        filter: "contrast(1.05) saturate(0.86) brightness(0.54)",
+      },
+      glows: [],
     },
   },
 ];
