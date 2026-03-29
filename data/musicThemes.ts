@@ -60,9 +60,9 @@ export const musicThemes: MusicTheme[] = [
       artwork: {
         src: "/backgrounds/come-home-wallpaper.mp4",
         kind: "video",
-        position: "center center",
+        position: "center 42%",
         opacity: 0.9,
-        scale: 1,
+        scale: 0.9,
         filter: "grayscale(0) contrast(1.08) saturate(1.02) brightness(0.84)",
       },
       glows: [],
