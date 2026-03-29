@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useMotionValue } from "framer-motion";
+import { useEffect, useState } from "react";
 import type { MusicTheme } from "../data/musicThemes";
 
 type AnimatedBackgroundProps = {
@@ -7,12 +7,6 @@ type AnimatedBackgroundProps = {
 };
 
 type ThemeId = MusicTheme["id"];
-
-type CursorRipple = {
-  id: number;
-  x: number;
-  y: number;
-};
 
 function renderThemeScene(themeId: ThemeId) {
   switch (themeId) {
@@ -162,9 +156,8 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
   const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
   const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
-  const [ripples, setRipples] = useState<CursorRipple[]>([]);
-  const rippleIdRef = useRef(0);
-  const lastRippleAtRef = useRef(0);
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -185,7 +178,6 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   useEffect(() => {
     if (!cursorFxEnabled || typeof window === "undefined") {
       setCursor((current) => ({ ...current, visible: false }));
-      setRipples([]);
       return;
     }
 
@@ -194,19 +186,8 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       const nextY = event.clientY;
 
       setCursor({ x: nextX, y: nextY, visible: true });
-
-      const now = Date.now();
-      if (now - lastRippleAtRef.current < 150) {
-        return;
-      }
-
-      lastRippleAtRef.current = now;
-      const rippleId = ++rippleIdRef.current;
-      setRipples((current) => [...current.slice(-4), { id: rippleId, x: nextX, y: nextY }]);
-
-      window.setTimeout(() => {
-        setRipples((current) => current.filter((ripple) => ripple.id !== rippleId));
-      }, 900);
+      cursorX.set(nextX);
+      cursorY.set(nextY);
     };
 
     const onPointerLeave = () => {
@@ -222,7 +203,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       window.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("blur", onPointerLeave);
     };
-  }, [cursorFxEnabled]);
+  }, [cursorFxEnabled, cursorX, cursorY]);
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -395,78 +376,47 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         {cursorFxEnabled && cursor.visible ? (
           <>
             <motion.div
-              className="absolute h-[18rem] w-[18rem] rounded-full"
-              animate={{ x: cursor.x, y: cursor.y, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 190, damping: 26, mass: 0.55 }}
+              className="absolute h-[16rem] w-[16rem] rounded-full"
               style={{
+                x: cursorX,
+                y: cursorY,
                 translateX: "-50%",
                 translateY: "-50%",
                 background:
-                  "radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 28%, rgba(255,255,255,0.02) 46%, transparent 66%)",
+                  "radial-gradient(circle, transparent 35%, rgba(255,255,255,0.82) 49%, rgba(255,255,255,0.22) 58%, rgba(255,255,255,0.08) 64%, transparent 76%)",
                 filter: "blur(12px)",
-                mixBlendMode: "screen",
+                opacity: 0.85,
               }}
             />
 
             <motion.div
-              className="absolute h-[15rem] w-[15rem] rounded-full"
-              animate={{ x: cursor.x, y: cursor.y, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 220, damping: 28, mass: 0.48 }}
+              className="absolute h-[11.75rem] w-[11.75rem] rounded-full"
+              animate={{ scale: [1, 1.015, 1] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
               style={{
+                x: cursorX,
+                y: cursorY,
                 translateX: "-50%",
                 translateY: "-50%",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.15)",
+                background: "transparent",
+                border: "2px solid rgba(15,15,15,0.9)",
                 boxShadow:
-                  "0 0 42px rgba(255,255,255,0.08), inset 0 0 26px rgba(255,255,255,0.05)",
-                backdropFilter: "blur(9px) saturate(1.08)",
-                WebkitBackdropFilter: "blur(9px) saturate(1.08)",
-                maskImage:
-                  "radial-gradient(circle, transparent 0 28%, rgba(0,0,0,0.9) 48%, transparent 74%)",
-                WebkitMaskImage:
-                  "radial-gradient(circle, transparent 0 28%, rgba(0,0,0,0.9) 48%, transparent 74%)",
+                  "0 0 0 1px rgba(255,255,255,0.34), 0 0 18px rgba(255,255,255,0.12)",
               }}
             />
 
             <motion.div
-              className="absolute h-[9rem] w-[9rem] rounded-full"
-              animate={{ x: cursor.x, y: cursor.y, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 250, damping: 30, mass: 0.42 }}
+              className="absolute h-[10.25rem] w-[10.25rem] rounded-full"
               style={{
+                x: cursorX,
+                y: cursorY,
                 translateX: "-50%",
                 translateY: "-50%",
                 background:
-                  "radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 36%, transparent 72%)",
-                mixBlendMode: "screen",
+                  "radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 42%, transparent 72%)",
+                opacity: 0.45,
               }}
             />
-
-            {ripples.map((ripple) => (
-              <motion.div
-                key={ripple.id}
-                className="absolute rounded-full border border-white/20"
-                initial={{
-                  x: ripple.x,
-                  y: ripple.y,
-                  width: 28,
-                  height: 28,
-                  opacity: 0.45,
-                }}
-                animate={{
-                  x: ripple.x,
-                  y: ripple.y,
-                  width: 230,
-                  height: 230,
-                  opacity: 0,
-                }}
-                transition={{ duration: 0.85, ease: "easeOut" }}
-                style={{
-                  translateX: "-50%",
-                  translateY: "-50%",
-                  boxShadow: "0 0 30px rgba(255,255,255,0.12)",
-                }}
-              />
-            ))}
           </>
         ) : null}
 
