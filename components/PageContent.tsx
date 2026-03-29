@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import SectionTitle from "./ui/SectionTitle";
 import NeonCard from "./ui/NeonCard";
+import SpeakableCard from "./ui/SpeakableCard";
 import StatCard from "./ui/StatCard";
 import ItemPath from "./ui/ItemPath";
 import {
@@ -77,13 +78,14 @@ export default function PageContent({
             />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {homeFeatureCards.map((card) => (
-                <div
+                <SpeakableCard
                   key={card.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                  text={`${card.title}. ${card.text}`}
+                  className="border-white/10 bg-white/5 p-4"
                 >
                   <p className="text-sm text-red-300">{card.title}</p>
                   <p className="mt-2 text-white/75">{card.text}</p>
-                </div>
+                </SpeakableCard>
               ))}
             </div>
           </NeonCard>
@@ -99,7 +101,10 @@ export default function PageContent({
           />
 
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <NeonCard className="p-6">
+            <SpeakableCard
+              className="p-6"
+              text="Core concept. You win by forcing bad spacing and panic decisions. Fiora ADC is not standard marksman flow. The pick works when you control timing, punish wrong movement, and convert enemy missteps into short, committed all-ins. It is a technical choice, not a universal blind answer. But in the right structure, it creates discomfort that many bot lanes are not prepared to answer correctly."
+            >
               <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
                 Core concept
               </div>
@@ -112,7 +117,7 @@ export default function PageContent({
               <p className="mt-4 text-white/75">
                 It is a technical choice, not a universal blind answer. But in the right structure, it creates discomfort that many bot lanes are not prepared to answer correctly.
               </p>
-            </NeonCard>
+            </SpeakableCard>
 
             <NeonCard className="overflow-hidden p-3">
               <img
@@ -127,10 +132,14 @@ export default function PageContent({
 
           <div className="grid gap-4 md:grid-cols-2">
             {whyWorksPoints.map((point) => (
-              <NeonCard key={point.title} className="p-5">
+              <SpeakableCard
+                key={point.title}
+                className="p-5"
+                text={`${point.title}. ${point.text}`}
+              >
                 <p className="text-lg font-bold text-white">{point.title}</p>
                 <p className="mt-2 text-white/70">{point.text}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>
@@ -146,7 +155,12 @@ export default function PageContent({
 
           <div className="grid gap-4 xl:grid-cols-2">
             {runePages.map((runePage) => (
-              <NeonCard key={runePage.key} className="space-y-4 p-5">
+              <SpeakableCard
+                key={runePage.key}
+                className="p-5"
+                contentClassName="space-y-4"
+                text={`${runePage.title}. ${runePage.bullets.map((bullet) => `${bullet.label} ${bullet.text}`).join(" ")}`}
+              >
                 <p className="text-sm uppercase tracking-[0.16em] text-red-300">
                   {runePage.title}
                 </p>
@@ -173,7 +187,7 @@ export default function PageContent({
                     </p>
                   ))}
                 </div>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>
@@ -231,10 +245,14 @@ export default function PageContent({
           />
           <div className="grid gap-4 md:grid-cols-3">
             {skillOrderCards.map((card) => (
-              <NeonCard key={card.title} className="p-5">
+              <SpeakableCard
+                key={card.title}
+                className="p-5"
+                text={`${card.title}. ${card.text}`}
+              >
                 <p className="text-lg font-bold text-white">{card.title}</p>
                 <p className="mt-2 text-white/70">{card.text}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>
@@ -249,9 +267,10 @@ export default function PageContent({
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {matchups.map((matchup) => (
-              <NeonCard
+              <SpeakableCard
                 key={matchup.name}
                 className="overflow-hidden p-4 transition hover:-translate-y-1"
+                text={`${matchup.name}. ${matchup.level}. Danger ${matchup.danger}. ${matchup.explanation}`}
               >
                 <img
                   src={matchup.image}
@@ -268,7 +287,7 @@ export default function PageContent({
                 </div>
                 <p className="mt-1 text-sm text-red-300">{matchup.level}</p>
                 <p className="mt-3 text-white/70">{matchup.explanation}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>
@@ -319,7 +338,11 @@ export default function PageContent({
 
           <div className="space-y-4">
             {laneSections.map((section) => (
-              <NeonCard key={section.id} className="p-6">
+              <SpeakableCard
+                key={section.id}
+                className="p-6"
+                text={`${section.title}. ${section.summary}. ${section.points.join(" ")}`}
+              >
                 <div
                   ref={(element) => {
                     laneRefs.current[section.id] = element;
@@ -344,7 +367,7 @@ export default function PageContent({
                     ))}
                   </div>
                 </div>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>
@@ -392,7 +415,11 @@ export default function PageContent({
 
           <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-3">
             {supportProfiles.map((support) => (
-              <NeonCard key={support.name} className="p-4">
+              <SpeakableCard
+                key={support.name}
+                className="p-4"
+                text={`${support.name}. ${support.role}. ${support.text}`}
+              >
                 <img
                   src={support.image}
                   alt={support.name}
@@ -403,16 +430,20 @@ export default function PageContent({
                 <p className="mt-3 text-xl font-bold text-white">{support.name}</p>
                 <p className="text-sm text-red-300">{support.role}</p>
                 <p className="mt-3 text-white/75">{support.text}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
 
           <div className="grid gap-4 xl:grid-cols-3">
             {supportPrinciples.map((principle) => (
-              <NeonCard key={principle.title} className="p-5">
+              <SpeakableCard
+                key={principle.title}
+                className="p-5"
+                text={`${principle.title}. ${principle.text}`}
+              >
                 <p className="mb-2 font-semibold text-red-300">{principle.title}</p>
                 <p className="text-white/75">{principle.text}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
 
@@ -461,10 +492,14 @@ export default function PageContent({
           />
           <div className="grid gap-4 md:grid-cols-3">
             {midLateCards.map((card) => (
-              <NeonCard key={card.title} className="p-5">
+              <SpeakableCard
+                key={card.title}
+                className="p-5"
+                text={`${card.title}. ${card.text}`}
+              >
                 <p className="font-bold text-white">{card.title}</p>
                 <p className="mt-2 text-white/70">{card.text}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
           <NeonCard className="p-6">
@@ -484,10 +519,14 @@ export default function PageContent({
           />
           <div className="grid gap-4 md:grid-cols-2">
             {mechanics.map((item) => (
-              <NeonCard key={item.title} className="p-5">
+              <SpeakableCard
+                key={item.title}
+                className="p-5"
+                text={`${item.title}. ${item.content}`}
+              >
                 <p className="font-bold text-white">{item.title}</p>
                 <p className="mt-2 text-white/70">{item.content}</p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>
@@ -502,7 +541,11 @@ export default function PageContent({
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {videoCards.map((videoCard) => (
-              <NeonCard key={videoCard.title} className="overflow-hidden p-4">
+              <SpeakableCard
+                key={videoCard.title}
+                className="overflow-hidden p-4"
+                text={`${videoCard.title}. Reserved for your next clip and explanation block.`}
+              >
                 <img
                   src={videoCard.image}
                   alt={videoCard.title}
@@ -514,7 +557,7 @@ export default function PageContent({
                 <p className="mt-1 text-sm text-white/65">
                   Reserved for your next clip and explanation block.
                 </p>
-              </NeonCard>
+              </SpeakableCard>
             ))}
           </div>
         </>

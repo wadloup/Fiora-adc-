@@ -1,4 +1,4 @@
-﻿import NeonCard from "./NeonCard";
+import SpeakableCard from "./SpeakableCard";
 import {
   DEFAULT_ITEM_ICON,
   recoverAssetImage,
@@ -12,7 +12,7 @@ type ItemPathProps = {
 
 export default function ItemPath({ title, items, text }: ItemPathProps) {
   return (
-    <NeonCard className="p-5">
+    <SpeakableCard text={`${title}. ${text}`} className="p-5">
       <p className="text-sm uppercase tracking-[0.16em] text-red-300">
         {title}
       </p>
@@ -32,7 +32,6 @@ export default function ItemPath({ title, items, text }: ItemPathProps) {
         ))}
       </div>
       <p className="mt-3 text-white/75">{text}</p>
-    </NeonCard>
+    </SpeakableCard>
   );
 }
-
