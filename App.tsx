@@ -181,7 +181,7 @@ export default function App() {
     <div
       className={cn(
         "w-full",
-        currentPage === "Home" ? "xl:w-[280px] xl:flex-none" : "lg:w-[360px]"
+        currentPage === "Home" ? "lg:w-[280px] lg:flex-none" : "lg:w-[360px]"
       )}
     >
       <div className="relative">
@@ -298,7 +298,7 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10">
         {musicBlocked ? (
           <NeonCard className="p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -322,15 +322,15 @@ export default function App() {
           </NeonCard>
         ) : null}
 
-        <NeonCard className="p-4 md:p-5">
+        <NeonCard className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
             <div className="space-y-4">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
                     Fiora ADC Guide
                   </p>
-                  <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
+                  <h1 className="mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
                     <>
                       Fiora ADC. No autopilot, no free lane.
                       <span className="flex items-center gap-2 text-red-400">
@@ -344,12 +344,12 @@ export default function App() {
                 {searchBlock}
               </div>
 
-              <div className="grid gap-3 xl:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] xl:items-start">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] lg:items-start">
                 <div className="min-w-0">
                   <ReportVoteBlock compact />
                 </div>
                 <MusicPlayer
-                  className="hidden xl:flex xl:w-full xl:max-w-none"
+                  className="hidden lg:flex lg:w-full lg:max-w-none"
                   tracks={musicThemes}
                   currentTrackId={selectedTrackId}
                   musicPlaying={musicPlaying}
@@ -454,7 +454,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <MusicPlayer
+        <MusicPlayer
         tracks={musicThemes}
         currentTrackId={selectedTrackId}
         musicPlaying={musicPlaying}
@@ -462,6 +462,8 @@ export default function App() {
         onToggle={() => void toggleBackgroundMusic()}
         onTrackChange={changeTrack}
         onVolumeChange={setMusicVolume}
+        onPrevious={goToPreviousTrack}
+        onNext={goToNextTrack}
         mobile
       />
 

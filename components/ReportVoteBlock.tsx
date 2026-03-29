@@ -109,13 +109,13 @@ export default function ReportVoteBlock({
   const total = counts.up + counts.down + counts.poop;
 
   return (
-    <NeonCard className={compact ? "p-3.5 md:p-4" : "p-4 md:p-5"}>
-      <div className={compact ? "space-y-2.5" : "space-y-3"}>
+    <NeonCard className={compact ? "p-4 md:p-[1.125rem]" : "p-4 md:p-5"}>
+      <div className={compact ? "space-y-3" : "space-y-3.5"}>
         <div>
           <p
             className={
               compact
-                ? "text-[16px] uppercase tracking-[0.22em] text-red-300"
+                ? "text-[15px] uppercase tracking-[0.2em] text-red-300"
                 : "text-[20px] uppercase tracking-[0.24em] text-red-300"
             }
           >
@@ -124,7 +124,7 @@ export default function ReportVoteBlock({
           <h2
             className={
               compact
-                ? "mt-1 text-[14px] font-black text-white md:text-[17px]"
+                ? "mt-1 max-w-[15ch] text-[17px] font-black leading-tight text-white md:text-[19px]"
                 : "mt-1 text-[18px] font-black text-white md:text-[24px]"
             }
           >
@@ -135,18 +135,22 @@ export default function ReportVoteBlock({
           </p>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2">
           {voteCards.map((voteCard) => (
             <button
               key={voteCard.key}
               onClick={() => void handleVote(voteCard.key)}
               disabled={!!selected || loading}
               className={`rounded-xl border font-semibold transition ${
-                compact ? "px-2 py-2 text-[11px]" : "px-3 py-3 text-[13px]"
+                compact ? "min-h-[88px] px-2 py-2 text-[11px]" : "px-3 py-3 text-[13px]"
               } ${
                 selected === voteCard.key
                   ? voteCard.accent
                   : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+              } ${
+                selected === voteCard.key
+                  ? "shadow-[0_0_18px_rgba(255,0,60,0.18)]"
+                  : ""
               } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
             >
               <div
@@ -174,15 +178,27 @@ export default function ReportVoteBlock({
           ))}
         </div>
 
-        <p className={compact ? "text-[10px] text-white/55" : "text-[11px] text-white/55"}>
-          Total votes: {total}
-        </p>
-
-        {selected ? (
-          <p className={compact ? "text-[10px] text-red-300" : "text-[11px] text-red-300"}>
-            Your vote has been recorded.
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p
+            className={
+              compact ? "text-[10px] text-white/55" : "text-[11px] text-white/55"
+            }
+          >
+            Total votes: {total}
           </p>
-        ) : null}
+
+          {selected ? (
+            <p
+              className={
+                compact
+                  ? "rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[10px] text-red-300"
+                  : "rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[11px] text-red-300"
+              }
+            >
+              Your vote has been recorded.
+            </p>
+          ) : null}
+        </div>
       </div>
     </NeonCard>
   );

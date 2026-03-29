@@ -10,6 +10,16 @@ body,
   background: #050505;
 }
 
+html {
+  color-scheme: dark;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -22,4 +32,43 @@ body,
 .music-select option {
   background: #140709;
   color: #ffffff;
+}
+
+.music-slider,
+.control-slider {
+  appearance: none;
+  height: 0.38rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(255, 32, 85, 0.9), rgba(255, 255, 255, 0.82));
+  outline: none;
+}
+
+.music-slider::-webkit-slider-thumb,
+.control-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(0, 0, 0, 0.55);
+  border-radius: 9999px;
+  background: #ff1d46;
+  box-shadow: 0 0 18px rgba(255, 0, 60, 0.28);
+  cursor: pointer;
+}
+
+.music-slider::-moz-range-thumb,
+.control-slider::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(0, 0, 0, 0.55);
+  border-radius: 9999px;
+  background: #ff1d46;
+  box-shadow: 0 0 18px rgba(255, 0, 60, 0.28);
+  cursor: pointer;
+}
+
+.music-slider::-moz-range-track,
+.control-slider::-moz-range-track {
+  height: 0.38rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(255, 32, 85, 0.9), rgba(255, 255, 255, 0.82));
 }

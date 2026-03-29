@@ -188,8 +188,8 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
   return (
     <NeonCard className="overflow-hidden">
-      <div className="grid gap-0 lg:grid-cols-[320px_1fr]">
-        <div className="relative min-h-[300px] overflow-hidden bg-black/40">
+      <div className="grid gap-0 lg:grid-cols-[300px_1fr] xl:grid-cols-[320px_1fr]">
+        <div className="relative min-h-[280px] overflow-hidden bg-black/40 lg:min-h-[320px]">
           <motion.img
             key={config.image}
             src={config.image}
@@ -229,7 +229,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
           </div>
         </div>
 
-        <div className="space-y-4 bg-gradient-to-br from-white/[0.03] to-red-500/[0.08] p-6 md:p-8">
+        <div className="space-y-4 bg-gradient-to-br from-white/[0.03] to-red-500/[0.08] p-5 md:p-6 lg:p-8">
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
               <span className="inline-block h-2 w-2 rounded-full bg-red-400" />
@@ -270,7 +270,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
           </div>
 
           {hasRecordedNarration ? (
-            <div className="rounded-2xl border border-red-500/20 bg-black/30 px-4 py-3 text-sm text-white/70">
+            <div className="rounded-2xl border border-red-500/20 bg-black/30 px-4 py-3 text-sm leading-relaxed text-white/70">
               This page uses a recorded voice track.
             </div>
           ) : (
@@ -301,6 +301,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
                   step="0.01"
                   value={rate}
                   onChange={(event) => setRate(Number(event.target.value))}
+                  className="control-slider"
                 />
               </label>
 
@@ -313,6 +314,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
                   step="0.01"
                   value={pitch}
                   onChange={(event) => setPitch(Number(event.target.value))}
+                  className="control-slider"
                 />
               </label>
             </div>
@@ -328,7 +330,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
                 onError={() => setSpeaking(false)}
               />
             ) : null}
-            <p className="min-h-[120px] text-lg leading-relaxed text-white md:text-xl">
+            <p className="min-h-[132px] text-base leading-relaxed text-white md:text-lg lg:text-xl">
               {displayText}
               {speaking ? (
                 <motion.span
@@ -340,7 +342,9 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
                 </motion.span>
               ) : null}
             </p>
-            <p className="mt-4 text-sm text-white/60">{config.summary}</p>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/60">
+              {config.summary}
+            </p>
           </div>
         </div>
       </div>

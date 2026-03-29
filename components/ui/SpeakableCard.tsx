@@ -204,7 +204,7 @@ export default function SpeakableCard({
         onClick={handleSpeak}
         aria-pressed={active}
         className={cn(
-          "block h-full w-full rounded-[inherit] bg-transparent text-left transition duration-300",
+          "block h-full w-full cursor-pointer rounded-[inherit] bg-transparent text-left transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black/70",
           active ? "scale-[1.01]" : ""
         )}
       >

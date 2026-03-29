@@ -12,12 +12,14 @@ export default function StatCard({
   text,
 }: StatCardProps) {
   return (
-    <SpeakableCard text={`${label}. ${value}. ${text}`} className="p-5">
-      <p className="text-sm uppercase tracking-[0.18em] text-red-300">
+    <SpeakableCard text={`${label}. ${value}. ${text}`} className="p-4 md:p-5">
+      <p className="text-xs uppercase tracking-[0.18em] text-red-300 md:text-sm">
         {label}
       </p>
-      <p className="mt-2 text-lg font-bold text-white">{value}</p>
-      <p className="mt-2 text-sm text-white/65">{text}</p>
+      <p className="mt-2 text-base font-bold leading-tight text-white md:text-lg">
+        {value}
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-white/65">{text}</p>
     </SpeakableCard>
   );
 }

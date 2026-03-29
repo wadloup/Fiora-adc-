@@ -12,8 +12,8 @@ type ItemPathProps = {
 
 export default function ItemPath({ title, items, text }: ItemPathProps) {
   return (
-    <SpeakableCard text={`${title}. ${text}`} className="p-5">
-      <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+    <SpeakableCard text={`${title}. ${text}`} className="p-4 md:p-5">
+      <p className="text-xs uppercase tracking-[0.16em] text-red-300 md:text-sm">
         {title}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -26,12 +26,12 @@ export default function ItemPath({ title, items, text }: ItemPathProps) {
               onError={(event) => recoverAssetImage(event, DEFAULT_ITEM_ICON)}
             />
             {index < items.length - 1 ? (
-              <span className="text-red-300">{"->"}</span>
+              <span className="text-sm text-red-300">{">"}</span>
             ) : null}
           </div>
         ))}
       </div>
-      <p className="mt-3 text-white/75">{text}</p>
+      <p className="mt-3 text-sm leading-relaxed text-white/75">{text}</p>
     </SpeakableCard>
   );
 }
