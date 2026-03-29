@@ -1,44 +1,32 @@
-import React from "react";
-import NeonCard from "./NeonCard";
+﻿import NeonCard from "./NeonCard";
+import {
+  DEFAULT_ITEM_ICON,
+  recoverAssetImage,
+} from "../../utils/imageFallback";
 
-const DEFAULT_ITEM_ICON =
-  "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3077.png";
-
-function recoverAssetImage(
-  event: React.SyntheticEvent<HTMLImageElement>,
-  fallback: string
-) {
-  const img = event.currentTarget;
-  if (img.src !== fallback) {
-    img.src = fallback;
-  }
-}
-
-export default function ItemPath({
-  title,
-  items,
-  text,
-}: {
+type ItemPathProps = {
   title: string;
   items: string[];
   text: string;
-}) {
+};
+
+export default function ItemPath({ title, items, text }: ItemPathProps) {
   return (
     <NeonCard className="p-5">
       <p className="text-sm uppercase tracking-[0.16em] text-red-300">
         {title}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {items.map((it, i) => (
-          <div key={`${it}-${i}`} className="flex items-center gap-2">
+        {items.map((item, index) => (
+          <div key={`${item}-${index}`} className="flex items-center gap-2">
             <img
-              src={it}
+              src={item}
               alt="item"
               className="h-12 w-12 rounded-lg border border-red-500/30 bg-black/40 object-cover"
               onError={(event) => recoverAssetImage(event, DEFAULT_ITEM_ICON)}
             />
-            {i < items.length - 1 ? (
-              <span className="text-red-300">→</span>
+            {index < items.length - 1 ? (
+              <span className="text-red-300">{"->"}</span>
             ) : null}
           </div>
         ))}
@@ -47,3 +35,4 @@ export default function ItemPath({
     </NeonCard>
   );
 }
+
