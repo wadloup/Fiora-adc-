@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown, ArrowUp, Menu, Search, Sword, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Menu, Search, Sword, VolumeX, X } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
 import MusicPlayer from "./components/MusicPlayer";
@@ -28,6 +28,7 @@ import {
 import { recoverImage } from "./utils/imageFallback";
 import { cn } from "./utils/cn";
 import { trackGuidePageViewed } from "./utils/analytics";
+import { requestAllVoiceStop } from "./utils/audioControl";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -458,7 +459,25 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-        <MusicPlayer
+      <button
+        onClick={requestAllVoiceStop}
+        className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-black/85 px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] backdrop-blur-xl transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
+        aria-label="Stop every voice"
+      >
+        <span className="rounded-xl border border-red-400/35 bg-red-500/15 p-2.5 text-red-300">
+          <VolumeX className="h-5 w-5" />
+        </span>
+        <span className="flex flex-col">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
+            Global mute
+          </span>
+          <span className="text-sm font-black uppercase tracking-[0.08em] sm:text-base">
+            Stop all voices
+          </span>
+        </span>
+      </button>
+
+      <MusicPlayer
         tracks={musicThemes}
         currentTrackId={selectedTrackId}
         musicPlaying={musicPlaying}

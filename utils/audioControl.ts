@@ -21,3 +21,12 @@ export function requestNarrationStop() {
 export function requestSpeakableStop() {
   dispatchAudioEvent(STOP_SPEAKABLE_EVENT);
 }
+
+export function requestAllVoiceStop() {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+
+  requestNarrationStop();
+  requestSpeakableStop();
+}
