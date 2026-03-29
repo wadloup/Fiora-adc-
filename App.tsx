@@ -411,24 +411,10 @@ const laneSections = [
 
 const DEFAULT_FIORA_IMAGE =
   "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg";
-const DEFAULT_RUNE_ICON =
-  "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png";
-const DEFAULT_ITEM_ICON =
-  "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3077.png";
 
 function recoverImage(
   event: React.SyntheticEvent<HTMLImageElement>,
   fallback: string = DEFAULT_FIORA_IMAGE
-) {
-  const img = event.currentTarget;
-  if (img.src !== fallback) {
-    img.src = fallback;
-  }
-}
-
-function recoverAssetImage(
-  event: React.SyntheticEvent<HTMLImageElement>,
-  fallback: string
 ) {
   const img = event.currentTarget;
   if (img.src !== fallback) {
