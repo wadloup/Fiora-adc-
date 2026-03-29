@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Menu, Search, Sword, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Menu, Search, Sword, X } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
 import MusicPlayer from "./components/MusicPlayer";
@@ -327,8 +327,9 @@ export default function App() {
                   <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
                       Fiora ADC, structured and aggressive.
-                      <span className="block text-red-400">
-                        SUPPORT CHECK BELOW <span className="text-white/75">v</span>
+                      <span className="flex items-center gap-2 text-red-400">
+                        SUPPORT CHECK BELOW
+                        <ArrowDown className="h-7 w-7 text-white/80" />
                       </span>
                     </>
                   </h1>

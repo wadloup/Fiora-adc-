@@ -115,7 +115,7 @@ export default function ReportVoteBlock({
           <p
             className={
               compact
-                ? "text-[13px] uppercase tracking-[0.22em] text-red-300"
+                ? "text-[16px] uppercase tracking-[0.22em] text-red-300"
                 : "text-[20px] uppercase tracking-[0.24em] text-red-300"
             }
           >
