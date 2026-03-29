@@ -33,7 +33,6 @@ import NeonCard from "./components/ui/NeonCard";
 import SectionTitle from "./components/ui/SectionTitle";
 import PageButton from "./components/ui/PageButton";
 import StatCard from "./components/ui/StatCard";
-import IconRow from "./components/ui/IconRow";
 import ItemPath from "./components/ui/ItemPath";
 
 const pages = [
