@@ -211,7 +211,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           </div>
         ) : null}
 
-        {artwork && !artworkIsGif ? (
+        {artwork && !artworkIsGif && !artworkIsVideo ? (
           <motion.div
             className="absolute inset-0"
             style={{
