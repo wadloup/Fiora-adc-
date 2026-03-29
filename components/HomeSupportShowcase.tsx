@@ -19,7 +19,7 @@ export default function HomeSupportShowcase() {
             <img
               src={heroCertifiedImage}
               alt="Certified badge"
-              className="h-50 w-50 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
+              className="h-60 w-60 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
               onError={recoverImage}
             />
             <div>
