@@ -376,7 +376,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         {cursorFxEnabled && cursor.visible ? (
           <>
             <motion.div
-              className="absolute h-[9.5rem] w-[9.5rem] rounded-full"
+              className="absolute h-[6rem] w-[6rem] rounded-full"
               style={{
                 x: cursorX,
                 y: cursorY,
@@ -386,14 +386,36 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
                 boxShadow: "0 0 22px rgba(255,255,255,0.08)",
               }}
               animate={{
-                scale: [0.92, 1.06, 0.92],
-                opacity: [0.24, 0.08, 0.24],
+                scale: [0.62, 1.55],
+                opacity: [0.42, 0],
               }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 1.25, repeat: Infinity, ease: "easeOut" }}
             />
 
             <motion.div
-              className="absolute h-[8rem] w-[8rem] rounded-full"
+              className="absolute h-[6rem] w-[6rem] rounded-full"
+              style={{
+                x: cursorX,
+                y: cursorY,
+                translateX: "-50%",
+                translateY: "-50%",
+                border: "1px solid rgba(255,255,255,0.14)",
+                boxShadow: "0 0 18px rgba(255,255,255,0.06)",
+              }}
+              animate={{
+                scale: [0.68, 1.72],
+                opacity: [0.3, 0],
+              }}
+              transition={{
+                duration: 1.25,
+                repeat: Infinity,
+                ease: "easeOut",
+                delay: 0.48,
+              }}
+            />
+
+            <motion.div
+              className="absolute h-[4rem] w-[4rem] rounded-full"
               style={{
                 x: cursorX,
                 y: cursorY,
@@ -401,13 +423,13 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
                 translateY: "-50%",
                 background:
                   "radial-gradient(circle, transparent 35%, rgba(255,255,255,0.82) 49%, rgba(255,255,255,0.22) 58%, rgba(255,255,255,0.08) 64%, transparent 76%)",
-                filter: "blur(12px)",
+                filter: "blur(10px)",
                 opacity: 0.85,
               }}
             />
 
             <motion.div
-              className="absolute h-[5.875rem] w-[5.875rem] rounded-full"
+              className="absolute h-[2.9375rem] w-[2.9375rem] rounded-full"
               animate={{ scale: [1, 1.015, 1] }}
               transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
               style={{
@@ -423,7 +445,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             />
 
             <motion.div
-              className="absolute h-[5.125rem] w-[5.125rem] rounded-full"
+              className="absolute h-[2.5625rem] w-[2.5625rem] rounded-full"
               style={{
                 x: cursorX,
                 y: cursorY,
