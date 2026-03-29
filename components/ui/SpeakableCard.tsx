@@ -3,19 +3,14 @@ import { useEffect, useId, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import NeonCard from "./NeonCard";
 import { cn } from "../../utils/cn";
+import {
+  ACTIVE_SPEAKABLE_EVENT,
+  requestNarrationStop,
+  setActiveSpeakable,
+  STOP_SPEAKABLE_EVENT,
+} from "../../utils/audioControl";
 
-const ACTIVE_SPEAKABLE_EVENT = "fiora-speakable-change";
 let activeSpeakableId: string | null = null;
-
-function emitActiveSpeakable(id: string | null) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.dispatchEvent(
-    new CustomEvent(ACTIVE_SPEAKABLE_EVENT, { detail: { id } })
-  );
-}
 
 function stopSpeakable() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -23,7 +18,7 @@ function stopSpeakable() {
   }
 
   activeSpeakableId = null;
-  emitActiveSpeakable(null);
+  setActiveSpeakable(null);
 }
 
 type SpeakableCardProps = {
@@ -48,13 +43,24 @@ export default function SpeakableCard({
       setActive(customEvent.detail?.id === speakableId);
     };
 
-    window.addEventListener(ACTIVE_SPEAKABLE_EVENT, updateActiveState as EventListener);
+    const stopRequested = () => {
+      if (activeSpeakableId === speakableId) {
+        stopSpeakable();
+      }
+    };
+
+    window.addEventListener(
+      ACTIVE_SPEAKABLE_EVENT,
+      updateActiveState as EventListener
+    );
+    window.addEventListener(STOP_SPEAKABLE_EVENT, stopRequested);
 
     return () => {
       window.removeEventListener(
         ACTIVE_SPEAKABLE_EVENT,
         updateActiveState as EventListener
       );
+      window.removeEventListener(STOP_SPEAKABLE_EVENT, stopRequested);
 
       if (activeSpeakableId === speakableId) {
         stopSpeakable();
@@ -77,6 +83,7 @@ export default function SpeakableCard({
     }
 
     stopSpeakable();
+    requestNarrationStop();
 
     const utterance = new SpeechSynthesisUtterance(text);
     const availableVoices = window.speechSynthesis.getVoices();
@@ -90,19 +97,19 @@ export default function SpeakableCard({
     utterance.pitch = 0.92;
 
     activeSpeakableId = speakableId;
-    emitActiveSpeakable(speakableId);
+    setActiveSpeakable(speakableId);
 
     utterance.onend = () => {
       if (activeSpeakableId === speakableId) {
         activeSpeakableId = null;
-        emitActiveSpeakable(null);
+        setActiveSpeakable(null);
       }
     };
 
     utterance.onerror = () => {
       if (activeSpeakableId === speakableId) {
         activeSpeakableId = null;
-        emitActiveSpeakable(null);
+        setActiveSpeakable(null);
       }
     };
 

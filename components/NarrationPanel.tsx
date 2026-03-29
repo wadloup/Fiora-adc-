@@ -8,6 +8,10 @@ import {
   type PageName,
   voiceText,
 } from "../data/siteData";
+import {
+  requestSpeakableStop,
+  STOP_NARRATION_EVENT,
+} from "../utils/audioControl";
 import { cn } from "../utils/cn";
 import { DEFAULT_CHAMPION_IMAGE, recoverImage } from "../utils/imageFallback";
 
@@ -50,6 +54,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
   const speak = useCallback(async () => {
     stop();
+    requestSpeakableStop();
 
     const text = voiceText[page];
     if (recordedAudioSrc) {
@@ -153,6 +158,18 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
       stop();
     };
   }, [selectedVoice, stop]);
+
+  useEffect(() => {
+    const stopRequested = () => {
+      stop();
+    };
+
+    window.addEventListener(STOP_NARRATION_EVENT, stopRequested);
+
+    return () => {
+      window.removeEventListener(STOP_NARRATION_EVENT, stopRequested);
+    };
+  }, [stop]);
 
   useEffect(() => {
     setDisplayText(voiceText[page]);
