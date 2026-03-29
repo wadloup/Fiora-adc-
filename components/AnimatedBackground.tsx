@@ -376,7 +376,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         {cursorFxEnabled && cursor.visible ? (
           <>
             <motion.div
-              className="absolute h-[16rem] w-[16rem] rounded-full"
+              className="absolute h-[8rem] w-[8rem] rounded-full"
               style={{
                 x: cursorX,
                 y: cursorY,
@@ -390,7 +390,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             />
 
             <motion.div
-              className="absolute h-[11.75rem] w-[11.75rem] rounded-full"
+              className="absolute h-[5.875rem] w-[5.875rem] rounded-full"
               animate={{ scale: [1, 1.015, 1] }}
               transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
               style={{
@@ -406,7 +406,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             />
 
             <motion.div
-              className="absolute h-[10.25rem] w-[10.25rem] rounded-full"
+              className="absolute h-[5.125rem] w-[5.125rem] rounded-full"
               style={{
                 x: cursorX,
                 y: cursorY,
