@@ -340,7 +340,7 @@ export default function App() {
           </NeonCard>
         ) : null}
 
-        <NeonCard className="p-4 md:p-5 lg:p-6">
+        <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
             <div className="space-y-4">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
