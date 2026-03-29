@@ -332,7 +332,7 @@ export default function App() {
                   </p>
                   <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
-                      Fiora ADC, all pressure, no excuses.
+                      Fiora ADC. No autopilot, no free lane.
                       <span className="flex items-center gap-2 text-red-400">
                         SUPPORT CHECK BELOW
                         <ArrowDown className="h-7 w-7 text-white/80" />
@@ -408,8 +408,9 @@ export default function App() {
                       CLICK HERE BEFORE I REPORT YOU
                     </h2>
                     <p className="mt-4 max-w-2xl text-white/75">
-                      Support first read: engage timing, lane sync, wave pressure,
-                      brush control, and when Fiora can truly commit.
+                      If you are the support, start here: engage timing, lane
+                      sync, wave pressure, brush control, and the exact moments
+                      Fiora can really go in.
                     </p>
                     <div className="mt-6 flex flex-wrap gap-3">
                       <button

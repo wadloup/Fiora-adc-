@@ -33,7 +33,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg",
     mood: "Cold confidence",
     summary:
-      "If top lane bores you, this guide turns Fiora ADC into a real plan instead of a random troll pick.",
+      "If top lane bores you, this guide gives Fiora ADC an actual lane plan instead of random cope.",
     position: "center 22%",
   },
   "Why Fiora ADC Works": {
@@ -41,7 +41,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_1.jpg",
     mood: "Calculated arrogance",
     summary:
-      "Why this pick creates pressure when enemies misjudge spacing, cooldowns, and all-in timing.",
+      "Why the lane gets ugly when enemies misread spacing, cooldowns, or commit timing.",
     position: "center 24%",
   },
   Runes: {
@@ -121,7 +121,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
 export const pageSubtitle: Record<PageName, string> = {
   Home: "Support first. Draft fast.",
   "Why Fiora ADC Works":
-    "Where the pressure comes from, and why it works.",
+    "Where the pressure really comes from when the pick is played right.",
   Runes: "Two rune pages. Two jobs.",
   Build: "Core route, pivots, and finishers.",
   "Skill Order": "What each early point is doing for you.",
@@ -432,19 +432,19 @@ export type SimpleCard = {
 export const homeStatCards: SimpleCard[] = [
   {
     title: "Identity",
-    text: "Dark red, hard edges, no soft landing.",
+    text: "Dark red, duel-heavy, and built to feel hostile.",
   },
   {
     title: "Tone",
-    text: "Pressure first, excuses later.",
+    text: "Direct, practical, and written to win lane.",
   },
   {
     title: "Positioning",
-    text: "Pocket pick with an actual plan behind it.",
+    text: "Pocket pick with a plan, not a meme with excuses.",
   },
   {
     title: "Use",
-    text: "Open this before lane starts, not after it goes bad.",
+    text: "Best opened in champ select, before the lane starts lying to you.",
   },
 ];
 
@@ -452,40 +452,40 @@ export const homeStatValues = [
   "Jewish Friendly ???",
   "Carry mindset",
   "Technical pocket pick",
-  "Queue-time read",
+  "Champ select read",
 ] as const;
 
 export const homeFeatureCards: SimpleCard[] = [
   {
-    title: "Support-first",
-    text: "Your support should read this before either of you load in.",
+    title: "Support first",
+    text: "If your support skips this, half the lane plan is already gone.",
   },
   {
-    title: "Guide structure",
-    text: "Runes, build, lane, support, macro, clips. Nothing buried.",
+    title: "What you get",
+    text: "Runes, build, lane, support, macro, clips. Each page answers a real question instead of wasting your time.",
   },
   {
-    title: "Personality",
-    text: "Still Fiora: sharp, smug, and ready to punish mistakes.",
+    title: "Fiora energy",
+    text: "Sharp, smug, unforgiving. One enemy mistake should feel expensive.",
   },
 ];
 
 export const whyWorksPoints: SimpleCard[] = [
   {
     title: "Surprise factor",
-    text: "Most bot lanes do not know Fiora ADC limits and overtrade at the wrong moments.",
+    text: "Most bot lanes know Fiora top. They do not know how little space she needs before bot lane turns lethal.",
   },
   {
     title: "Duel pressure",
-    text: "One clean opening can flip lane state even when the matchup looked uncomfortable on paper.",
+    text: "One clean opening is enough to make a lane stop feeling annoying and start feeling dangerous.",
   },
   {
     title: "Execution edge",
-    text: "Riposte timing plus support sync creates disproportionate value off one enemy mistake.",
+    text: "Riposte plus support timing turns one enemy mistake into far more value than it should.",
   },
   {
     title: "Snowball conversion",
-    text: "First lead gives wave tempo, objective setup, and much freer lane movement.",
+    text: "First lead means wave control, cleaner recalls, dragon setup, and much freer movement.",
   },
 ];
 

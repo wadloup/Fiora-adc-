@@ -74,7 +74,7 @@ export default function PageContent({
             <SectionTitle
               icon={Flame}
               title="Welcome to the Fiora ADC lab"
-              subtitle="Everything that matters is up front: support sync, lane plan, and the parts that actually win draft."
+              subtitle="Start with support sync, lock the lane plan, then stop guessing in draft."
             />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {homeFeatureCards.map((card) => (
@@ -97,13 +97,13 @@ export default function PageContent({
           <SectionTitle
             icon={Target}
             title="Why Fiora ADC Works ?"
-            subtitle="No cope, no filler. Just where the pick gets its pressure."
+            subtitle="No theory essay. Just the reasons this lane gets ugly once Fiora gets to play her game."
           />
 
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <SpeakableCard
               className="p-6"
-              text="Core concept. You win by forcing bad spacing and panic decisions. Fiora ADC is not standard marksman flow. The pick works when you control timing, punish wrong movement, and convert enemy missteps into short, committed all-ins. It is a technical choice, not a universal blind answer. But in the right structure, it creates discomfort that many bot lanes are not prepared to answer correctly."
+              text="Core concept. You win by forcing bad spacing and panic decisions. Fiora ADC does not work by pretending to be a marksman. The lane only makes sense when trades stay short, violent, and precise: one bad step, one wasted spell, one support opening, then full commit. It is still a technical pick, not something you blind for fun. But with the right draft read and support timing, it creates a kind of pressure standard bot lanes rarely practice against."
             >
               <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
                 Core concept
@@ -112,10 +112,10 @@ export default function PageContent({
                 You win by forcing bad spacing and panic decisions
               </h3>
               <p className="mt-4 text-white/75">
-                Fiora ADC is not standard marksman flow. The pick works when you control timing, punish wrong movement, and convert enemy missteps into short, committed all-ins.
+                Fiora ADC does not work by pretending to be a marksman. The lane only makes sense when trades stay short, violent, and precise: one bad step, one wasted spell, one support opening, then full commit.
               </p>
               <p className="mt-4 text-white/75">
-                It is a technical choice, not a universal blind answer. But in the right structure, it creates discomfort that many bot lanes are not prepared to answer correctly.
+                It is still a technical pick, not something you blind for fun. But with the right draft read and support timing, it creates a kind of pressure standard bot lanes rarely practice against.
               </p>
             </SpeakableCard>
 
