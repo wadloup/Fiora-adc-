@@ -10,103 +10,7 @@ type ThemeId = MusicTheme["id"];
 function renderThemeScene(themeId: ThemeId) {
   switch (themeId) {
     case "come-home":
-      return (
-        <>
-          <motion.div
-            className="absolute -left-[10%] top-[10%] h-[26rem] w-[26rem] rounded-full blur-[120px]"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,55,90,0.5) 0%, rgba(120,0,20,0.22) 46%, transparent 75%)",
-            }}
-            animate={{ x: [0, 40, 0], y: [0, 25, 0], scale: [1, 1.15, 1] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute bottom-[-10%] right-[4%] h-[30rem] w-[30rem] rounded-full blur-[140px]"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,0,70,0.38) 0%, rgba(255,70,110,0.18) 45%, transparent 74%)",
-            }}
-            animate={{ x: [0, -45, 0], y: [0, -20, 0], scale: [1, 1.12, 1] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute inset-y-0 left-[42%] w-[22rem] blur-3xl"
-            style={{
-              background:
-                "linear-gradient(180deg, transparent 0%, rgba(255,40,80,0.08) 18%, rgba(255,0,40,0.18) 48%, rgba(255,40,90,0.08) 78%, transparent 100%)",
-            }}
-            animate={{ opacity: [0.25, 0.55, 0.25], scaleY: [1, 1.08, 1] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute left-1/2 top-[18%] h-[24rem] w-[24rem] -translate-x-1/2 rounded-full blur-[120px]"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,95,125,0.26) 0%, rgba(255,30,75,0.16) 32%, rgba(120,0,24,0.08) 58%, transparent 74%)",
-            }}
-            animate={{
-              scale: [0.95, 1.2, 0.95],
-              opacity: [0.22, 0.52, 0.22],
-            }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute inset-x-[18%] bottom-[-6%] h-[15rem] rounded-[999px] blur-[90px]"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, rgba(255,40,90,0.34) 0%, rgba(190,0,45,0.18) 44%, rgba(0,0,0,0) 74%)",
-            }}
-            animate={{
-              scaleX: [0.92, 1.06, 0.92],
-              scaleY: [0.82, 1.08, 0.82],
-              opacity: [0.22, 0.5, 0.22],
-            }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute inset-x-[8%] bottom-[4%] h-[8rem]"
-            style={{
-              background:
-                "repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 10px, transparent 10px 46px)",
-              maskImage:
-                "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 34%, rgba(0,0,0,1) 100%)",
-              WebkitMaskImage:
-                "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 34%, rgba(0,0,0,1) 100%)",
-            }}
-            animate={{
-              opacity: [0.08, 0.26, 0.08],
-              scaleY: [0.9, 1.24, 0.9],
-              y: [8, -4, 8],
-            }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute left-1/2 bottom-[12%] h-[11rem] w-[60%] -translate-x-1/2 rounded-full border border-red-400/20"
-            style={{
-              boxShadow: "0 0 70px rgba(255, 20, 75, 0.18)",
-            }}
-            animate={{
-              scaleX: [0.86, 1.18, 0.86],
-              scaleY: [0.42, 0.86, 0.42],
-              opacity: [0.14, 0.32, 0.14],
-            }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute left-1/2 bottom-[8%] h-[7rem] w-[44%] -translate-x-1/2 rounded-full border border-rose-300/20"
-            style={{
-              boxShadow: "0 0 60px rgba(255, 90, 130, 0.14)",
-            }}
-            animate={{
-              scaleX: [0.94, 1.26, 0.94],
-              scaleY: [0.48, 0.92, 0.48],
-              opacity: [0.12, 0.28, 0.12],
-            }}
-            transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut", delay: 0.22 }}
-          />
-        </>
-      );
+      return null;
 
     case "lilium":
       return (
@@ -247,6 +151,7 @@ function renderThemeScene(themeId: ThemeId) {
 
 export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
+  const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
 
   return (
@@ -263,6 +168,29 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           className="absolute inset-0"
           style={{ background: theme.background.base }}
         />
+
+        {artwork && artworkIsVideo ? (
+          <div className="absolute inset-0 overflow-hidden">
+            <video
+              key={artwork.src}
+              src={artwork.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover"
+              style={{
+                objectPosition: artwork.position || "center center",
+                opacity: artwork.opacity ?? 0.7,
+                filter:
+                  artwork.filter ||
+                  "grayscale(0.08) contrast(1.02) brightness(0.7)",
+                transform: `scale(${artwork.scale || 1})`,
+              }}
+            />
+          </div>
+        ) : null}
 
         {artwork && artworkIsGif ? (
           <div className="absolute inset-0 overflow-hidden">
@@ -303,15 +231,17 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           />
         ) : null}
 
-        <motion.div
-          className="absolute inset-0 opacity-55"
-          style={{
-            backgroundImage: theme.background.pattern,
-            backgroundSize: theme.background.patternSize,
-          }}
-          animate={{ backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }}
-          transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-        />
+        {theme.background.pattern !== "none" ? (
+          <motion.div
+            className="absolute inset-0 opacity-55"
+            style={{
+              backgroundImage: theme.background.pattern,
+              backgroundSize: theme.background.patternSize,
+            }}
+            animate={{ backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }}
+            transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+          />
+        ) : null}
 
         <motion.div
           className="absolute inset-0 mix-blend-screen"
@@ -355,17 +285,19 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           />
         ))}
 
-        <motion.div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 120%, rgba(255,255,255,0.08), transparent 38%), radial-gradient(circle at 50% -15%, rgba(255,255,255,0.06), transparent 34%)",
-          }}
-          animate={{ opacity: [0.18, 0.34, 0.18] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-        />
+        {!artworkIsVideo ? (
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 120%, rgba(255,255,255,0.08), transparent 38%), radial-gradient(circle at 50% -15%, rgba(255,255,255,0.06), transparent 34%)",
+            }}
+            animate={{ opacity: [0.18, 0.34, 0.18] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ) : null}
 
-        <div className="absolute inset-0 bg-black/28" />
+        <div className="absolute inset-0 bg-black/18" />
       </motion.div>
     </AnimatePresence>
   );

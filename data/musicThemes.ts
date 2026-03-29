@@ -31,6 +31,7 @@ export type MusicTheme = {
     veil: string;
     artwork?: {
       src: string;
+      kind?: "image" | "video";
       position?: string;
       opacity?: number;
       scale?: number;
@@ -50,46 +51,21 @@ export const musicThemes: MusicTheme[] = [
     mood: "Emotional duel pressure",
     src: "/audio/Jace June - Come Home (Sped Up).mp3",
     background: {
-      base: "radial-gradient(circle at top, rgba(255,0,60,0.18), transparent 34%), radial-gradient(circle at 85% 18%, rgba(255,40,80,0.12), transparent 24%), linear-gradient(180deg, #040404 0%, #0b0b0b 46%, #040404 100%)",
+      base: "linear-gradient(180deg, #020202 0%, #070707 46%, #020202 100%)",
       overlay:
-        "linear-gradient(135deg, rgba(140, 0, 24, 0.2) 0%, rgba(0, 0, 0, 0) 55%)",
-      pattern:
-        "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
-      patternSize: "140px 140px",
-      veil: "radial-gradient(circle at 50% -10%, rgba(255, 20, 60, 0.16), transparent 50%)",
+        "linear-gradient(180deg, rgba(0, 0, 0, 0.14) 0%, rgba(35, 0, 10, 0.08) 40%, rgba(0, 0, 0, 0.2) 100%)",
+      pattern: "none",
+      patternSize: "100% 100%",
+      veil: "linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.28) 100%)",
       artwork: {
-        src: "/backgrounds/come-home-wallpaper.gif",
+        src: "/backgrounds/come-home-wallpaper.mp4",
+        kind: "video",
         position: "center center",
-        opacity: 0.28,
-        scale: 1.04,
-        filter: "grayscale(0.18) contrast(1.04) brightness(0.58)",
+        opacity: 0.72,
+        scale: 1,
+        filter: "grayscale(0.04) contrast(1.02) brightness(0.72)",
       },
-      glows: [
-        {
-          top: "-8%",
-          left: "32%",
-          width: "34rem",
-          height: "18rem",
-          background:
-            "radial-gradient(circle, rgba(255, 50, 90, 0.42) 0%, rgba(255, 0, 60, 0.18) 42%, transparent 72%)",
-          opacity: 0.75,
-          duration: 18,
-          x: [0, 20, 0],
-          y: [0, -8, 0],
-        },
-        {
-          top: "18%",
-          left: "72%",
-          width: "26rem",
-          height: "26rem",
-          background:
-            "radial-gradient(circle, rgba(255, 80, 110, 0.3) 0%, rgba(255, 0, 70, 0.16) 45%, transparent 70%)",
-          opacity: 0.55,
-          duration: 22,
-          x: [0, -18, 0],
-          y: [0, 14, 0],
-        },
-      ],
+      glows: [],
     },
   },
   {
