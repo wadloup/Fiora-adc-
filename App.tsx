@@ -1357,37 +1357,68 @@ export default function App() {
               </>
             )}
 
-            {currentPage === "Runes" && (
-              <>
-                <SectionTitle
-                  icon={Zap}
-                  title="Runes"
-                  subtitle="Explained setup choices with icon rows, practical logic, and clean side-by-side comparison."
-                />
+           {currentPage === "Runes" && (
+  <>
+    <SectionTitle
+      icon={Zap}
+      title="Runes"
+      subtitle="Explained setup choices with icon rows, practical logic, and clean side-by-side comparison."
+    />
 
-                <div className="grid gap-4 xl:grid-cols-2">
-                  <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PTA PAGE</p>
-                    <IconRow icons={runeIcons.pta} />
-                    <div className="space-y-2 text-white/75">
-                      <p><span className="font-semibold text-white">Why PTA:</span> burst profile, short trades, and better punishment against fragile ADCs.</p>
-                      <p><span className="font-semibold text-white">Secondary logic:</span> Biscuits and Jack help survive lane and add long-term value in awkward matchups.</p>
-                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Adaptive Force, Heal.</p>
-                    </div>
-                  </NeonCard>
+    <div className="grid gap-4 xl:grid-cols-2">
+      <NeonCard className="space-y-4 p-5">
+        <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+          PTA PAGE
+        </p>
+        <IconRow
+          icons={runeIcons.pta}
+          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
+        />
+        <div className="space-y-2 text-white/75">
+          <p>
+            <span className="font-semibold text-white">Why PTA:</span> burst
+            profile, short trades, and better punishment against fragile ADCs.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Secondary logic:</span>{" "}
+            Biscuits and Jack help survive lane and add long-term value in
+            awkward matchups.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Mini runes:</span>{" "}
+            Adaptive Force, Adaptive Force, Heal.
+          </p>
+        </div>
+      </NeonCard>
 
-                  <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PHASE RUSH PAGE</p>
-                    <IconRow icons={runeIcons.phase} />
-                    <div className="space-y-2 text-white/75">
-                      <p><span className="font-semibold text-white">Why Phase Rush:</span> easier gap close, cleaner disengage, and better access against mobile or hard-to-reach lanes.</p>
-                      <p><span className="font-semibold text-white">Damage profile:</span> Absolute Focus and Last Stand keep the page threatening at different HP states.</p>
-                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Attack Speed, Scaling Heal.</p>
-                    </div>
-                  </NeonCard>
-                </div>
-              </>
-            )}
+      <NeonCard className="space-y-4 p-5">
+        <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+          PHASE RUSH PAGE
+        </p>
+        <IconRow
+          icons={runeIcons.phase}
+          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
+        />
+        <div className="space-y-2 text-white/75">
+          <p>
+            <span className="font-semibold text-white">Why Phase Rush:</span>{" "}
+            easier gap close, cleaner disengage, and better access against
+            mobile or hard-to-reach lanes.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Damage profile:</span>{" "}
+            Absolute Focus and Last Stand keep the page threatening at different
+            HP states.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Mini runes:</span>{" "}
+            Adaptive Force, Attack Speed, Scaling Heal.
+          </p>
+        </div>
+      </NeonCard>
+    </div>
+  </>
+)}
 
             {currentPage === "Build" && (
               <>
