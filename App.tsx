@@ -171,6 +171,42 @@ export default function App() {
     }, 80);
   };
 
+  const searchBlock = (
+    <div
+      className={cn(
+        "w-full",
+        currentPage === "Home" ? "xl:w-[280px] xl:flex-none" : "lg:w-[360px]"
+      )}
+    >
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300" />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search section"
+          className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
+        />
+      </div>
+      {query ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {filteredPages.length ? (
+            filteredPages.map((page) => (
+              <button
+                key={page}
+                onClick={() => goPage(page)}
+                className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+              >
+                {page}
+              </button>
+            ))
+          ) : (
+            <span className="text-sm text-white/50">No result.</span>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <audio
@@ -281,82 +317,65 @@ export default function App() {
         ) : null}
 
         <NeonCard className="p-4 md:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          {currentPage === "Home" ? (
             <div className="space-y-4">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
-                  Fiora ADC Guide
-                </p>
-                <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
-                  {currentPage === "Home" ? (
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
+                    Fiora ADC Guide
+                  </p>
+                  <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
                       Fiora ADC, structured and aggressive.
                       <span className="block text-red-400">
                         SUPPORT CHECK BELOW <span className="text-white/75">v</span>
                       </span>
                     </>
-                  ) : (
+                  </h1>
+                </div>
+
+                {searchBlock}
+              </div>
+
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-stretch">
+                <div className="w-full xl:max-w-[240px] xl:flex-none">
+                  <ReportVoteBlock compact />
+                </div>
+                <MusicPlayer
+                  className="hidden xl:flex xl:min-h-[165px] xl:flex-1 xl:max-w-none"
+                  tracks={musicThemes}
+                  currentTrackId={selectedTrackId}
+                  musicPlaying={musicPlaying}
+                  musicVolume={musicVolume}
+                  onToggle={() => void toggleBackgroundMusic()}
+                  onTrackChange={changeTrack}
+                  onVolumeChange={setMusicVolume}
+                  onPrevious={goToPreviousTrack}
+                  onNext={goToNextTrack}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
+                    Fiora ADC Guide
+                  </p>
+                  <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
                       {currentPage}
                       <span className="mt-1 block text-base font-medium text-white/70 md:text-lg">
                         {pageSubtitle[currentPage]}
                       </span>
                     </>
-                  )}
-                </h1>
+                  </h1>
+                </div>
               </div>
 
-              {currentPage === "Home" ? (
-                <div className="flex flex-col gap-3 xl:flex-row xl:items-start">
-                  <div className="max-w-[290px]">
-                    <ReportVoteBlock compact />
-                  </div>
-                  <MusicPlayer
-                    className="hidden xl:flex"
-                    tracks={musicThemes}
-                    currentTrackId={selectedTrackId}
-                    musicPlaying={musicPlaying}
-                    musicVolume={musicVolume}
-                    onToggle={() => void toggleBackgroundMusic()}
-                    onTrackChange={changeTrack}
-                    onVolumeChange={setMusicVolume}
-                    onPrevious={goToPreviousTrack}
-                    onNext={goToNextTrack}
-                    compact
-                  />
-                </div>
-              ) : null}
+              {searchBlock}
             </div>
-
-            <div className="w-full lg:w-[360px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search section"
-                  className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
-                />
-              </div>
-              {query ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {filteredPages.length ? (
-                    filteredPages.map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => goPage(page)}
-                        className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-200"
-                      >
-                        {page}
-                      </button>
-                    ))
-                  ) : (
-                    <span className="text-sm text-white/50">No result.</span>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          </div>
+          )}
         </NeonCard>
 
         {currentPage === "Home" ? (

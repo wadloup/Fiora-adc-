@@ -82,7 +82,7 @@ export default function MusicPlayer({
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col gap-2",
+        "flex shrink-0 flex-col gap-3 rounded-3xl border border-red-500/25 bg-white/[0.04] p-4 shadow-[0_0_24px_rgba(255,0,60,0.12)] backdrop-blur-md",
         compact ? "w-full max-w-[320px]" : "w-full max-w-[420px]",
         className
       )}
