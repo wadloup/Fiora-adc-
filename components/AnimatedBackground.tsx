@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import type { MusicTheme } from "../data/musicThemes";
 
 type AnimatedBackgroundProps = {
@@ -6,6 +7,12 @@ type AnimatedBackgroundProps = {
 };
 
 type ThemeId = MusicTheme["id"];
+
+type CursorRipple = {
+  id: number;
+  x: number;
+  y: number;
+};
 
 function renderThemeScene(themeId: ThemeId) {
   switch (themeId) {
@@ -153,6 +160,69 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
+  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
+  const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
+  const [ripples, setRipples] = useState<CursorRipple[]>([]);
+  const rippleIdRef = useRef(0);
+  const lastRippleAtRef = useRef(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const updateCapability = () => setCursorFxEnabled(mediaQuery.matches);
+    updateCapability();
+
+    mediaQuery.addEventListener("change", updateCapability);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateCapability);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!cursorFxEnabled || typeof window === "undefined") {
+      setCursor((current) => ({ ...current, visible: false }));
+      setRipples([]);
+      return;
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      const nextX = event.clientX;
+      const nextY = event.clientY;
+
+      setCursor({ x: nextX, y: nextY, visible: true });
+
+      const now = Date.now();
+      if (now - lastRippleAtRef.current < 150) {
+        return;
+      }
+
+      lastRippleAtRef.current = now;
+      const rippleId = ++rippleIdRef.current;
+      setRipples((current) => [...current.slice(-4), { id: rippleId, x: nextX, y: nextY }]);
+
+      window.setTimeout(() => {
+        setRipples((current) => current.filter((ripple) => ripple.id !== rippleId));
+      }, 900);
+    };
+
+    const onPointerLeave = () => {
+      setCursor((current) => ({ ...current, visible: false }));
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerleave", onPointerLeave);
+    window.addEventListener("blur", onPointerLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener("blur", onPointerLeave);
+    };
+  }, [cursorFxEnabled]);
 
   return (
     <AnimatePresence mode="wait">
@@ -302,6 +372,84 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             animate={{ opacity: [0.18, 0.34, 0.18] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
+        ) : null}
+
+        {cursorFxEnabled && cursor.visible ? (
+          <>
+            <motion.div
+              className="absolute h-[18rem] w-[18rem] rounded-full"
+              animate={{ x: cursor.x, y: cursor.y, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 190, damping: 26, mass: 0.55 }}
+              style={{
+                translateX: "-50%",
+                translateY: "-50%",
+                background:
+                  "radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 28%, rgba(255,255,255,0.02) 46%, transparent 66%)",
+                filter: "blur(12px)",
+                mixBlendMode: "screen",
+              }}
+            />
+
+            <motion.div
+              className="absolute h-[15rem] w-[15rem] rounded-full"
+              animate={{ x: cursor.x, y: cursor.y, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 220, damping: 28, mass: 0.48 }}
+              style={{
+                translateX: "-50%",
+                translateY: "-50%",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                boxShadow:
+                  "0 0 42px rgba(255,255,255,0.08), inset 0 0 26px rgba(255,255,255,0.05)",
+                backdropFilter: "blur(9px) saturate(1.08)",
+                WebkitBackdropFilter: "blur(9px) saturate(1.08)",
+                maskImage:
+                  "radial-gradient(circle, transparent 0 28%, rgba(0,0,0,0.9) 48%, transparent 74%)",
+                WebkitMaskImage:
+                  "radial-gradient(circle, transparent 0 28%, rgba(0,0,0,0.9) 48%, transparent 74%)",
+              }}
+            />
+
+            <motion.div
+              className="absolute h-[9rem] w-[9rem] rounded-full"
+              animate={{ x: cursor.x, y: cursor.y, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 250, damping: 30, mass: 0.42 }}
+              style={{
+                translateX: "-50%",
+                translateY: "-50%",
+                background:
+                  "radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 36%, transparent 72%)",
+                mixBlendMode: "screen",
+              }}
+            />
+
+            {ripples.map((ripple) => (
+              <motion.div
+                key={ripple.id}
+                className="absolute rounded-full border border-white/20"
+                initial={{
+                  x: ripple.x,
+                  y: ripple.y,
+                  width: 28,
+                  height: 28,
+                  opacity: 0.45,
+                }}
+                animate={{
+                  x: ripple.x,
+                  y: ripple.y,
+                  width: 230,
+                  height: 230,
+                  opacity: 0,
+                }}
+                transition={{ duration: 0.85, ease: "easeOut" }}
+                style={{
+                  translateX: "-50%",
+                  translateY: "-50%",
+                  boxShadow: "0 0 30px rgba(255,255,255,0.12)",
+                }}
+              />
+            ))}
+          </>
         ) : null}
 
         <div
