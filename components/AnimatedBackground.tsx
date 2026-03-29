@@ -162,7 +162,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="pointer-events-none absolute inset-0 overflow-hidden"
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
       >
         <div
           className="absolute inset-0"
