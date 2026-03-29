@@ -337,12 +337,12 @@ export default function App() {
                 {searchBlock}
               </div>
 
-              <div className="flex flex-col gap-3 xl:flex-row xl:items-stretch">
-                <div className="w-full xl:max-w-[240px] xl:flex-none">
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] xl:items-start">
+                <div className="min-w-0">
                   <ReportVoteBlock compact />
                 </div>
                 <MusicPlayer
-                  className="hidden xl:flex xl:min-h-[165px] xl:flex-1 xl:max-w-none"
+                  className="hidden xl:flex xl:w-full xl:max-w-none"
                   tracks={musicThemes}
                   currentTrackId={selectedTrackId}
                   musicPlaying={musicPlaying}

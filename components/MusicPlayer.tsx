@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Music2, Pause } from "lucide-react";
+import { Music2, Pause, SkipBack, SkipForward } from "lucide-react";
 import type { MusicTheme, MusicTrackId } from "../data/musicThemes";
 import { cn } from "../utils/cn";
 
@@ -87,7 +87,7 @@ export default function MusicPlayer({
         className
       )}
     >
-      <div className="flex flex-wrap items-start gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={onToggle}
           className={cn(
@@ -104,59 +104,68 @@ export default function MusicPlayer({
             {musicPlaying ? "Music ON" : "Music OFF"}
           </span>
         </button>
+      </div>
 
-        <div
+      <div
+        className={cn(
+          "min-w-0 rounded-xl border border-red-500/30 bg-black/50",
+          compact ? "px-2.5 py-2" : "px-3 py-2"
+        )}
+      >
+        <p
           className={cn(
-            "min-w-0 rounded-xl border border-red-500/30 bg-black/50",
-            compact ? "flex-1 px-2.5 py-2" : "flex-1 px-3 py-2"
+            "uppercase text-red-300",
+            compact ? "text-[9px] tracking-[0.16em]" : "text-[10px] tracking-[0.18em]"
           )}
         >
-          <p
-            className={cn(
-              "uppercase text-red-300",
-              compact ? "text-[9px] tracking-[0.16em]" : "text-[10px] tracking-[0.18em]"
-            )}
-          >
-            Theme
-          </p>
-          <select
-            value={currentTrackId}
-            onChange={(event) =>
-              onTrackChange(event.target.value as MusicTrackId)
-            }
-            className={cn(
-              "music-select mt-1 w-full bg-transparent pr-5 text-white outline-none",
-              compact ? "text-xs" : "text-sm"
-            )}
-            aria-label="Select music track"
-          >
-            {tracks.map((track) => (
-              <option
-                key={track.id}
-                value={track.id}
-                style={{ backgroundColor: "#140709", color: "#ffffff" }}
-              >
-                {track.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          Theme
+        </p>
+        <select
+          value={currentTrackId}
+          onChange={(event) =>
+            onTrackChange(event.target.value as MusicTrackId)
+          }
+          className={cn(
+            "music-select mt-1 w-full bg-transparent pr-5 text-white outline-none",
+            compact ? "text-xs" : "text-sm"
+          )}
+          aria-label="Select music track"
+        >
+          {tracks.map((track) => (
+            <option
+              key={track.id}
+              value={track.id}
+              style={{ backgroundColor: "#140709", color: "#ffffff" }}
+            >
+              {track.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        <div className={compact ? "w-[84px]" : "w-24"}>
-          <input
-            type="range"
-            min="0"
-            max="0.5"
-            step="0.01"
-            value={musicVolume}
-            onChange={(event) => onVolumeChange(Number(event.target.value))}
-            aria-label="Adjust music volume"
-          />
-        </div>
+      <div className="space-y-1">
+        <p
+          className={cn(
+            "uppercase text-red-300",
+            compact ? "text-[9px] tracking-[0.16em]" : "text-[10px] tracking-[0.18em]"
+          )}
+        >
+          Volume
+        </p>
+        <input
+          type="range"
+          min="0"
+          max="0.5"
+          step="0.01"
+          value={musicVolume}
+          onChange={(event) => onVolumeChange(Number(event.target.value))}
+          className="w-full"
+          aria-label="Adjust music volume"
+        />
       </div>
 
       {onPrevious && onNext ? (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={onPrevious}
             className={cn(
@@ -164,7 +173,7 @@ export default function MusicPlayer({
               compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"
             )}
           >
-            <ChevronLeft className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+            <SkipBack className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
             Previous
           </button>
 
@@ -176,7 +185,7 @@ export default function MusicPlayer({
             )}
           >
             Next
-            <ChevronRight className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+            <SkipForward className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
           </button>
         </div>
       ) : null}
