@@ -1354,7 +1354,7 @@ export default function App() {
         </p>
 
         <img
-          src="/runes/pta-page.png"
+          src="/pta-page.png"
           alt="PTA rune page"
           className="w-full rounded-3xl border border-red-500/20 object-contain"
         />
@@ -1378,7 +1378,7 @@ export default function App() {
         </p>
 
         <img
-          src="/runes/phase-rush-page.png"
+          src="/phase-rush-page.png"
           alt="Phase Rush rune page"
           className="w-full rounded-3xl border border-red-500/20 object-contain"
         />
