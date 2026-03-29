@@ -44,6 +44,9 @@ export default function App() {
   const resumeOnTrackChangeRef = useRef(false);
 
   const currentTrack = musicThemeMap[selectedTrackId];
+  const currentTrackIndex = musicThemes.findIndex(
+    (track) => track.id === selectedTrackId
+  );
 
   const filteredPages = useMemo(() => {
     if (!query.trim()) {
@@ -102,6 +105,18 @@ export default function App() {
     },
     [musicPlaying]
   );
+
+  const goToPreviousTrack = useCallback(() => {
+    const previousIndex =
+      currentTrackIndex <= 0 ? musicThemes.length - 1 : currentTrackIndex - 1;
+    changeTrack(musicThemes[previousIndex].id);
+  }, [changeTrack, currentTrackIndex]);
+
+  const goToNextTrack = useCallback(() => {
+    const nextIndex =
+      currentTrackIndex >= musicThemes.length - 1 ? 0 : currentTrackIndex + 1;
+    changeTrack(musicThemes[nextIndex].id);
+  }, [changeTrack, currentTrackIndex]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -190,7 +205,7 @@ export default function App() {
             </div>
           </div>
 
-          <nav className="hidden min-w-0 flex-1 overflow-x-auto xl:block">
+          <nav className="hide-scrollbar hidden min-w-0 flex-1 overflow-x-auto xl:block">
             <div className="flex w-max min-w-full items-center justify-center gap-2 whitespace-nowrap">
               {pages.map((page) => (
                 <PageButton
@@ -265,14 +280,14 @@ export default function App() {
           </NeonCard>
         ) : null}
 
-        <NeonCard className="p-5 md:p-6">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-6">
+        <NeonCard className="p-4 md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.24em] text-red-300">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
                   Fiora ADC Guide
                 </p>
-                <h1 className="mt-2 text-3xl font-black leading-tight md:text-5xl">
+                <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                   {currentPage === "Home" ? (
                     <>
                       Fiora ADC, structured and aggressive.
@@ -292,9 +307,9 @@ export default function App() {
               </div>
 
               {currentPage === "Home" ? (
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
-                  <div className="max-w-md">
-                    <ReportVoteBlock />
+                <div className="flex flex-col gap-3 xl:flex-row xl:items-start">
+                  <div className="max-w-[290px]">
+                    <ReportVoteBlock compact />
                   </div>
                   <MusicPlayer
                     className="hidden xl:flex"
@@ -305,6 +320,9 @@ export default function App() {
                     onToggle={() => void toggleBackgroundMusic()}
                     onTrackChange={changeTrack}
                     onVolumeChange={setMusicVolume}
+                    onPrevious={goToPreviousTrack}
+                    onNext={goToNextTrack}
+                    compact
                   />
                 </div>
               ) : null}

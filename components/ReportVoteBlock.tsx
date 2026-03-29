@@ -40,7 +40,11 @@ const voteCards: Array<{
   },
 ];
 
-export default function ReportVoteBlock() {
+export default function ReportVoteBlock({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   const [counts, setCounts] = useState<VoteCounts>(INITIAL_COUNTS);
   const [selected, setSelected] = useState<VoteChoice | null>(null);
   const [loading, setLoading] = useState(false);
@@ -105,16 +109,30 @@ export default function ReportVoteBlock() {
   const total = counts.up + counts.down + counts.poop;
 
   return (
-    <NeonCard className="p-4 md:p-5">
-      <div className="space-y-3">
+    <NeonCard className={compact ? "p-3.5 md:p-4" : "p-4 md:p-5"}>
+      <div className={compact ? "space-y-2.5" : "space-y-3"}>
         <div>
-          <p className="text-[20px] uppercase tracking-[0.24em] text-red-300">
+          <p
+            className={
+              compact
+                ? "text-[13px] uppercase tracking-[0.22em] text-red-300"
+                : "text-[20px] uppercase tracking-[0.24em] text-red-300"
+            }
+          >
             VOTE HERE
           </p>
-          <h2 className="mt-1 text-[18px] font-black text-white md:text-[24px]">
+          <h2
+            className={
+              compact
+                ? "mt-1 text-[14px] font-black text-white md:text-[17px]"
+                : "mt-1 text-[18px] font-black text-white md:text-[24px]"
+            }
+          >
             ARE YOU GOING TO REPORT ME? :3
           </h2>
-          <p className="mt-1 text-[12px] text-white/65">Pick one only.</p>
+          <p className={compact ? "mt-1 text-[10px] text-white/65" : "mt-1 text-[12px] text-white/65"}>
+            Pick one only.
+          </p>
         </div>
 
         <div className="grid gap-2 sm:grid-cols-3">
@@ -123,27 +141,47 @@ export default function ReportVoteBlock() {
               key={voteCard.key}
               onClick={() => void handleVote(voteCard.key)}
               disabled={!!selected || loading}
-              className={`rounded-xl border px-3 py-3 text-[13px] font-semibold transition ${
+              className={`rounded-xl border font-semibold transition ${
+                compact ? "px-2 py-2 text-[11px]" : "px-3 py-3 text-[13px]"
+              } ${
                 selected === voteCard.key
                   ? voteCard.accent
                   : "border-white/15 bg-white/5 text-white hover:bg-white/10"
               } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
             >
-              <div className="text-[16px] font-black tracking-[0.22em]">
+              <div
+                className={
+                  compact
+                    ? "text-[12px] font-black tracking-[0.18em]"
+                    : "text-[16px] font-black tracking-[0.22em]"
+                }
+              >
                 {voteCard.tone}
               </div>
-              <div className="mt-1 text-[10px] uppercase tracking-[0.16em]">
+              <div
+                className={
+                  compact
+                    ? "mt-1 text-[9px] uppercase tracking-[0.12em]"
+                    : "mt-1 text-[10px] uppercase tracking-[0.16em]"
+                }
+              >
                 {voteCard.label}
               </div>
-              <div className="mt-1 text-[15px]">{counts[voteCard.key]}</div>
+              <div className={compact ? "mt-1 text-[12px]" : "mt-1 text-[15px]"}>
+                {counts[voteCard.key]}
+              </div>
             </button>
           ))}
         </div>
 
-        <p className="text-[11px] text-white/55">Total votes: {total}</p>
+        <p className={compact ? "text-[10px] text-white/55" : "text-[11px] text-white/55"}>
+          Total votes: {total}
+        </p>
 
         {selected ? (
-          <p className="text-[11px] text-red-300">Your vote has been recorded.</p>
+          <p className={compact ? "text-[10px] text-red-300" : "text-[11px] text-red-300"}>
+            Your vote has been recorded.
+          </p>
         ) : null}
       </div>
     </NeonCard>
