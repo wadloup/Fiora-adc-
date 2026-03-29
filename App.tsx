@@ -1339,7 +1339,7 @@ export default function App() {
               </>
             )}
 
-     {currentPage === "Runes" && (
+ {currentPage === "Runes" && (
   <>
     <SectionTitle
       icon={Zap}
@@ -1347,27 +1347,53 @@ export default function App() {
       subtitle="Two clean rune pages with the exact visual you wanted."
     />
 
-    <div className="grid gap-6 xl:grid-cols-2">
-      <NeonCard className="overflow-hidden p-4">
-        <p className="mb-4 text-sm uppercase tracking-[0.16em] text-red-300">
+    <div className="grid gap-4 xl:grid-cols-2">
+      <NeonCard className="space-y-4 p-5">
+        <p className="text-sm uppercase tracking-[0.16em] text-red-300">
           PTA PAGE
         </p>
+
         <img
           src="/runes/pta-page.png"
           alt="PTA rune page"
-          className="w-full rounded-2xl border border-red-500/25 object-contain"
+          className="w-full rounded-3xl border border-red-500/20 object-contain"
         />
+
+        <div className="space-y-2 text-white/75">
+          <p>
+            <span className="font-semibold text-white">Why PTA:</span> burst profile, short trades, better vs fragile ADCs.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Secondary:</span> Biscuits + Jack = safer lane.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Mini:</span> Adaptive / Adaptive / HP.
+          </p>
+        </div>
       </NeonCard>
 
-      <NeonCard className="overflow-hidden p-4">
-        <p className="mb-4 text-sm uppercase tracking-[0.16em] text-red-300">
+      <NeonCard className="space-y-4 p-5">
+        <p className="text-sm uppercase tracking-[0.16em] text-red-300">
           PHASE RUSH PAGE
         </p>
+
         <img
           src="/runes/phase-rush-page.png"
           alt="Phase Rush rune page"
-          className="w-full rounded-2xl border border-red-500/25 object-contain"
+          className="w-full rounded-3xl border border-red-500/20 object-contain"
         />
+
+        <div className="space-y-2 text-white/75">
+          <p>
+            <span className="font-semibold text-white">Why Phase Rush:</span> mobility, disengage, access.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Damage:</span> Absolute Focus + Last Stand.
+          </p>
+          <p>
+            <span className="font-semibold text-white">Mini:</span> AS / Adaptive / HP.
+          </p>
+        </div>
       </NeonCard>
     </div>
   </>
