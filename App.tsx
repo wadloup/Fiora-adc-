@@ -29,6 +29,13 @@ import {
   Zap,
 } from "lucide-react";
 
+import NeonCard from "./components/ui/NeonCard";
+import SectionTitle from "./components/ui/SectionTitle";
+import PageButton from "./components/ui/PageButton";
+import StatCard from "./components/ui/StatCard";
+import IconRow from "./components/ui/IconRow";
+import ItemPath from "./components/ui/ItemPath";
+
 const pages = [
   "Home",
   "Why Fiora ADC Works",
@@ -404,24 +411,10 @@ const laneSections = [
 
 const DEFAULT_FIORA_IMAGE =
   "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg";
-const DEFAULT_RUNE_ICON =
-  "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png";
-const DEFAULT_ITEM_ICON =
-  "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3077.png";
 
 function recoverImage(
   event: React.SyntheticEvent<HTMLImageElement>,
   fallback: string = DEFAULT_FIORA_IMAGE
-) {
-  const img = event.currentTarget;
-  if (img.src !== fallback) {
-    img.src = fallback;
-  }
-}
-
-function recoverAssetImage(
-  event: React.SyntheticEvent<HTMLImageElement>,
-  fallback: string
 ) {
   const img = event.currentTarget;
   if (img.src !== fallback) {
@@ -454,142 +447,6 @@ const mechanics = [
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
-}
-
-function NeonCard({
-  className = "",
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-3xl border border-red-500/25 bg-white/[0.04] backdrop-blur-md shadow-[0_0_24px_rgba(255,0,60,0.12)]",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SectionTitle({
-  icon: Icon,
-  title,
-  subtitle,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-red-200">
-        <Icon className="h-4 w-4" />
-        Section
-      </div>
-      <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
-        {title}
-      </h2>
-      <p className="max-w-3xl text-white/70">{subtitle}</p>
-    </div>
-  );
-}
-
-function PageButton({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "rounded-xl border px-3 py-2 text-sm transition",
-        active
-          ? "border-red-500/40 bg-red-500/15 text-red-300"
-          : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  text,
-}: {
-  label: string;
-  value: string;
-  text: string;
-}) {
-  return (
-    <NeonCard className="p-5">
-      <p className="text-sm uppercase tracking-[0.18em] text-red-300">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-bold text-white">{value}</p>
-      <p className="mt-2 text-sm text-white/65">{text}</p>
-    </NeonCard>
-  );
-}
-
-function IconRow({ icons }: { icons: string[] }) {
-  return (
-    <div className="flex flex-wrap gap-3">
-      {icons.map((src, index) => (
-        <img
-          key={`${src}-${index}`}
-          src={src}
-          alt="rune icon"
-          className="h-14 w-14 rounded-xl border border-red-500/30 bg-black/50 object-cover"
-          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ItemPath({
-  title,
-  items,
-  text,
-}: {
-  title: string;
-  items: string[];
-  text: string;
-}) {
-  return (
-    <NeonCard className="p-5">
-      <p className="text-sm uppercase tracking-[0.16em] text-red-300">
-        {title}
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {items.map((it, i) => (
-          <div key={`${it}-${i}`} className="flex items-center gap-2">
-            <img
-              src={it}
-              alt="item"
-              className="h-12 w-12 rounded-lg border border-red-500/30 bg-black/40 object-cover"
-              onError={(event) => recoverAssetImage(event, DEFAULT_ITEM_ICON)}
-            />
-            {i < items.length - 1 ? (
-              <span className="text-red-300">→</span>
-            ) : null}
-          </div>
-        ))}
-      </div>
-      <p className="mt-3 text-white/75">{text}</p>
-    </NeonCard>
-  );
 }
 
 function HomeSupportShowcase() {
@@ -1500,37 +1357,62 @@ export default function App() {
               </>
             )}
 
-            {currentPage === "Runes" && (
-              <>
-                <SectionTitle
-                  icon={Zap}
-                  title="Runes"
-                  subtitle="Explained setup choices with icon rows, practical logic, and clean side-by-side comparison."
-                />
+           {currentPage === "Runes" && (
+  <>
+    <SectionTitle
+      icon={Zap}
+      title="Runes"
+      subtitle="Explained setup choices with icon rows, practical logic, and clean side-by-side comparison."
+    />
 
-                <div className="grid gap-4 xl:grid-cols-2">
-                  <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PTA PAGE</p>
-                    <IconRow icons={runeIcons.pta} />
-                    <div className="space-y-2 text-white/75">
-                      <p><span className="font-semibold text-white">Why PTA:</span> burst profile, short trades, and better punishment against fragile ADCs.</p>
-                      <p><span className="font-semibold text-white">Secondary logic:</span> Biscuits and Jack help survive lane and add long-term value in awkward matchups.</p>
-                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Adaptive Force, Heal.</p>
-                    </div>
-                  </NeonCard>
+    <div className="grid gap-4 xl:grid-cols-2">
+     <NeonCard className="space-y-4 p-5">
+  <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+    PTA PAGE
+  </p>
+  <IconRow icons={runeIcons.pta} />
+  <div className="space-y-2 text-white/75">
+    <p>
+      <span className="font-semibold text-white">Why PTA:</span> burst profile,
+      short trades, and better punishment against fragile ADCs.
+    </p>
+    <p>
+      <span className="font-semibold text-white">Secondary logic:</span>{" "}
+      Biscuits and Jack help survive lane and add long-term value in awkward
+      matchups.
+    </p>
+    <p>
+      <span className="font-semibold text-white">Mini runes:</span> Adaptive
+      Force, Adaptive Force, Heal.
+    </p>
+  </div>
+</NeonCard>
 
-                  <NeonCard className="space-y-4 p-5">
-                    <p className="text-sm uppercase tracking-[0.16em] text-red-300">PHASE RUSH PAGE</p>
-                    <IconRow icons={runeIcons.phase} />
-                    <div className="space-y-2 text-white/75">
-                      <p><span className="font-semibold text-white">Why Phase Rush:</span> easier gap close, cleaner disengage, and better access against mobile or hard-to-reach lanes.</p>
-                      <p><span className="font-semibold text-white">Damage profile:</span> Absolute Focus and Last Stand keep the page threatening at different HP states.</p>
-                      <p><span className="font-semibold text-white">Mini runes:</span> Adaptive Force, Attack Speed, Scaling Heal.</p>
-                    </div>
-                  </NeonCard>
-                </div>
-              </>
-            )}
+      <NeonCard className="space-y-4 p-5">
+  <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+    PHASE RUSH PAGE
+  </p>
+  <IconRow icons={runeIcons.phase} />
+  <div className="space-y-2 text-white/75">
+    <p>
+      <span className="font-semibold text-white">Why Phase Rush:</span> easier
+      gap close, cleaner disengage, and better access against mobile or
+      hard-to-reach lanes.
+    </p>
+    <p>
+      <span className="font-semibold text-white">Damage profile:</span>{" "}
+      Absolute Focus and Last Stand keep the page threatening at different HP
+      states.
+    </p>
+    <p>
+      <span className="font-semibold text-white">Mini runes:</span> Adaptive
+      Force, Attack Speed, Scaling Heal.
+    </p>
+  </div>
+</NeonCard>
+    </div>
+  </>
+)}
 
             {currentPage === "Build" && (
               <>
