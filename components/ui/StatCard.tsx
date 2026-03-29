@@ -4,15 +4,21 @@ type StatCardProps = {
   label: string;
   value: string;
   text: string;
+  audioSrc?: string;
 };
 
 export default function StatCard({
   label,
   value,
   text,
+  audioSrc,
 }: StatCardProps) {
   return (
-    <SpeakableCard text={`${label}. ${value}. ${text}`} className="p-4 md:p-5">
+    <SpeakableCard
+      text={`${label}. ${value}. ${text}`}
+      audioSrc={audioSrc}
+      className="p-4 md:p-5"
+    >
       <p className="text-xs uppercase tracking-[0.18em] text-red-300 md:text-sm">
         {label}
       </p>

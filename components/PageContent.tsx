@@ -66,6 +66,7 @@ export default function PageContent({
                 label={card.title}
                 value={homeStatValues[index]}
                 text={card.text}
+                audioSrc={card.audio}
               />
             ))}
           </div>
@@ -81,6 +82,7 @@ export default function PageContent({
                 <SpeakableCard
                   key={card.title}
                   text={`${card.title}. ${card.text}`}
+                  audioSrc={card.audio}
                   className="border-white/10 bg-white/5 p-4 md:p-5"
                 >
                   <p className="text-xs uppercase tracking-[0.16em] text-red-300 md:text-sm">
@@ -140,6 +142,7 @@ export default function PageContent({
                 key={point.title}
                 className="p-5"
                 text={`${point.title}. ${point.text}`}
+                audioSrc={point.audio}
               >
                 <p className="text-lg font-bold text-white">{point.title}</p>
                 <p className="mt-2 text-sm leading-relaxed text-white/70 md:text-base">
@@ -427,6 +430,7 @@ export default function PageContent({
                 key={support.name}
                 className="p-4 md:p-5"
                 text={`${support.name}. ${support.role}. ${support.text}`}
+                audioSrc={support.audio}
               >
                 <img
                   src={support.image}
@@ -448,6 +452,7 @@ export default function PageContent({
                 key={principle.title}
                 className="p-5"
                 text={`${principle.title}. ${principle.text}`}
+                audioSrc={principle.audio}
               >
                 <p className="mb-2 font-semibold text-red-300">{principle.title}</p>
                 <p className="text-sm leading-relaxed text-white/75">{principle.text}</p>

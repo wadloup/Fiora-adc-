@@ -1,5 +1,9 @@
 import SpeakableCard from "./ui/SpeakableCard";
-import { heroCertifiedImage, supportProfiles } from "../data/siteData";
+import {
+  heroCertifiedImage,
+  homeSupportShellAudio,
+  supportProfiles,
+} from "../data/siteData";
 import { recoverImage } from "../utils/imageFallback";
 
 export default function HomeSupportShowcase() {
@@ -10,6 +14,7 @@ export default function HomeSupportShowcase() {
       <div className="flex h-full flex-col justify-between gap-4 p-6 md:p-8">
         <SpeakableCard
           text="Auto win. Netanyahu certified. Support shell. Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core."
+          audioSrc={homeSupportShellAudio}
           className="border-red-500/25 bg-black/25 p-5 backdrop-blur-sm xl:p-6"
         >
           <p className="text-xs uppercase tracking-[0.28em] text-red-300">
@@ -41,6 +46,7 @@ export default function HomeSupportShowcase() {
             <SpeakableCard
               key={support.name}
               text={`${support.name}. ${support.role}. ${support.text}`}
+              audioSrc={support.audio}
               className="border-red-500/20 bg-black/25 p-3 backdrop-blur-sm"
               contentClassName="flex items-center gap-3"
             >

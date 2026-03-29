@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
 import NeonCard from "./NeonCard";
@@ -13,6 +13,7 @@ import {
 } from "../../utils/audioControl";
 
 let activeSpeakableId: string | null = null;
+let activeRecordedAudio: HTMLAudioElement | null = null;
 
 function playActivationSound() {
   if (typeof window === "undefined") {
@@ -66,12 +67,19 @@ function stopSpeakable() {
     window.speechSynthesis.cancel();
   }
 
+  if (activeRecordedAudio) {
+    activeRecordedAudio.pause();
+    activeRecordedAudio.currentTime = 0;
+    activeRecordedAudio = null;
+  }
+
   activeSpeakableId = null;
   setActiveSpeakable(null);
 }
 
 type SpeakableCardProps = {
   text: string;
+  audioSrc?: string;
   analyticsLabel?: string;
   className?: string;
   contentClassName?: string;
@@ -80,6 +88,7 @@ type SpeakableCardProps = {
 
 export default function SpeakableCard({
   text,
+  audioSrc,
   analyticsLabel,
   className,
   contentClassName,
@@ -87,6 +96,7 @@ export default function SpeakableCard({
 }: SpeakableCardProps) {
   const speakableId = useId();
   const [active, setActive] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const updateActiveState = (event: Event) => {
@@ -124,7 +134,11 @@ export default function SpeakableCard({
       return;
     }
 
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!audioSrc && !("speechSynthesis" in window)) {
       return;
     }
 
@@ -136,6 +150,27 @@ export default function SpeakableCard({
     stopSpeakable();
     requestNarrationStop();
 
+    activeSpeakableId = speakableId;
+    setActiveSpeakable(speakableId);
+    playActivationSound();
+    trackSpeakableBlockPlayed(
+      analyticsLabel || text.split(".")[0] || text.slice(0, 80)
+    );
+
+    if (audioSrc && audioRef.current) {
+      const audio = audioRef.current;
+      activeRecordedAudio = audio;
+      audio.currentTime = 0;
+      void audio.play().catch(() => {
+        if (activeSpeakableId === speakableId) {
+          activeSpeakableId = null;
+          setActiveSpeakable(null);
+          activeRecordedAudio = null;
+        }
+      });
+      return;
+    }
+
     const utterance = new SpeechSynthesisUtterance(text);
     const availableVoices = window.speechSynthesis.getVoices();
     const englishVoice = availableVoices.find((voice) =>
@@ -146,13 +181,6 @@ export default function SpeakableCard({
     utterance.lang = englishVoice?.lang || "en-US";
     utterance.rate = 0.94;
     utterance.pitch = 0.92;
-
-    activeSpeakableId = speakableId;
-    setActiveSpeakable(speakableId);
-    playActivationSound();
-    trackSpeakableBlockPlayed(
-      analyticsLabel || text.split(".")[0] || text.slice(0, 80)
-    );
 
     utterance.onend = () => {
       if (activeSpeakableId === speakableId) {
@@ -181,6 +209,31 @@ export default function SpeakableCard({
         className
       )}
     >
+      {audioSrc ? (
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          preload="auto"
+          onEnded={() => {
+            if (activeSpeakableId === speakableId) {
+              activeSpeakableId = null;
+              setActiveSpeakable(null);
+            }
+            if (activeRecordedAudio === audioRef.current) {
+              activeRecordedAudio = null;
+            }
+          }}
+          onError={() => {
+            if (activeSpeakableId === speakableId) {
+              activeSpeakableId = null;
+              setActiveSpeakable(null);
+            }
+            if (activeRecordedAudio === audioRef.current) {
+              activeRecordedAudio = null;
+            }
+          }}
+        />
+      ) : null}
       {active ? (
         <>
           <motion.span

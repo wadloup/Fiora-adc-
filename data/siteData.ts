@@ -22,6 +22,7 @@ export type NarrationEntry = {
 };
 
 export const heroCertifiedImage = "/netanyahu.png";
+export const homeSupportShellAudio = "/voices/blocks/home-support-shell.wav";
 export const homeHeroImage =
   "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_8.jpg";
 export const whyWorksVisualImage =
@@ -270,6 +271,7 @@ export type SupportProfile = {
   position: string;
   size: string;
   text: string;
+  audio?: string;
 };
 
 export const supportProfiles: SupportProfile[] = [
@@ -281,6 +283,7 @@ export const supportProfiles: SupportProfile[] = [
     position: "center 18%",
     size: "h-72",
     text: "Still the cleanest partner here. He gives direct target access and makes commit windows obvious.",
+    audio: "/voices/blocks/support-alistar.wav",
   },
   {
     name: "Braum",
@@ -290,6 +293,7 @@ export const supportProfiles: SupportProfile[] = [
     position: "center 20%",
     size: "h-64",
     text: "Messier than Alistar but still excellent. He protects entry, stabilizes chaos, and lets you keep fighting after first contact.",
+    audio: "/voices/blocks/support-braum.wav",
   },
   {
     name: "Yuumi",
@@ -299,6 +303,7 @@ export const supportProfiles: SupportProfile[] = [
     position: "center 28%",
     size: "h-52",
     text: "Special case. She gives sustain, chase comfort, and enough padding to survive until Fiora can re-enter again and again.",
+    audio: "/voices/blocks/support-yuumi.wav",
   },
 ];
 
@@ -437,24 +442,29 @@ export const mechanics: MechanicTip[] = [
 export type SimpleCard = {
   title: string;
   text: string;
+  audio?: string;
 };
 
 export const homeStatCards: SimpleCard[] = [
   {
     title: "Identity",
     text: "Dark red, duel-heavy, and built to feel hostile.",
+    audio: "/voices/blocks/home-identity.wav",
   },
   {
     title: "Tone",
     text: "Direct, practical, and written to win lane.",
+    audio: "/voices/blocks/home-tone.wav",
   },
   {
     title: "Positioning",
     text: "Pocket pick with a plan, not a meme with excuses.",
+    audio: "/voices/blocks/home-positioning.wav",
   },
   {
     title: "Use",
     text: "Best opened in champ select, before the lane starts lying to you.",
+    audio: "/voices/blocks/home-use.wav",
   },
 ];
 
@@ -469,14 +479,17 @@ export const homeFeatureCards: SimpleCard[] = [
   {
     title: "Support first",
     text: "If your support skips this, half the lane plan is already gone.",
+    audio: "/voices/blocks/home-support-first.wav",
   },
   {
     title: "What you get",
     text: "Runes, build, lane, support, macro, clips. Each page answers a real question instead of wasting your time.",
+    audio: "/voices/blocks/home-what-you-get.wav",
   },
   {
     title: "Fiora energy",
     text: "Sharp, smug, unforgiving. One enemy mistake should feel expensive.",
+    audio: "/voices/blocks/home-fiora-energy.wav",
   },
 ];
 
@@ -484,18 +497,22 @@ export const whyWorksPoints: SimpleCard[] = [
   {
     title: "Surprise factor",
     text: "Most bot lanes know Fiora top. They do not know how little space she needs before bot lane turns lethal.",
+    audio: "/voices/blocks/why-surprise-factor.wav",
   },
   {
     title: "Duel pressure",
     text: "One clean opening is enough to make a lane stop feeling annoying and start feeling dangerous.",
+    audio: "/voices/blocks/why-duel-pressure.wav",
   },
   {
     title: "Execution edge",
     text: "Riposte plus support timing turns one enemy mistake into far more value than it should.",
+    audio: "/voices/blocks/why-execution-edge.wav",
   },
   {
     title: "Snowball conversion",
     text: "First lead means wave control, cleaner recalls, dragon setup, and much freer movement.",
+    audio: "/voices/blocks/why-snowball-conversion.wav",
   },
 ];
 
@@ -518,14 +535,17 @@ export const supportPrinciples: SimpleCard[] = [
   {
     title: "Engage / hook",
     text: "If support can force contact, Fiora gets to play. If not, half the lane is spent asking for permission.",
+    audio: "/voices/blocks/support-principle-engage-hook.wav",
   },
   {
     title: "Hydra timing",
     text: "Once Ravenous Hydra is done, repeat pressure gets much easier because Fiora can heal, reset, and walk back in fast.",
+    audio: "/voices/blocks/support-principle-hydra-timing.wav",
   },
   {
     title: "Protective supports",
     text: "They still work when the lane plan is survive early, keep HP high, then punish later with cleaner entries.",
+    audio: "/voices/blocks/support-principle-protective-supports.wav",
   },
 ];
 
