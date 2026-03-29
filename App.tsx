@@ -333,7 +333,7 @@ export default function App() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
-                    Fiora ADC Guide
+                    Draft read
                   </p>
                   <h1 className="mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
                     <>
@@ -372,7 +372,7 @@ export default function App() {
               <div className="space-y-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
-                    Fiora ADC Guide
+                    Draft read
                   </p>
                   <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
