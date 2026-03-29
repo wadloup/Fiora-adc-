@@ -149,39 +149,23 @@ export const musicThemes: MusicTheme[] = [
     mood: "Soft romance in midnight light",
     src: "/audio/love-sillage.mp3",
     background: {
-      base: "radial-gradient(circle at 22% 12%, rgba(255,120,200,0.18), transparent 22%), radial-gradient(circle at 82% 18%, rgba(90,170,255,0.16), transparent 22%), linear-gradient(180deg, #05060d 0%, #12081a 46%, #04060d 100%)",
+      base: "linear-gradient(180deg, #05060d 0%, #0f0a14 46%, #04060d 100%)",
       overlay:
-        "linear-gradient(135deg, rgba(255, 150, 220, 0.12) 0%, rgba(120, 150, 255, 0.09) 45%, rgba(0,0,0,0) 100%)",
-      pattern:
-        "linear-gradient(135deg, rgba(255,255,255,0.03) 25%, transparent 25%), linear-gradient(225deg, rgba(255,255,255,0.03) 25%, transparent 25%), linear-gradient(315deg, rgba(255,255,255,0.02) 25%, transparent 25%), linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%)",
-      patternSize: "220px 220px",
-      veil: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 44%)",
-      glows: [
-        {
-          top: "2%",
-          left: "18%",
-          width: "22rem",
-          height: "22rem",
-          background:
-            "radial-gradient(circle, rgba(255,140,220,0.26) 0%, rgba(255,100,170,0.1) 45%, transparent 72%)",
-          opacity: 0.72,
-          duration: 18,
-          x: [0, 16, 0],
-          y: [0, 8, 0],
-        },
-        {
-          top: "18%",
-          left: "72%",
-          width: "22rem",
-          height: "22rem",
-          background:
-            "radial-gradient(circle, rgba(120,170,255,0.28) 0%, rgba(90,110,255,0.1) 45%, transparent 72%)",
-          opacity: 0.68,
-          duration: 20,
-          x: [0, -14, 0],
-          y: [0, 12, 0],
-        },
-      ],
+        "linear-gradient(135deg, rgba(255, 150, 220, 0.06) 0%, rgba(120, 190, 255, 0.06) 45%, rgba(0,0,0,0.12) 100%)",
+      pattern: "none",
+      patternSize: "100% 100%",
+      veil: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05), transparent 42%)",
+      artwork: {
+        src: "/backgrounds/love-sillage-wallpaper.mp4",
+        kind: "video",
+        posterSrc: "/backgrounds/love-sillage-wallpaper.jpg",
+        fit: "cover",
+        position: "center center",
+        opacity: 0.97,
+        scale: 1,
+        filter: "contrast(1.03) saturate(1.05) brightness(0.88)",
+      },
+      glows: [],
     },
   },
   {
