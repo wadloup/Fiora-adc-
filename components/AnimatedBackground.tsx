@@ -153,7 +153,6 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
-  const artworkUsesContainVideo = artworkIsVideo && artwork?.fit === "contain";
 
   return (
     <AnimatePresence mode="wait">
@@ -172,27 +171,6 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
 
         {artwork && artworkIsVideo ? (
           <div className="absolute inset-0 overflow-hidden">
-            {artworkUsesContainVideo ? (
-              <motion.div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: artwork.posterSrc
-                    ? `url("${artwork.posterSrc}")`
-                    : undefined,
-                  backgroundPosition: artwork.position || "center center",
-                  backgroundSize: "cover",
-                  opacity: 0.92,
-                  filter:
-                    "contrast(1.03) saturate(1.06) brightness(0.72)",
-                }}
-                animate={{
-                  scale: [1.03, 1.06, 1.03],
-                  x: [0, -14, 0],
-                  y: [0, 10, 0],
-                }}
-                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-              />
-            ) : null}
             <video
               key={artwork.src}
               src={artwork.src}
@@ -328,11 +306,9 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
 
         <div
           className={
-            artworkUsesContainVideo
-              ? "absolute inset-0 bg-black/[0.06]"
-              : artworkIsVideo
-                ? "absolute inset-0 bg-black/[0.02]"
-                : "absolute inset-0 bg-black/18"
+            artworkIsVideo
+              ? "absolute inset-0 bg-black/[0.02]"
+              : "absolute inset-0 bg-black/18"
           }
         />
       </motion.div>

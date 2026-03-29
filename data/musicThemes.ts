@@ -78,13 +78,13 @@ export const musicThemes: MusicTheme[] = [
         src: comeHomeBackgroundSrc,
         kind: comeHomeBackgroundKind,
         posterSrc: "/backgrounds/come-home-wallpaper.jpg",
-        fit: comeHomeBackgroundKind === "video" ? "contain" : "cover",
+        fit: "cover",
         position: "center center",
         opacity: 1,
-        scale: comeHomeBackgroundKind === "video" ? 0.98 : 1.03,
+        scale: comeHomeBackgroundKind === "video" ? 1 : 1.03,
         filter:
           comeHomeBackgroundKind === "video"
-            ? "contrast(1.02) saturate(1.02) brightness(0.96)"
+            ? "contrast(1.01) saturate(1.02) brightness(0.96)"
             : "contrast(1.06) saturate(1.04) brightness(0.8)",
       },
       glows: [],
