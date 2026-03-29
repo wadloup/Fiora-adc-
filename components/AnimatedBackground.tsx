@@ -171,6 +171,17 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
 
         {artwork && artworkIsVideo ? (
           <div className="absolute inset-0 overflow-hidden">
+            {artwork.posterSrc ? (
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: `url("${artwork.posterSrc}")`,
+                  backgroundPosition: artwork.position || "center center",
+                  backgroundSize: "cover",
+                  filter: "contrast(1.04) saturate(1.04) brightness(0.7)",
+                }}
+              />
+            ) : null}
             <video
               key={artwork.src}
               src={artwork.src}
@@ -180,8 +191,9 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               loop
               playsInline
               preload="auto"
-              className="h-full w-full object-cover"
+              className="h-full w-full"
               style={{
+                objectFit: artwork.fit || "cover",
                 objectPosition: artwork.position || "center center",
                 opacity: artwork.opacity ?? 0.7,
                 filter:
@@ -218,7 +230,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             style={{
               backgroundImage: `url("${artwork.src}")`,
               backgroundPosition: artwork.position || "center center",
-              backgroundSize: "cover",
+              backgroundSize: artwork.fit || "cover",
               opacity: artwork.opacity ?? 0.18,
               filter:
                 artwork.filter || "grayscale(0.2) contrast(1.04) brightness(0.66)",
