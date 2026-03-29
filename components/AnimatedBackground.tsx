@@ -173,23 +173,24 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         {artwork && artworkIsVideo ? (
           <div className="absolute inset-0 overflow-hidden">
             {artworkUsesContainVideo ? (
-              <video
-                key={`${artwork.src}-cover`}
-                src={artwork.src}
-                poster={artwork.posterSrc}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                className="absolute inset-0 h-full w-full object-cover"
+              <motion.div
+                className="absolute inset-0"
                 style={{
-                  objectPosition: artwork.position || "center center",
-                  opacity: 0.72,
+                  backgroundImage: artwork.posterSrc
+                    ? `url("${artwork.posterSrc}")`
+                    : undefined,
+                  backgroundPosition: artwork.position || "center center",
+                  backgroundSize: "cover",
+                  opacity: 0.92,
                   filter:
-                    "blur(10px) contrast(1.04) saturate(1.06) brightness(0.5)",
-                  transform: "scale(1.04)",
+                    "contrast(1.03) saturate(1.06) brightness(0.72)",
                 }}
+                animate={{
+                  scale: [1.03, 1.06, 1.03],
+                  x: [0, -14, 0],
+                  y: [0, 10, 0],
+                }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
               />
             ) : null}
             <video
@@ -205,6 +206,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               style={{
                 objectFit: artwork.fit || "cover",
                 objectPosition: artwork.position || "center center",
+                backgroundColor: "transparent",
                 opacity: artwork.opacity ?? 0.7,
                 filter:
                   artwork.filter ||
