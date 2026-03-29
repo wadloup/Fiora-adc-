@@ -70,7 +70,7 @@ export default function MusicPlayer({
   }
 
   return (
-    <div className="hidden items-center gap-2 xl:flex">
+    <div className="hidden shrink-0 items-center gap-2 xl:flex">
       <button
         onClick={onToggle}
         className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-white transition hover:bg-red-500/15"

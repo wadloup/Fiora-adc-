@@ -175,20 +175,22 @@ export default function App() {
       <AnimatedBackground theme={currentTrack} />
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 md:px-6">
+          <div className="flex shrink-0 items-center gap-3">
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.22)]">
               <Sword className="h-5 w-5 text-red-400" />
             </div>
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.18em]">
+              <p className="whitespace-nowrap text-sm font-black uppercase tracking-[0.18em]">
                 Fiora ADC
               </p>
-              <p className="text-xs text-white/55">Hybrid final version</p>
+              <p className="whitespace-nowrap text-xs text-white/55">
+                Hybrid final version
+              </p>
             </div>
           </div>
 
-          <nav className="hidden items-center gap-2 xl:flex">
+          <nav className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-2 xl:flex">
             {pages.map((page) => (
               <PageButton
                 key={page}
