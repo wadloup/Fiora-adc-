@@ -32,6 +32,7 @@ export type MusicTheme = {
     artwork?: {
       src: string;
       kind?: "image" | "video";
+      posterSrc?: string;
       position?: string;
       opacity?: number;
       scale?: number;
@@ -52,6 +53,8 @@ const comeHomeBackgroundSrc =
 const inferArtworkKind = (src: string): "image" | "video" =>
   /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src) ? "video" : "image";
 
+const comeHomeBackgroundKind = inferArtworkKind(comeHomeBackgroundSrc);
+
 export const musicThemes: MusicTheme[] = [
   {
     id: "come-home",
@@ -67,11 +70,15 @@ export const musicThemes: MusicTheme[] = [
       veil: "none",
       artwork: {
         src: comeHomeBackgroundSrc,
-        kind: inferArtworkKind(comeHomeBackgroundSrc),
+        kind: comeHomeBackgroundKind,
+        posterSrc: "/backgrounds/come-home-wallpaper.jpg",
         position: "center center",
         opacity: 1,
-        scale: 1.03,
-        filter: "contrast(1.06) saturate(1.04) brightness(0.8)",
+        scale: comeHomeBackgroundKind === "video" ? 1 : 1.03,
+        filter:
+          comeHomeBackgroundKind === "video"
+            ? "contrast(1.02) saturate(1.02) brightness(0.96)"
+            : "contrast(1.06) saturate(1.04) brightness(0.8)",
       },
       glows: [],
     },

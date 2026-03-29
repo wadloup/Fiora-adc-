@@ -174,6 +174,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             <video
               key={artwork.src}
               src={artwork.src}
+              poster={artwork.posterSrc}
               autoPlay
               muted
               loop
