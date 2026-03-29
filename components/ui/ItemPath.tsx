@@ -8,11 +8,16 @@ type ItemPathProps = {
   title: string;
   items: string[];
   text: string;
+  audioSrc?: string;
 };
 
-export default function ItemPath({ title, items, text }: ItemPathProps) {
+export default function ItemPath({ title, items, text, audioSrc }: ItemPathProps) {
   return (
-    <SpeakableCard text={`${title}. ${text}`} className="p-4 md:p-5">
+    <SpeakableCard
+      text={`${title}. ${text}`}
+      audioSrc={audioSrc}
+      className="p-4 md:p-5"
+    >
       <p className="text-xs uppercase tracking-[0.16em] text-red-300 md:text-sm">
         {title}
       </p>

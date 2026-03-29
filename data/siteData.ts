@@ -180,6 +180,7 @@ export type Matchup = {
   image: string;
   position: string;
   explanation: string;
+  audio?: string;
 };
 
 export const matchups: Matchup[] = [
@@ -192,6 +193,7 @@ export const matchups: Matchup[] = [
     position: "center 24%",
     explanation:
       "Punish him the second his spacing gets lazy. If your support touches him first, the lane can snap fast.",
+    audio: "/voices/blocks/matchup-jhin.wav",
   },
   {
     name: "Jinx",
@@ -202,6 +204,7 @@ export const matchups: Matchup[] = [
     position: "center 24%",
     explanation:
       "No dash means one clean catch can flip the whole lane if wave and brush are already yours.",
+    audio: "/voices/blocks/matchup-jinx.wav",
   },
   {
     name: "Kai'Sa",
@@ -212,6 +215,7 @@ export const matchups: Matchup[] = [
     position: "center 22%",
     explanation:
       "Volatile lane. The label matters less than who gets the first real all-in cleanly.",
+    audio: "/voices/blocks/matchup-kaisa.wav",
   },
   {
     name: "Ashe",
@@ -222,6 +226,7 @@ export const matchups: Matchup[] = [
     position: "center 22%",
     explanation:
       "Her slow ruins your rhythm. Stay healthier than you want to, then pick one hard commit instead of bleeding out in small trades.",
+    audio: "/voices/blocks/matchup-ashe.wav",
   },
   {
     name: "Draven",
@@ -232,6 +237,7 @@ export const matchups: Matchup[] = [
     position: "center 20%",
     explanation:
       "If he gets tempo first, every lane step feels expensive. Do not trade for ego.",
+    audio: "/voices/blocks/matchup-draven.wav",
   },
   {
     name: "Caitlyn",
@@ -242,6 +248,7 @@ export const matchups: Matchup[] = [
     position: "center 20%",
     explanation:
       "Range, traps, and shove punish lazy movement. Respect the setup, then hit the moment she gets arrogant.",
+    audio: "/voices/blocks/matchup-caitlyn.wav",
   },
 ];
 
@@ -365,6 +372,7 @@ export type LaneSection = {
   title: string;
   summary: string;
   points: string[];
+  audio?: string;
 };
 
 export const laneSections: LaneSection[] = [
@@ -372,6 +380,7 @@ export const laneSections: LaneSection[] = [
     id: "early",
     title: "Early Lane",
     summary: "Keep your health, track the spike, then cash in on the first real mistake.",
+    audio: "/voices/blocks/lane-early-lane.wav",
     points: [
       "Fiora ADC is short range, so free damage is how you lose lane before the matchup even starts.",
       "Level 2 with Q then E creates real kill pressure if support is already in range to finish the idea.",
@@ -383,6 +392,7 @@ export const laneSections: LaneSection[] = [
     title: "Wave / Bush Control",
     summary:
       "Brush and wave state decide whether your all-in is real or just roleplay.",
+    audio: "/voices/blocks/lane-wave-bush-control.wav",
     points: [
       "Brush control creates hidden engage angles and often bleeds enemy cooldowns before the real fight.",
       "If enemy Flash is burned, the next longer wave becomes one of the cleanest jungle punish timings you get.",
@@ -393,6 +403,7 @@ export const laneSections: LaneSection[] = [
     id: "support",
     title: "Support Sync",
     summary: "Support timing matters more here than on a normal marksman lane.",
+    audio: "/voices/blocks/lane-support-sync.wav",
     points: [
       "Engage and hook supports are premium because they let Fiora touch the target on purpose, not by miracle.",
       "After Ravenous Hydra, repeat pressure becomes much easier because Fiora can heal, reset, and walk back in faster.",
@@ -403,6 +414,7 @@ export const laneSections: LaneSection[] = [
     id: "matchups",
     title: "Matchup Trend",
     summary: "Treat labels as tendencies. Gold, tempo, and support timing rewrite lanes quickly.",
+    audio: "/voices/blocks/lane-matchup-trend.wav",
     points: [
       "Favorable trends: Jhin, Jinx, Kai'Sa, Lucian, Senna, Sivir, Miss Fortune.",
       "Harder trends: Ashe, Draven, Kog'Maw, Varus, Vayne, Twitch, Caitlyn.",
@@ -414,6 +426,7 @@ export const laneSections: LaneSection[] = [
 export type MechanicTip = {
   title: string;
   content: string;
+  audio?: string;
 };
 
 export const mechanics: MechanicTip[] = [
@@ -421,21 +434,25 @@ export const mechanics: MechanicTip[] = [
     title: "Spacing",
     content:
       "Threaten first. Commit second. Good spacing makes the enemy spend the wrong cooldown before the fight even starts.",
+    audio: "/voices/blocks/mechanics-spacing.wav",
   },
   {
     title: "Riposte timing",
     content:
       "Do not parry the loudest spell. Parry the one that decides whether you live, stick, or lose the whole trade.",
+    audio: "/voices/blocks/mechanics-riposte-timing.wav",
   },
   {
     title: "Burst windows",
     content:
       "When support timing, target access, and wave state line up, go all the way in. Half-entries lose lanes.",
+    audio: "/voices/blocks/mechanics-burst-windows.wav",
   },
   {
     title: "Vital angle",
     content:
       "Use movement to open cleaner vitals before you hard commit whenever the lane actually gives you room.",
+    audio: "/voices/blocks/mechanics-vital-angle.wav",
   },
 ];
 
@@ -520,14 +537,17 @@ export const skillOrderCards: SimpleCard[] = [
   {
     title: "Level 1",
     text: "Q for access, repositioning, and creating your first real angle.",
+    audio: "/voices/blocks/skill-order-level-1.wav",
   },
   {
     title: "Level 2",
     text: "E for burst timing, especially when PTA trade windows already look possible.",
+    audio: "/voices/blocks/skill-order-level-2.wav",
   },
   {
     title: "Level 3",
     text: "W for Riposte control, CC answer, and far safer commitment.",
+    audio: "/voices/blocks/skill-order-level-3.wav",
   },
 ];
 
@@ -553,14 +573,17 @@ export const midLateCards: SimpleCard[] = [
   {
     title: "Pick one plan",
     text: "Split, flank, pick, or group. Mixing all four plans is how leads evaporate.",
+    audio: "/voices/blocks/mid-late-pick-one-plan.wav",
   },
   {
     title: "Entry timing",
     text: "Do not enter because enemies are visible. Enter because vision is set and the cooldowns that matter are gone.",
+    audio: "/voices/blocks/mid-late-entry-timing.wav",
   },
   {
     title: "Conversion",
     text: "If a fight wins nothing, it barely counts. Turn kills into tempo, towers, dragon, or side space.",
+    audio: "/voices/blocks/mid-late-conversion.wav",
   },
 ];
 
@@ -569,6 +592,7 @@ export type RunePage = {
   title: string;
   image: string;
   fallback: string;
+  audio?: string;
   bullets: Array<{
     label: string;
     text: string;
@@ -581,6 +605,7 @@ export const runePages: RunePage[] = [
     title: "PTA PAGE",
     image: "/pta-page.png",
     fallback: "/phase-rush-page.png",
+    audio: "/voices/blocks/runes-pta-page.wav",
     bullets: [
       {
         label: "Why PTA:",
@@ -601,6 +626,7 @@ export const runePages: RunePage[] = [
     title: "PHASE RUSH PAGE",
     image: "/phase-rush-page.png",
     fallback: "/pta-page.png",
+    audio: "/voices/blocks/runes-phase-rush-page.wav",
     bullets: [
       {
         label: "Why Phase Rush:",
@@ -625,6 +651,7 @@ export type VideoCard = {
   label: string;
   description: string;
   note: string;
+  audio?: string;
 };
 
 export const videoCards: VideoCard[] = [
@@ -636,6 +663,7 @@ export const videoCards: VideoCard[] = [
     label: "Look for",
     description: "How the target gets pinned before Fiora spends everything.",
     note: "The clip should start before the fight, not on the first crit frame.",
+    audio: "/voices/blocks/videos-entry-clip.wav",
   },
   {
     title: "Spacing clip",
@@ -645,6 +673,7 @@ export const videoCards: VideoCard[] = [
     label: "Look for",
     description: "What changes in movement right before the lane flips from neutral to lethal.",
     note: "A good clip here teaches distance control, not just confidence.",
+    audio: "/voices/blocks/videos-spacing-clip.wav",
   },
   {
     title: "Cleanup clip",
@@ -654,5 +683,6 @@ export const videoCards: VideoCard[] = [
     label: "Look for",
     description: "How the kill becomes wave control, reset tempo, or the next target.",
     note: "The ending matters less than the chain of decisions that made it free.",
+    audio: "/voices/blocks/videos-cleanup-clip.wav",
   },
 ];

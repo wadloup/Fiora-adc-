@@ -169,6 +169,7 @@ export default function PageContent({
                 className="p-5"
                 contentClassName="space-y-4"
                 text={`${runePage.title}. ${runePage.bullets.map((bullet) => `${bullet.label} ${bullet.text}`).join(" ")}`}
+                audioSrc={runePage.audio}
               >
                 <p className="text-sm uppercase tracking-[0.16em] text-red-300">
                   {runePage.title}
@@ -215,31 +216,37 @@ export default function PageContent({
               title="Core route"
               items={[itemIcons.tiamat, itemIcons.hydra]}
               text="Tiamat into Ravenous Hydra gives sustain, shove, and the freedom to take ugly trades without staying ugly for long."
+              audioSrc="/voices/blocks/build-core-route.wav"
             />
             <ItemPath
               title="Snowball route"
               items={[itemIcons.hydra, itemIcons.cyclosword]}
               text="Take this when you can actually touch the target and finish before the lane resets."
+              audioSrc="/voices/blocks/build-snowball-route.wav"
             />
             <ItemPath
               title="Stable route"
               items={[itemIcons.hydra, itemIcons.triforce]}
               text="For games where pure greed gets you deleted before the second rotation."
+              audioSrc="/voices/blocks/build-stable-route.wav"
             />
             <ItemPath
               title="Safe burst route"
               items={[itemIcons.hydra, itemIcons.eclipse]}
               text="Burst with a little insurance when you still need safer entries."
+              audioSrc="/voices/blocks/build-safe-burst-route.wav"
             />
             <ItemPath
               title="Defensive adaptation"
               items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]}
               text="DD into AD, Maw into AP, Iceborn when the game demands something uglier and sturdier."
+              audioSrc="/voices/blocks/build-defensive-adaptation.wav"
             />
             <ItemPath
               title="Late finish"
               items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]}
               text="Shojin if you want pressure, GA if one death loses the game, BT if you just want to keep cutting."
+              audioSrc="/voices/blocks/build-late-finish.wav"
             />
           </div>
         </>
@@ -258,6 +265,7 @@ export default function PageContent({
                 key={card.title}
                 className="p-5"
                 text={`${card.title}. ${card.text}`}
+                audioSrc={card.audio}
               >
                 <p className="text-lg font-bold text-white">{card.title}</p>
                 <p className="mt-2 text-white/70">{card.text}</p>
@@ -280,6 +288,7 @@ export default function PageContent({
                 key={matchup.name}
                 className="overflow-hidden p-4 transition hover:-translate-y-1"
                 text={`${matchup.name}. ${matchup.level}. Danger ${matchup.danger}. ${matchup.explanation}`}
+                audioSrc={matchup.audio}
               >
                 <img
                   src={matchup.image}
@@ -332,16 +341,19 @@ export default function PageContent({
               label="Primary goal"
               value="Preserve HP"
               text="Do not waste health before the real engage window exists."
+              audioSrc="/voices/blocks/lane-primary-goal.wav"
             />
             <StatCard
               label="First spikes"
               value="Level 2 and 3"
               text="Q/E pressure first, Riposte confidence second."
+              audioSrc="/voices/blocks/lane-first-spikes.wav"
             />
             <StatCard
               label="Vision rule"
               value="Ward first"
               text="Control the lane space before converting into aggression."
+              audioSrc="/voices/blocks/lane-vision-rule.wav"
             />
           </div>
 
@@ -351,6 +363,7 @@ export default function PageContent({
                 key={section.id}
                 className="p-5 md:p-6"
                 text={`${section.title}. ${section.summary}. ${section.points.join(" ")}`}
+                audioSrc={section.audio}
               >
                 <div
                   ref={(element) => {
@@ -519,6 +532,7 @@ export default function PageContent({
                 key={card.title}
                 className="p-5"
                 text={`${card.title}. ${card.text}`}
+                audioSrc={card.audio}
               >
                 <p className="font-bold text-white">{card.title}</p>
                 <p className="mt-2 text-sm leading-relaxed text-white/70 md:text-base">{card.text}</p>
@@ -546,6 +560,7 @@ export default function PageContent({
                 key={item.title}
                 className="p-5"
                 text={`${item.title}. ${item.content}`}
+                audioSrc={item.audio}
               >
                 <p className="font-bold text-white">{item.title}</p>
                 <p className="mt-2 text-sm leading-relaxed text-white/70 md:text-base">{item.content}</p>
@@ -568,6 +583,7 @@ export default function PageContent({
                 key={videoCard.title}
                 className="overflow-hidden p-4 md:p-5"
                 text={`${videoCard.title}. ${videoCard.description}. ${videoCard.note}`}
+                audioSrc={videoCard.audio}
               >
                 <div className="relative overflow-hidden rounded-2xl border border-red-500/25">
                   <img

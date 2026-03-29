@@ -93,6 +93,142 @@ $entries = @(
   @{
     File = "support-principle-protective-supports.wav"
     Text = "Protective supports. They still work when the lane plan is survive early, keep health high, then punish later with cleaner entries."
+  },
+  @{
+    File = "runes-pta-page.wav"
+    Text = "P T A page. Why P T A. Best when lane can be decided by one short, brutal trade. Secondary. Biscuits and Jack steady the lane when it gets ugly. Mini. Adaptive, adaptive, and health for early damage that still feels honest."
+  },
+  @{
+    File = "runes-phase-rush-page.wav"
+    Text = "Phase Rush page. Why Phase Rush. Take this when sticking, weaving out, or re-entering matters more than raw burst. Damage. Absolute Focus and Last Stand keep the page useful at both clean and messy health bars. Mini. Attack speed, adaptive, and health for smoother access and less clunky trades."
+  },
+  @{
+    File = "build-core-route.wav"
+    Text = "Core route. Tiamat into Ravenous Hydra gives sustain, shove, and the freedom to take ugly trades without staying ugly for long."
+  },
+  @{
+    File = "build-snowball-route.wav"
+    Text = "Snowball route. Take this when you can actually touch the target and finish before the lane resets."
+  },
+  @{
+    File = "build-stable-route.wav"
+    Text = "Stable route. For games where pure greed gets you deleted before the second rotation."
+  },
+  @{
+    File = "build-safe-burst-route.wav"
+    Text = "Safe burst route. Burst with a little insurance when you still need safer entries."
+  },
+  @{
+    File = "build-defensive-adaptation.wav"
+    Text = "Defensive adaptation. Death's Dance into A D, Maw into A P, and Iceborn when the game demands something uglier and sturdier."
+  },
+  @{
+    File = "build-late-finish.wav"
+    Text = "Late finish. Shojin if you want pressure, Guardian Angel if one death loses the game, Bloodthirster if you just want to keep cutting."
+  },
+  @{
+    File = "skill-order-level-1.wav"
+    Text = "Level 1. Q for access, repositioning, and creating your first real angle."
+  },
+  @{
+    File = "skill-order-level-2.wav"
+    Text = "Level 2. E for burst timing, especially when P T A trade windows already look possible."
+  },
+  @{
+    File = "skill-order-level-3.wav"
+    Text = "Level 3. W for Riposte control, crowd control answer, and far safer commitment."
+  },
+  @{
+    File = "matchup-jhin.wav"
+    Text = "Jhin. Favorable. Danger medium. Punish him the second his spacing gets lazy. If your support touches him first, the lane can snap fast."
+  },
+  @{
+    File = "matchup-jinx.wav"
+    Text = "Jinx. Favorable. Danger medium. No dash means one clean catch can flip the whole lane if wave and brush are already yours."
+  },
+  @{
+    File = "matchup-kaisa.wav"
+    Text = "Kai'Sa. Playable. Danger medium. Volatile lane. The label matters less than who gets the first real all in cleanly."
+  },
+  @{
+    File = "matchup-ashe.wav"
+    Text = "Ashe. Difficult. Danger high. Her slow ruins your rhythm. Stay healthier than you want to, then pick one hard commit instead of bleeding out in small trades."
+  },
+  @{
+    File = "matchup-draven.wav"
+    Text = "Draven. Difficult. Danger high. If he gets tempo first, every lane step feels expensive. Do not trade for ego."
+  },
+  @{
+    File = "matchup-caitlyn.wav"
+    Text = "Caitlyn. Difficult. Danger high. Range, traps, and shove punish lazy movement. Respect the setup, then hit the moment she gets arrogant."
+  },
+  @{
+    File = "lane-primary-goal.wav"
+    Text = "Primary goal. Preserve health. Do not waste health before the real engage window exists."
+  },
+  @{
+    File = "lane-first-spikes.wav"
+    Text = "First spikes. Level 2 and 3. Q and E pressure first, Riposte confidence second."
+  },
+  @{
+    File = "lane-vision-rule.wav"
+    Text = "Vision rule. Ward first. Control the lane space before converting into aggression."
+  },
+  @{
+    File = "lane-early-lane.wav"
+    Text = "Early lane. Keep your health, track the spike, then cash in on the first real mistake. Fiora A D C is short range, so free damage is how you lose lane before the matchup even starts. Level 2 with Q then E creates real kill pressure if support is already in range to finish the idea. At level 3, Riposte changes how confidently you can stand your ground once enemy crowd control has been identified."
+  },
+  @{
+    File = "lane-wave-bush-control.wav"
+    Text = "Wave and bush control. Brush and wave state decide whether your all in is real or just roleplay. Brush control creates hidden engage angles and often bleeds enemy cooldowns before the real fight. If enemy Flash is burned, the next longer wave becomes one of the cleanest jungle punish timings you get. Into ranged lanes, keep your health first and do not turn annoyance into desperate trades."
+  },
+  @{
+    File = "lane-support-sync.wav"
+    Text = "Support sync. Support timing matters more here than on a normal marksman lane. Engage and hook supports are premium because they let Fiora touch the target on purpose, not by miracle. After Ravenous Hydra, repeat pressure becomes much easier because Fiora can heal, reset, and walk back in faster. Protective supports still work if the plan is survive early, stay healthy, and punish later with cleaner entries."
+  },
+  @{
+    File = "lane-matchup-trend.wav"
+    Text = "Matchup trend. Treat labels as tendencies. Gold, tempo, and support timing rewrite lanes quickly. Favorable trends include Jhin, Jinx, Kai'Sa, Lucian, Senna, Sivir, and Miss Fortune. Harder trends include Ashe, Draven, Kog'Maw, Varus, Vayne, Twitch, and Caitlyn. Most lanes become much more playable once Fiora gets first lead, better tempo, or stronger support timing."
+  },
+  @{
+    File = "mid-late-pick-one-plan.wav"
+    Text = "Pick one plan. Split, flank, pick, or group. Mixing all four plans is how leads evaporate."
+  },
+  @{
+    File = "mid-late-entry-timing.wav"
+    Text = "Entry timing. Do not enter because enemies are visible. Enter because vision is set and the cooldowns that matter are gone."
+  },
+  @{
+    File = "mid-late-conversion.wav"
+    Text = "Conversion. If a fight wins nothing, it barely counts. Turn kills into tempo, towers, dragon, or side space."
+  },
+  @{
+    File = "mechanics-spacing.wav"
+    Text = "Spacing. Threaten first. Commit second. Good spacing makes the enemy spend the wrong cooldown before the fight even starts."
+  },
+  @{
+    File = "mechanics-riposte-timing.wav"
+    Text = "Riposte timing. Do not parry the loudest spell. Parry the one that decides whether you live, stick, or lose the whole trade."
+  },
+  @{
+    File = "mechanics-burst-windows.wav"
+    Text = "Burst windows. When support timing, target access, and wave state line up, go all the way in. Half entries lose lanes."
+  },
+  @{
+    File = "mechanics-vital-angle.wav"
+    Text = "Vital angle. Use movement to open cleaner vitals before you hard commit whenever the lane actually gives you room."
+  },
+  @{
+    File = "videos-entry-clip.wav"
+    Text = "Entry clip. Look for how the target gets pinned before Fiora spends everything. The clip should start before the fight, not on the first crit frame."
+  },
+  @{
+    File = "videos-spacing-clip.wav"
+    Text = "Spacing clip. Look for what changes in movement right before the lane flips from neutral to lethal. A good clip here teaches distance control, not just confidence."
+  },
+  @{
+    File = "videos-cleanup-clip.wav"
+    Text = "Cleanup clip. Look for how the kill becomes wave control, reset tempo, or the next target. The ending matters less than the chain of decisions that made it free."
   }
 )
 
