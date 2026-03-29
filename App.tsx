@@ -3,7 +3,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown, ArrowUp, Menu, Search, Sword, VolumeX, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Menu,
+  Pause,
+  Play,
+  Search,
+  SkipBack,
+  SkipForward,
+  Sword,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
 import MusicPlayer from "./components/MusicPlayer";
@@ -476,6 +489,70 @@ export default function App() {
           </span>
         </span>
       </button>
+
+      <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-black/85 p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] backdrop-blur-xl lg:block sm:right-5 md:right-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-red-300">
+              Music control
+            </p>
+            <p className="mt-1 truncate text-sm font-bold text-white">
+              {currentTrack.label}
+            </p>
+          </div>
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/55">
+            {currentTrackIndex + 1}/{musicThemes.length}
+          </span>
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <button
+            onClick={goToPreviousTrack}
+            className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-3 py-3 text-white/85 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
+            aria-label="Previous track"
+          >
+            <SkipBack className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={() => void toggleBackgroundMusic()}
+            className="inline-flex items-center justify-center rounded-2xl border border-red-500/35 bg-red-500/12 px-3 py-3 text-red-200 transition hover:bg-red-500/18"
+            aria-label={musicPlaying ? "Pause music" : "Play music"}
+          >
+            {musicPlaying ? (
+              <Pause className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+          </button>
+
+          <button
+            onClick={goToNextTrack}
+            className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-3 py-3 text-white/85 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
+            aria-label="Next track"
+          >
+            <SkipForward className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="mt-4 flex items-center gap-3">
+          <Volume2 className="h-4 w-4 shrink-0 text-red-300" />
+          <input
+            type="range"
+            min="0"
+            max="0.5"
+            step="0.01"
+            value={musicVolume}
+            onInput={(event) =>
+              handleMusicVolumeChange(
+                Number((event.target as HTMLInputElement).value)
+              )
+            }
+            className="music-slider w-full"
+            aria-label="Adjust music volume"
+          />
+        </div>
+      </div>
 
       <MusicPlayer
         tracks={musicThemes}
