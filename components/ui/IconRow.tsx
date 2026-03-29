@@ -1,4 +1,6 @@
-import React from "react";
+type IconRowProps = {
+  icons: string[];
+};
 
 const DEFAULT_RUNE_ICON =
   "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png";
@@ -13,17 +15,21 @@ function recoverAssetImage(
   }
 }
 
-export default function IconRow({ icons }: { icons: string[] }) {
+export default function IconRow({ icons }: IconRowProps) {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
       {icons.map((src, index) => (
-        <img
+        <div
           key={`${src}-${index}`}
-          src={src}
-          alt="rune icon"
-          className="h-14 w-14 rounded-xl border border-red-500/30 bg-black/50 object-cover"
-          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
-        />
+          className="flex aspect-square items-center justify-center rounded-xl border border-red-500/30 bg-black/50 p-2"
+        >
+          <img
+            src={src}
+            alt="rune icon"
+            className="h-full w-full object-contain"
+            onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
+          />
+        </div>
       ))}
     </div>
   );
