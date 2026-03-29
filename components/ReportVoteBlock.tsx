@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ArrowBigDown, ArrowBigUp, Bomb } from "lucide-react";
 import NeonCard from "./ui/NeonCard";
 import { supabase } from "../supabase";
 
@@ -19,24 +20,28 @@ const voteCards: Array<{
   tone: string;
   label: string;
   accent: string;
+  icon: typeof ArrowBigUp;
 }> = [
   {
     key: "up",
     tone: "UP",
     label: "Up",
     accent: "border-green-400/40 bg-green-500/15 text-green-200",
+    icon: ArrowBigUp,
   },
   {
     key: "down",
     tone: "DOWN",
     label: "Down",
     accent: "border-red-400/40 bg-red-500/15 text-red-200",
+    icon: ArrowBigDown,
   },
   {
     key: "poop",
     tone: "POOP",
     label: "Poop",
     accent: "border-yellow-400/40 bg-yellow-500/15 text-yellow-200",
+    icon: Bomb,
   },
 ];
 
@@ -130,52 +135,59 @@ export default function ReportVoteBlock({
           >
             ARE YOU GOING TO REPORT ME? :3
           </h2>
-          <p className={compact ? "mt-1 text-[10px] text-white/65" : "mt-1 text-[12px] text-white/65"}>
+          <p
+            className={
+              compact ? "mt-1 text-[10px] text-white/65" : "mt-1 text-[12px] text-white/65"
+            }
+          >
             Pick one only.
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          {voteCards.map((voteCard) => (
-            <button
-              key={voteCard.key}
-              onClick={() => void handleVote(voteCard.key)}
-              disabled={!!selected || loading}
-              className={`rounded-xl border font-semibold transition ${
-                compact ? "min-h-[88px] px-2 py-2 text-[11px]" : "px-3 py-3 text-[13px]"
-              } ${
-                selected === voteCard.key
-                  ? voteCard.accent
-                  : "border-white/15 bg-white/5 text-white hover:bg-white/10"
-              } ${
-                selected === voteCard.key
-                  ? "shadow-[0_0_18px_rgba(255,0,60,0.18)]"
-                  : ""
-              } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
-            >
-              <div
-                className={
-                  compact
-                    ? "text-[12px] font-black tracking-[0.18em]"
-                    : "text-[16px] font-black tracking-[0.22em]"
-                }
+          {voteCards.map((voteCard) => {
+            const Icon = voteCard.icon;
+
+            return (
+              <button
+                key={voteCard.key}
+                onClick={() => void handleVote(voteCard.key)}
+                disabled={!!selected || loading}
+                className={`rounded-xl border font-semibold transition ${
+                  compact ? "min-h-[88px] px-2 py-2 text-[11px]" : "px-3 py-3 text-[13px]"
+                } ${
+                  selected === voteCard.key
+                    ? voteCard.accent
+                    : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+                } ${
+                  selected === voteCard.key
+                    ? "shadow-[0_0_18px_rgba(255,0,60,0.18)]"
+                    : ""
+                } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
               >
-                {voteCard.tone}
-              </div>
-              <div
-                className={
-                  compact
-                    ? "mt-1 text-[9px] uppercase tracking-[0.12em]"
-                    : "mt-1 text-[10px] uppercase tracking-[0.16em]"
-                }
-              >
-                {voteCard.label}
-              </div>
-              <div className={compact ? "mt-1 text-[12px]" : "mt-1 text-[15px]"}>
-                {counts[voteCard.key]}
-              </div>
-            </button>
-          ))}
+                <Icon
+                  className={
+                    compact
+                      ? "mx-auto mb-1 h-4 w-4"
+                      : "mx-auto mb-2 h-5 w-5"
+                  }
+                  aria-hidden="true"
+                />
+                <div
+                  className={
+                    compact
+                      ? "text-[12px] font-black tracking-[0.18em]"
+                      : "text-[16px] font-black tracking-[0.22em]"
+                  }
+                >
+                  {voteCard.tone}
+                </div>
+                <div className={compact ? "mt-1 text-[12px]" : "mt-1 text-[15px]"}>
+                  {counts[voteCard.key]}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2">
