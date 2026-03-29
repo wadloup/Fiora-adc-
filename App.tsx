@@ -412,16 +412,16 @@ export default function App() {
                       sync, wave pressure, brush control, and the exact moments
                       Fiora can really go in.
                     </p>
-                    <div className="mt-6 flex flex-wrap gap-3">
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                       <button
                         onClick={() => goPage("Fiora's Support")}
-                        className="rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20"
+                        className="w-full rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20 sm:w-auto"
                       >
                         Go to Fiora's Support
                       </button>
                       <button
                         onClick={() => goLaneSection("support")}
-                        className="rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10"
+                        className="w-full rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10 sm:w-auto"
                       >
                         Open Lane Phase - Support
                       </button>

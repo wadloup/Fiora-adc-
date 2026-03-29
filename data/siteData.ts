@@ -305,6 +305,8 @@ export const supportProfiles: SupportProfile[] = [
 export type SupportClip = {
   title: string;
   description: string;
+  focus: string;
+  takeaway: string;
   url: string;
   embed: string;
 };
@@ -313,24 +315,32 @@ export const supportClips: SupportClip[] = [
   {
     title: "First engage window",
     description: "Watch how the lane is opened before the real commit starts.",
+    focus: "Trigger",
+    takeaway: "The lane only works because support starts the contact before Fiora spends her dash for free.",
     url: "https://youtu.be/ck-PQSpfRDY",
     embed: "https://www.youtube.com/embed/ck-PQSpfRDY",
   },
   {
     title: "Punish after contact",
     description: "What support should do once the first trade already hit.",
+    focus: "Follow-up",
+    takeaway: "The important part is not the first touch. It is whether support keeps the target locked long enough for Fiora to finish the idea.",
     url: "https://youtu.be/sTytoEHfY9w",
     embed: "https://www.youtube.com/embed/sTytoEHfY9w",
   },
   {
     title: "Angle and spacing",
     description: "How positioning creates a real entry instead of fake pressure.",
+    focus: "Spacing",
+    takeaway: "Support body position decides whether the engage is clean or whether Fiora has to force through too much space.",
     url: "https://youtu.be/4ASFCDwcHco",
     embed: "https://www.youtube.com/embed/4ASFCDwcHco",
   },
   {
     title: "Dive or cleanup",
     description: "The part after contact: finish the play or reset it cleanly.",
+    focus: "Reset",
+    takeaway: "Once contact happens, decide immediately whether the lane wants the kill, the crash, or the reset. Wasting that moment is the real throw.",
     url: "https://youtu.be/rNob-ZD26Xs",
     embed: "https://www.youtube.com/embed/rNob-ZD26Xs",
   },
@@ -592,25 +602,37 @@ export type VideoCard = {
   title: string;
   image: string;
   position: string;
+  label: string;
+  description: string;
+  note: string;
 };
 
 export const videoCards: VideoCard[] = [
   {
-    title: "Duel highlight",
+    title: "Entry clip",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
     position: "center 24%",
+    label: "Look for",
+    description: "How the target gets pinned before Fiora spends everything.",
+    note: "The clip should start before the fight, not on the first crit frame.",
   },
   {
-    title: "Timing sample",
+    title: "Spacing clip",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
     position: "center 24%",
+    label: "Look for",
+    description: "What changes in movement right before the lane flips from neutral to lethal.",
+    note: "A good clip here teaches distance control, not just confidence.",
   },
   {
-    title: "Carry sequence",
+    title: "Cleanup clip",
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_7.jpg",
     position: "center 25%",
+    label: "Look for",
+    description: "How the kill becomes wave control, reset tempo, or the next target.",
+    note: "The ending matters less than the chain of decisions that made it free.",
   },
 ];
