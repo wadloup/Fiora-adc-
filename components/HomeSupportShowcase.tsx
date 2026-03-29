@@ -1,4 +1,4 @@
-﻿import NeonCard from "./ui/NeonCard";
+import SpeakableCard from "./ui/SpeakableCard";
 import { heroCertifiedImage, supportProfiles } from "../data/siteData";
 import { recoverImage } from "../utils/imageFallback";
 
@@ -8,7 +8,10 @@ export default function HomeSupportShowcase() {
   return (
     <div className="hidden h-full lg:block">
       <div className="flex h-full flex-col justify-between gap-4 p-6 md:p-8">
-        <NeonCard className="border-red-500/25 bg-black/25 p-5 backdrop-blur-sm">
+        <SpeakableCard
+          text="Auto win. Netanyahu certified. Support shell. Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core."
+          className="border-red-500/25 bg-black/25 p-5 backdrop-blur-sm"
+        >
           <p className="text-xs uppercase tracking-[0.28em] text-red-300">
             AUTO WIN
           </p>
@@ -19,7 +22,7 @@ export default function HomeSupportShowcase() {
             <img
               src={heroCertifiedImage}
               alt="Certified badge"
-              className="h-55 w-55 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
+              className="h-36 w-36 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)]"
               onError={recoverImage}
             />
             <div>
@@ -31,13 +34,15 @@ export default function HomeSupportShowcase() {
               </p>
             </div>
           </div>
-        </NeonCard>
+        </SpeakableCard>
 
         <div className="grid gap-3">
           {heroSupports.map((support) => (
-            <div
+            <SpeakableCard
               key={support.name}
-              className="flex items-center gap-3 rounded-2xl border border-red-500/20 bg-black/25 p-3 backdrop-blur-sm"
+              text={`${support.name}. ${support.role}. ${support.text}`}
+              className="border-red-500/20 bg-black/25 p-3 backdrop-blur-sm"
+              contentClassName="flex items-center gap-3"
             >
               <img
                 src={support.image}
@@ -52,7 +57,7 @@ export default function HomeSupportShowcase() {
                   {support.role}
                 </p>
               </div>
-            </div>
+            </SpeakableCard>
           ))}
         </div>
       </div>
