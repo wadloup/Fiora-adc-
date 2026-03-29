@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown, ArrowUp, Menu, Search, Sword, X } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
@@ -465,6 +466,8 @@ export default function App() {
       >
         <ArrowUp className="h-5 w-5" />
       </button>
+
+      <Analytics />
     </div>
   );
 }
