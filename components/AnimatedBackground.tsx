@@ -246,15 +246,15 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         <motion.div
           className="absolute inset-0 mix-blend-screen"
           style={{ background: theme.background.overlay }}
-          animate={{ opacity: [0.5, 0.82, 0.5] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5] }}
+          transition={{ duration: artworkIsVideo ? 12 : 9, repeat: Infinity, ease: "easeInOut" }}
         />
 
         <motion.div
           className="absolute inset-0"
           style={{ background: theme.background.veil }}
-          animate={{ opacity: [0.35, 0.8, 0.35] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35] }}
+          transition={{ duration: artworkIsVideo ? 11 : 8, repeat: Infinity, ease: "easeInOut" }}
         />
 
         {renderThemeScene(theme.id)}
@@ -297,7 +297,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           />
         ) : null}
 
-        <div className="absolute inset-0 bg-black/18" />
+        <div className={artworkIsVideo ? "absolute inset-0 bg-black/8" : "absolute inset-0 bg-black/18"} />
       </motion.div>
     </AnimatePresence>
   );

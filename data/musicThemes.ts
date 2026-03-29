@@ -53,17 +53,17 @@ export const musicThemes: MusicTheme[] = [
     background: {
       base: "linear-gradient(180deg, #020202 0%, #070707 46%, #020202 100%)",
       overlay:
-        "linear-gradient(180deg, rgba(0, 0, 0, 0.14) 0%, rgba(35, 0, 10, 0.08) 40%, rgba(0, 0, 0, 0.2) 100%)",
+        "linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(35, 0, 10, 0.04) 40%, rgba(0, 0, 0, 0.12) 100%)",
       pattern: "none",
       patternSize: "100% 100%",
-      veil: "linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.28) 100%)",
+      veil: "linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.04) 30%, rgba(0,0,0,0.16) 100%)",
       artwork: {
         src: "/backgrounds/come-home-wallpaper.mp4",
         kind: "video",
         position: "center center",
-        opacity: 0.72,
+        opacity: 0.9,
         scale: 1,
-        filter: "grayscale(0.04) contrast(1.02) brightness(0.72)",
+        filter: "grayscale(0) contrast(1.08) saturate(1.02) brightness(0.84)",
       },
       glows: [],
     },
