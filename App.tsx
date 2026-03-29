@@ -1370,10 +1370,7 @@ export default function App() {
         <p className="text-sm uppercase tracking-[0.16em] text-red-300">
           PTA PAGE
         </p>
-        <IconRow
-          icons={runeIcons.pta}
-          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
-        />
+      <IconRow icons={runeIcons.pta} />
         <div className="space-y-2 text-white/75">
           <p>
             <span className="font-semibold text-white">Why PTA:</span> burst
@@ -1395,10 +1392,7 @@ export default function App() {
         <p className="text-sm uppercase tracking-[0.16em] text-red-300">
           PHASE RUSH PAGE
         </p>
-        <IconRow
-          icons={runeIcons.phase}
-          onError={(event) => recoverAssetImage(event, DEFAULT_RUNE_ICON)}
-        />
+      <IconRow icons={runeIcons.phase} />
         <div className="space-y-2 text-white/75">
           <p>
             <span className="font-semibold text-white">Why Phase Rush:</span>{" "}
