@@ -1,15 +1,16 @@
-import React from "react";
 import NeonCard from "./NeonCard";
+
+type StatCardProps = {
+  label: string;
+  value: string;
+  text: string;
+};
 
 export default function StatCard({
   label,
   value,
   text,
-}: {
-  label: string;
-  value: string;
-  text: string;
-}) {
+}: StatCardProps) {
   return (
     <NeonCard className="p-5">
       <p className="text-sm uppercase tracking-[0.18em] text-red-300">
