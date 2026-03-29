@@ -21,13 +21,17 @@ export default function IconRow({ icons }: IconRowProps) {
   return (
     <div className="flex flex-wrap gap-3">
       {icons.map((src, index) => (
-        <img
+        <div
           key={`${src}-${index}`}
-          src={src}
-          alt="rune icon"
-          className="h-14 w-14 rounded-xl border border-red-500/30 bg-black/50 object-cover"
-          onError={(event) => recoverAssetImage(event)}
-        />
+          className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-red-500/30 bg-black/50"
+        >
+          <img
+            src={src}
+            alt={`rune icon ${index + 1}`}
+            className="h-full w-full object-cover"
+            onError={(event) => recoverAssetImage(event)}
+          />
+        </div>
       ))}
     </div>
   );
