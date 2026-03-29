@@ -18,28 +18,24 @@ const VOTE_STORAGE_KEY = "report_vote_choice";
 const voteCards: Array<{
   key: VoteChoice;
   tone: string;
-  label: string;
   accent: string;
   icon: typeof ArrowBigUp;
 }> = [
   {
     key: "up",
     tone: "UP",
-    label: "Up",
     accent: "border-green-400/40 bg-green-500/15 text-green-200",
     icon: ArrowBigUp,
   },
   {
     key: "down",
     tone: "DOWN",
-    label: "Down",
     accent: "border-red-400/40 bg-red-500/15 text-red-200",
     icon: ArrowBigDown,
   },
   {
     key: "poop",
     tone: "POOP",
-    label: "Poop",
     accent: "border-yellow-400/40 bg-yellow-500/15 text-yellow-200",
     icon: ArrowBigUp,
   },
@@ -116,32 +112,48 @@ export default function ReportVoteBlock({
   return (
     <NeonCard className={compact ? "p-4 md:p-[1.125rem]" : "p-4 md:p-5"}>
       <div className={compact ? "space-y-3" : "space-y-3.5"}>
-        <div>
-          <p
-            className={
-              compact
-                ? "text-[15px] uppercase tracking-[0.2em] text-red-300"
-                : "text-[20px] uppercase tracking-[0.24em] text-red-300"
-            }
-          >
-            VOTE HERE
-          </p>
-          <h2
-            className={
-              compact
-                ? "mt-1 max-w-[15ch] text-[17px] font-black leading-tight text-white md:text-[19px]"
-                : "mt-1 text-[18px] font-black text-white md:text-[24px]"
-            }
-          >
-            ARE YOU GOING TO REPORT ME? :3
-          </h2>
-          <p
-            className={
-              compact ? "mt-1 text-[10px] text-white/65" : "mt-1 text-[12px] text-white/65"
-            }
-          >
-            Pick one only.
-          </p>
+        <div
+          className={
+            compact
+              ? "flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-6"
+              : ""
+          }
+        >
+          <div className={compact ? "min-w-0 flex-1" : ""}>
+            <p
+              className={
+                compact
+                  ? "text-[15px] uppercase tracking-[0.2em] text-red-300"
+                  : "text-[20px] uppercase tracking-[0.24em] text-red-300"
+              }
+            >
+              VOTE HERE
+            </p>
+            <h2
+              className={
+                compact
+                  ? "mt-1 text-[17px] font-black leading-tight text-white md:text-[19px]"
+                  : "mt-1 text-[18px] font-black text-white md:text-[24px]"
+              }
+            >
+              ARE YOU GOING TO REPORT ME? :3
+            </h2>
+            <p
+              className={
+                compact
+                  ? "mt-1 text-[10px] text-white/65"
+                  : "mt-1 text-[12px] text-white/65"
+              }
+            >
+              Pick one only.
+            </p>
+          </div>
+
+          {compact ? (
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-white/45 lg:shrink-0">
+              One vote per browser
+            </div>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-3 gap-2">
@@ -175,7 +187,7 @@ export default function ReportVoteBlock({
                     }
                     aria-hidden="true"
                   >
-                    💩
+                    {"\uD83D\uDCA9"}
                   </span>
                 ) : (
                   <Icon
@@ -187,6 +199,7 @@ export default function ReportVoteBlock({
                     aria-hidden="true"
                   />
                 )}
+
                 <div
                   className={
                     compact
@@ -196,6 +209,7 @@ export default function ReportVoteBlock({
                 >
                   {voteCard.tone}
                 </div>
+
                 <div className={compact ? "mt-1 text-[12px]" : "mt-1 text-[15px]"}>
                   {counts[voteCard.key]}
                 </div>
