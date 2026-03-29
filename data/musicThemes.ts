@@ -29,6 +29,13 @@ export type MusicTheme = {
     pattern: string;
     patternSize: string;
     veil: string;
+    artwork?: {
+      src: string;
+      position?: string;
+      opacity?: number;
+      scale?: number;
+      filter?: string;
+    };
     glows: ThemeGlow[];
   };
 };
@@ -50,6 +57,13 @@ export const musicThemes: MusicTheme[] = [
         "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
       patternSize: "140px 140px",
       veil: "radial-gradient(circle at 50% -10%, rgba(255, 20, 60, 0.16), transparent 50%)",
+      artwork: {
+        src: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_8.jpg",
+        position: "center 34%",
+        opacity: 0.18,
+        scale: 1.06,
+        filter: "grayscale(0.35) contrast(1.06) brightness(0.62)",
+      },
       glows: [
         {
           top: "-8%",

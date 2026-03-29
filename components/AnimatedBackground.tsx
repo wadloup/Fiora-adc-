@@ -246,6 +246,8 @@ function renderThemeScene(themeId: ThemeId) {
 }
 
 export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
+  const artwork = theme.background.artwork;
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -260,6 +262,26 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           className="absolute inset-0"
           style={{ background: theme.background.base }}
         />
+
+        {artwork ? (
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("${artwork.src}")`,
+              backgroundPosition: artwork.position || "center center",
+              backgroundSize: "cover",
+              opacity: artwork.opacity ?? 0.18,
+              filter:
+                artwork.filter || "grayscale(0.2) contrast(1.04) brightness(0.66)",
+            }}
+            animate={{
+              scale: [artwork.scale || 1.04, (artwork.scale || 1.04) + 0.03, artwork.scale || 1.04],
+              x: [0, -18, 0],
+              y: [0, 10, 0],
+            }}
+            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ) : null}
 
         <motion.div
           className="absolute inset-0 opacity-55"
