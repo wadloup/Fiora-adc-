@@ -223,20 +223,112 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     };
   }, [cursorFxEnabled]);
 
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={theme.id}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
-      >
-        <div
-          className="absolute inset-0"
-          style={{ background: theme.background.base }}
+  const cursorLens =
+    cursorFxEnabled && cursor.visible ? (
+      <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
+        <motion.div
+          className="absolute h-[7.5rem] w-[7.5rem] rounded-full"
+          style={{
+            x: cursorX,
+            y: cursorY,
+            translateX: "-50%",
+            translateY: "-50%",
+            background:
+              "repeating-radial-gradient(circle, rgba(255,255,255,0.24) 0 1px, rgba(255,255,255,0.09) 2px 3px, transparent 6px 14px)",
+            filter: "blur(1.4px)",
+            mixBlendMode: "screen",
+          }}
+          animate={{
+            scale: [0.24, 1.34],
+            opacity: [0.34, 0],
+          }}
+          transition={{ duration: 1.15, repeat: Infinity, ease: "easeOut" }}
         />
+
+        <motion.div
+          className="absolute h-[7.5rem] w-[7.5rem] rounded-full"
+          style={{
+            x: cursorX,
+            y: cursorY,
+            translateX: "-50%",
+            translateY: "-50%",
+            background:
+              "repeating-radial-gradient(circle, rgba(255,255,255,0.18) 0 1px, rgba(255,255,255,0.06) 2px 3px, transparent 6px 14px)",
+            filter: "blur(1.8px)",
+            mixBlendMode: "screen",
+          }}
+          animate={{
+            scale: [0.18, 1.62],
+            opacity: [0.28, 0],
+          }}
+          transition={{
+            duration: 1.35,
+            repeat: Infinity,
+            ease: "easeOut",
+            delay: 0.28,
+          }}
+        />
+
+        <motion.div
+          className="absolute h-[4.2rem] w-[4.2rem] rounded-full"
+          style={{
+            x: cursorX,
+            y: cursorY,
+            translateX: "-50%",
+            translateY: "-50%",
+            background:
+              "radial-gradient(circle, transparent 34%, rgba(255,255,255,0.82) 48%, rgba(255,255,255,0.22) 58%, rgba(255,255,255,0.06) 67%, transparent 76%)",
+            filter: "blur(8px)",
+            opacity: 0.88,
+          }}
+        />
+
+        <motion.div
+          className="absolute h-[2.9rem] w-[2.9rem] rounded-full"
+          animate={{ scale: [1, 1.01, 1] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            x: cursorX,
+            y: cursorY,
+            translateX: "-50%",
+            translateY: "-50%",
+            background: "transparent",
+            border: "2px solid rgba(12,12,12,0.92)",
+            boxShadow:
+              "0 0 0 1px rgba(255,255,255,0.34), 0 0 14px rgba(255,255,255,0.14)",
+          }}
+        />
+
+        <motion.div
+          className="absolute h-[2.45rem] w-[2.45rem] rounded-full"
+          style={{
+            x: cursorX,
+            y: cursorY,
+            translateX: "-50%",
+            translateY: "-50%",
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 42%, transparent 72%)",
+            opacity: 0.42,
+          }}
+        />
+      </div>
+    ) : null;
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={theme.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+        >
+          <div
+            className="absolute inset-0"
+            style={{ background: theme.background.base }}
+          />
 
         {artwork && artworkIsVideo ? (
           <div className="absolute inset-0 overflow-hidden">
@@ -373,92 +465,6 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           />
         ) : null}
 
-        {cursorFxEnabled && cursor.visible ? (
-          <>
-            <motion.div
-              className="absolute h-[6rem] w-[6rem] rounded-full"
-              style={{
-                x: cursorX,
-                y: cursorY,
-                translateX: "-50%",
-                translateY: "-50%",
-                border: "1px solid rgba(255,255,255,0.18)",
-                boxShadow: "0 0 22px rgba(255,255,255,0.08)",
-              }}
-              animate={{
-                scale: [0.62, 1.55],
-                opacity: [0.42, 0],
-              }}
-              transition={{ duration: 1.25, repeat: Infinity, ease: "easeOut" }}
-            />
-
-            <motion.div
-              className="absolute h-[6rem] w-[6rem] rounded-full"
-              style={{
-                x: cursorX,
-                y: cursorY,
-                translateX: "-50%",
-                translateY: "-50%",
-                border: "1px solid rgba(255,255,255,0.14)",
-                boxShadow: "0 0 18px rgba(255,255,255,0.06)",
-              }}
-              animate={{
-                scale: [0.68, 1.72],
-                opacity: [0.3, 0],
-              }}
-              transition={{
-                duration: 1.25,
-                repeat: Infinity,
-                ease: "easeOut",
-                delay: 0.48,
-              }}
-            />
-
-            <motion.div
-              className="absolute h-[4rem] w-[4rem] rounded-full"
-              style={{
-                x: cursorX,
-                y: cursorY,
-                translateX: "-50%",
-                translateY: "-50%",
-                background:
-                  "radial-gradient(circle, transparent 35%, rgba(255,255,255,0.82) 49%, rgba(255,255,255,0.22) 58%, rgba(255,255,255,0.08) 64%, transparent 76%)",
-                filter: "blur(10px)",
-                opacity: 0.85,
-              }}
-            />
-
-            <motion.div
-              className="absolute h-[2.9375rem] w-[2.9375rem] rounded-full"
-              animate={{ scale: [1, 1.015, 1] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                x: cursorX,
-                y: cursorY,
-                translateX: "-50%",
-                translateY: "-50%",
-                background: "transparent",
-                border: "2px solid rgba(15,15,15,0.9)",
-                boxShadow:
-                  "0 0 0 1px rgba(255,255,255,0.34), 0 0 18px rgba(255,255,255,0.12)",
-              }}
-            />
-
-            <motion.div
-              className="absolute h-[2.5625rem] w-[2.5625rem] rounded-full"
-              style={{
-                x: cursorX,
-                y: cursorY,
-                translateX: "-50%",
-                translateY: "-50%",
-                background:
-                  "radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 42%, transparent 72%)",
-                opacity: 0.45,
-              }}
-            />
-          </>
-        ) : null}
-
         <div
           className={
             artworkIsVideo
@@ -466,7 +472,9 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               : "absolute inset-0 bg-black/18"
           }
         />
-      </motion.div>
-    </AnimatePresence>
+        </motion.div>
+      </AnimatePresence>
+      {cursorLens}
+    </>
   );
 }
