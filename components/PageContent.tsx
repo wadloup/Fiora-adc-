@@ -150,7 +150,7 @@ export default function PageContent({
           <SectionTitle
             icon={Zap}
             title="Runes"
-            subtitle="Two clean rune pages with the exact visual you wanted."
+            subtitle="Pick how lane starts before minions even meet."
           />
 
           <div className="grid gap-4 xl:grid-cols-2">
@@ -205,32 +205,32 @@ export default function PageContent({
             <ItemPath
               title="Core route"
               items={[itemIcons.tiamat, itemIcons.hydra]}
-              text="Rush Tiamat then Ravenous Hydra for lane comfort, sustain, wave control, and faster map tempo."
+              text="Tiamat into Ravenous Hydra gives sustain, shove, and the freedom to take ugly trades without staying ugly for long."
             />
             <ItemPath
               title="Snowball route"
               items={[itemIcons.hydra, itemIcons.cyclosword]}
-              text="Take this when you can reach target reliably and kill before getting burst down."
+              text="Take this when you can actually touch the target and finish before the lane resets."
             />
             <ItemPath
               title="Stable route"
               items={[itemIcons.hydra, itemIcons.triforce]}
-              text="A steadier profile when enemy damage makes pure glass-cannon play too risky."
+              text="For games where pure greed gets you deleted before the second rotation."
             />
             <ItemPath
               title="Safe burst route"
               items={[itemIcons.hydra, itemIcons.eclipse]}
-              text="Shield plus burst when you need safer entries and a less greedy second item."
+              text="Burst with a little insurance when you still need safer entries."
             />
             <ItemPath
               title="Defensive adaptation"
               items={[itemIcons.dd, itemIcons.maw, itemIcons.iceborn]}
-              text="DD for heavy AD, Maw for AP threat, Iceborn as a niche durability option."
+              text="DD into AD, Maw into AP, Iceborn when the game demands something uglier and sturdier."
             />
             <ItemPath
               title="Late finish"
               items={[itemIcons.shojin, itemIcons.ga, itemIcons.bt]}
-              text="Shojin for pressure, GA for safety, BT for final damage and sustain finish."
+              text="Shojin if you want pressure, GA if one death loses the game, BT if you just want to keep cutting."
             />
           </div>
         </>
@@ -298,7 +298,7 @@ export default function PageContent({
           <SectionTitle
             icon={Target}
             title="Lane Phase"
-            subtitle="HP, brush control, spikes, and the one opening that matters."
+            subtitle="HP, brush control, wave shape, and the one opening worth committing to."
           />
 
           <div className="flex flex-wrap gap-2">
@@ -350,7 +350,7 @@ export default function PageContent({
                   className="scroll-mt-28"
                 >
                   <p className="text-xs uppercase tracking-[0.2em] text-red-300">
-                    Quick read
+                    Lane read
                   </p>
                   <h3 className="mt-2 text-2xl font-black text-white">
                     {section.title}
@@ -378,18 +378,18 @@ export default function PageContent({
           <SectionTitle
             icon={HeartHandshake}
             title="Fiora's Support"
-            subtitle="What your support should do if they want this lane to work."
+            subtitle="How support turns this pick from joke to threat."
           />
 
           <NeonCard className="p-6">
             <p className="text-xs uppercase tracking-[0.2em] text-red-300">
-              Mandatory read
+              Read this first
             </p>
             <h3 className="mt-2 text-2xl font-black text-white">
               Supports must read Lane Phase too
             </h3>
             <p className="mt-3 max-w-3xl text-white/75">
-              Read this with Lane Phase or your engages will desync and look fake.
+              Read this with Lane Phase or the whole lane turns into fake engage after fake engage.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <button
@@ -450,7 +450,7 @@ export default function PageContent({
           <SectionTitle
             icon={PlayCircle}
             title="Support Clips"
-            subtitle="Watch the timing, not just the kill."
+            subtitle="Watch the angle, the trigger, and what happens right after contact."
           />
           <div className="grid gap-4 md:grid-cols-2">
             {supportClips.map((clip) => (
@@ -488,7 +488,7 @@ export default function PageContent({
           <SectionTitle
             icon={Flame}
             title="Mid / Late Game"
-            subtitle="Pick a plan, take space, close the game."
+            subtitle="Pick a job, take space, and cash out the lead."
           />
           <div className="grid gap-4 md:grid-cols-3">
             {midLateCards.map((card) => (
@@ -504,7 +504,7 @@ export default function PageContent({
           </div>
           <NeonCard className="p-6">
             <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-red-300">
-              Next up <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
+              Coming next <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
             </div>
           </NeonCard>
         </>
@@ -515,7 +515,7 @@ export default function PageContent({
           <SectionTitle
             icon={Zap}
             title="Mechanical Tips"
-            subtitle="Short reminders before queue, not fake philosophy."
+            subtitle="Short reminders for the parts people actually mess up."
           />
           <div className="grid gap-4 md:grid-cols-2">
             {mechanics.map((item) => (
@@ -537,14 +537,14 @@ export default function PageContent({
           <SectionTitle
             icon={PlayCircle}
             title="Videos / Clips"
-            subtitle="Clips for spacing, setups, entries, and finishers."
+            subtitle="Use clips to study the setup, not just the ego moment."
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {videoCards.map((videoCard) => (
               <SpeakableCard
                 key={videoCard.title}
                 className="overflow-hidden p-4"
-                text={`${videoCard.title}. Save this slot for your next clip and the setup behind it.`}
+                text={`${videoCard.title}. Use this slot for a clip that shows the setup, not just the kill at the end.`}
               >
                 <img
                   src={videoCard.image}
@@ -555,7 +555,7 @@ export default function PageContent({
                 />
                 <p className="mt-3 font-semibold text-white">{videoCard.title}</p>
                 <p className="mt-1 text-sm text-white/65">
-                  Save this slot for your next clip and the setup behind it.
+                  Use this slot for a clip that shows the setup, not just the kill at the end.
                 </p>
               </SpeakableCard>
             ))}

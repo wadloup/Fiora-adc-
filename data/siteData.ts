@@ -49,7 +49,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
     mood: "Precision",
     summary:
-      "Your rune page changes how the lane starts: immediate burst or stronger mobility and chase comfort.",
+      "Your rune page decides whether lane opens with raw burst or with enough movement to touch, reset, and leave clean.",
     position: "center 24%",
   },
   Build: {
@@ -57,7 +57,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_3.jpg",
     mood: "Methodical",
     summary:
-      "The build follows the game state. Start with tempo and sustain, then choose burst, stability, or safety.",
+      "Start with tempo and sustain, then decide whether the game wants greed, balance, or something less greedy.",
     position: "78% center",
   },
   "Skill Order": {
@@ -65,7 +65,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
     mood: "Discipline",
     summary:
-      "Early skill points decide whether lane is only survivable or actually threatening.",
+      "The first few points decide whether lane just survives or actually bites back.",
     position: "center 24%",
   },
   Matchups: {
@@ -73,7 +73,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
     mood: "Analysis",
     summary:
-      "Matchups are trends, not destiny. One first lead changes the whole lane dynamic.",
+      "Matchups are trends. One clean lead can rewrite the lane anyway.",
     position: "center 24%",
   },
   "Lane Phase": {
@@ -81,7 +81,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
     mood: "Aggressive patience",
     summary:
-      "Lane phase is about timing, brush control, level spikes, and waiting for one committed opening.",
+      "Lane phase is timing, brush control, wave shape, and waiting for the commit that actually matters.",
     position: "62% center",
   },
   "Fiora's Support": {
@@ -89,7 +89,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
     mood: "In sync",
     summary:
-      "Fiora does not need random help. She needs clean access, protected entry, and coordinated timing.",
+      "Fiora does not need random help. She needs access, cover, and timing that arrives on purpose.",
     position: "58% center",
   },
   "Mid/Late Game": {
@@ -97,7 +97,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_5.jpg",
     mood: "Clear-minded",
     summary:
-      "After lane, pick one plan and execute it well: split, flank, pick, or group with intent.",
+      "After lane, pick the job and commit: split, flank, pick, or group with a reason.",
     position: "56% center",
   },
   "Mechanical Tips": {
@@ -105,7 +105,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
     mood: "Demanding",
     summary:
-      "Mechanics are not only speed. They are angle, timing, discipline, and confidence under pressure.",
+      "Mechanics are not just speed. They are angle, timing, restraint, and nerve.",
     position: "60% center",
   },
   "Videos / Clips": {
@@ -113,7 +113,7 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
     mood: "Showy",
     summary:
-      "Clips should teach setup and decisions, not just show flashy kills.",
+      "Clips should teach the setup, the trigger, and the cleanup, not just the kill.",
     position: "center 24%",
   },
 };
@@ -123,39 +123,39 @@ export const pageSubtitle: Record<PageName, string> = {
   "Why Fiora ADC Works":
     "Where the pressure really comes from when the pick is played right.",
   Runes: "Two rune pages. Two jobs.",
-  Build: "Core route, pivots, and finishers.",
-  "Skill Order": "What each early point is doing for you.",
+  Build: "What you rush, what you pivot, and what you close with.",
+  "Skill Order": "Your first levels decide whether lane has teeth.",
   Matchups: "What feels good, what feels awful, and why.",
-  "Lane Phase": "HP, brush control, spikes, and kill windows.",
-  "Fiora's Support": "What support has to do if this lane is going to work.",
-  "Mid/Late Game": "How to turn lane pressure into something that matters.",
+  "Lane Phase": "HP, brush control, wave shape, and engage timing.",
+  "Fiora's Support": "How support turns this pick from joke to threat.",
+  "Mid/Late Game": "If lane is won, this is how you cash it in.",
   "Mechanical Tips": "Short execution reminders before queue.",
-  "Videos / Clips": "Clips for setup, entries, and cleanup.",
+  "Videos / Clips": "Clips for setup, spacing, entries, and cleanup.",
 };
 
 export const voiceText: Record<PageName, string> = {
   Home:
-    "Welcome to the Fiora ADC lab. This guide is built for players who want a real plan, a carry mindset, and a support-first draft read.",
+    "Welcome to the Fiora ADC lab. This is for players who want an actual lane plan, a carry mindset, and a support who understands what the lane needs before minions even meet.",
   "Why Fiora ADC Works":
-    "Fiora ADC works because she punishes bad spacing, panicked reactions, and bot lanes that do not understand her real all-in windows.",
+    "Fiora ADC works because she punishes bad spacing, panicked reactions, and bot lanes that do not realize how fast one bad step can turn into a full commit.",
   Runes:
-    "Runes define your lane identity before the first trade begins. PTA for short burst windows, Phase Rush for mobility, cleaner access, and safer exits.",
+    "Runes decide how lane starts before the first trade even happens. PTA is for short brutal windows and direct punishment. Phase Rush is for access, resets, and getting out without donating the trade back.",
   Build:
-    "The build is not random. Start with Tiamat and Ravenous Hydra, then choose burst, stability, or defense depending on what the game demands.",
+    "The build is not random. Start with Tiamat and Ravenous Hydra, then ask whether the game wants burst, balance, or a less greedy answer to enemy damage.",
   "Skill Order":
-    "Your early levels matter a lot. Q for access, E for burst timing, W for Riposte control and safer commits.",
+    "Your early levels decide whether lane is fake pressure or real pressure. Q gives access, E gives the burst window, and W lets you stop pretending the enemy controls the trade.",
   Matchups:
-    "Treat matchups as trends. A hard lane can become playable if Fiora gets first lead, better tempo, or one strong support engage.",
+    "Treat matchups as trends, not prison sentences. A bad lane becomes playable the second Fiora gets first lead, better tempo, or one engage that actually lands cleanly.",
   "Lane Phase":
-    "Lane phase is patience plus violence. Manage HP, control brushes, respect level spikes, then commit completely when the opening is real.",
+    "Lane phase is patience plus violence. Keep your health, own the brush, respect the spikes, then go all the way in when the opening is finally real.",
   "Fiora's Support":
-    "Support sync is mandatory. Fiora wants a clean entry, vision support, and protection through the first committed action.",
+    "Support sync is mandatory. Fiora wants target access, cover on entry, and someone who understands the difference between a real go button and random enthusiasm.",
   "Mid/Late Game":
-    "After lane, pick one plan and commit to it. Splitting, flanking, or grouping all work, but random drifting wastes pressure.",
+    "After lane, pick one job and commit to it. Split, flank, pick, or group, but stop drifting between ideas and bleeding pressure for free.",
   "Mechanical Tips":
-    "Good Fiora mechanics are not just fast fingers. They are calm timing, correct angles, and clean execution under pressure.",
+    "Good Fiora mechanics are not just fast fingers. They are calm timing, correct angles, and knowing exactly when the lane wants patience instead of ego.",
   "Videos / Clips":
-    "Use clips to study decisions, spacing, entry timing, and reset windows, not only the highlights.",
+    "Use clips to study decisions, spacing, entry timing, and reset windows. If a clip only shows the kill, it is hiding the part that actually mattered.",
 };
 
 export const narrationAudio: Partial<Record<PageName, string>> = {
@@ -190,7 +190,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jhin_0.jpg",
     position: "center 24%",
     explanation:
-      "Punishable if he oversteps and support setup is not clean. Good opening windows if you take initiative.",
+      "Punish him the second his spacing gets lazy. If your support touches him first, the lane can snap fast.",
   },
   {
     name: "Jinx",
@@ -200,7 +200,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jinx_0.jpg",
     position: "center 24%",
     explanation:
-      "No dash means one catch can flip lane control quickly when wave and brush state are favorable.",
+      "No dash means one clean catch can flip the whole lane if wave and brush are already yours.",
   },
   {
     name: "Kai'Sa",
@@ -210,7 +210,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Kaisa_0.jpg",
     position: "center 22%",
     explanation:
-      "Volatile lane. Support timing and first all-in quality matter more than raw labels.",
+      "Volatile lane. The label matters less than who gets the first real all-in cleanly.",
   },
   {
     name: "Ashe",
@@ -220,7 +220,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ashe_0.jpg",
     position: "center 22%",
     explanation:
-      "The slow breaks lane rhythm. You need better HP discipline and more decisive engages.",
+      "Her slow ruins your rhythm. Stay healthier than you want to, then pick one hard commit instead of bleeding out in small trades.",
   },
   {
     name: "Draven",
@@ -230,7 +230,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Draven_0.jpg",
     position: "center 20%",
     explanation:
-      "If he gets tempo first, the lane becomes very punishing. Every trade needs clear purpose.",
+      "If he gets tempo first, every lane step feels expensive. Do not trade for ego.",
   },
   {
     name: "Caitlyn",
@@ -240,7 +240,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Caitlyn_0.jpg",
     position: "center 20%",
     explanation:
-      "Range, traps, and push punish sloppy movement. Respect lane state, then punish overconfidence.",
+      "Range, traps, and shove punish lazy movement. Respect the setup, then hit the moment she gets arrogant.",
   },
 ];
 
@@ -280,7 +280,7 @@ export const supportProfiles: SupportProfile[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Alistar_0.jpg",
     position: "center 18%",
     size: "h-72",
-    text: "Excellent with Fiora ADC because he gives immediate access to target and creates very clear commit windows.",
+    text: "Still the cleanest partner here. He gives direct target access and makes commit windows obvious.",
   },
   {
     name: "Braum",
@@ -289,7 +289,7 @@ export const supportProfiles: SupportProfile[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Braum_0.jpg",
     position: "center 20%",
     size: "h-64",
-    text: "A strong hybrid profile. He protects entry, stabilizes chaos, and still helps you commit when the opening is real.",
+    text: "Messier than Alistar but still excellent. He protects entry, stabilizes chaos, and lets you keep fighting after first contact.",
   },
   {
     name: "Yuumi",
@@ -298,7 +298,7 @@ export const supportProfiles: SupportProfile[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Yuumi_0.jpg",
     position: "center 28%",
     size: "h-52",
-    text: "Special case. She gives healing, shielding, chase comfort, and extended pressure patterns once lane becomes survivable.",
+    text: "Special case. She gives sustain, chase comfort, and enough padding to survive until Fiora can re-enter again and again.",
   },
 ];
 
@@ -311,26 +311,26 @@ export type SupportClip = {
 
 export const supportClips: SupportClip[] = [
   {
-    title: "Support Clip 1",
-    description: "Opening timing and first engage window.",
+    title: "First engage window",
+    description: "Watch how the lane is opened before the real commit starts.",
     url: "https://youtu.be/ck-PQSpfRDY",
     embed: "https://www.youtube.com/embed/ck-PQSpfRDY",
   },
   {
-    title: "Support Clip 2",
-    description: "Follow-up pressure after first trade.",
+    title: "Punish after contact",
+    description: "What support should do once the first trade already hit.",
     url: "https://youtu.be/sTytoEHfY9w",
     embed: "https://www.youtube.com/embed/sTytoEHfY9w",
   },
   {
-    title: "Support Clip 3",
-    description: "Positioning and setup around engage support.",
+    title: "Angle and spacing",
+    description: "How positioning creates a real entry instead of fake pressure.",
     url: "https://youtu.be/4ASFCDwcHco",
     embed: "https://www.youtube.com/embed/4ASFCDwcHco",
   },
   {
-    title: "Support Clip 4",
-    description: "Dive or cleanup sequence with support sync.",
+    title: "Dive or cleanup",
+    description: "The part after contact: finish the play or reset it cleanly.",
     url: "https://youtu.be/rNob-ZD26Xs",
     embed: "https://www.youtube.com/embed/rNob-ZD26Xs",
   },
@@ -356,42 +356,42 @@ export const laneSections: LaneSection[] = [
   {
     id: "early",
     title: "Early Lane",
-    summary: "Preserve HP, track spikes, then punish the first real opening.",
+    summary: "Keep your health, track the spike, then cash in on the first real mistake.",
     points: [
-      "Fiora ADC is short range, so losing HP for free is one of the fastest ways to lose lane control.",
-      "Level 2 with Q then E can create surprising kill pressure, especially with PTA and support follow-up.",
-      "At level 3, Riposte changes how confidently you can stand your ground if enemy CC has been identified.",
+      "Fiora ADC is short range, so free damage is how you lose lane before the matchup even starts.",
+      "Level 2 with Q then E creates real kill pressure if support is already in range to finish the idea.",
+      "At level 3, Riposte changes how confidently you can stand your ground once enemy CC has been identified.",
     ],
   },
   {
     id: "wave",
     title: "Wave / Bush Control",
     summary:
-      "Vision and brush state often decide whether your all-in is fake or real.",
+      "Brush and wave state decide whether your all-in is real or just roleplay.",
     points: [
-      "Bush control creates hidden engage angles and can force panic spells from the enemy lane.",
-      "If enemy Flash is burned, the next longer wave often becomes an excellent jungle punish timing.",
-      "Into ranged lanes, preserve HP first and do not convert annoyance into random desperation trades.",
+      "Brush control creates hidden engage angles and often bleeds enemy cooldowns before the real fight.",
+      "If enemy Flash is burned, the next longer wave becomes one of the cleanest jungle punish timings you get.",
+      "Into ranged lanes, keep your health first and do not turn annoyance into desperate trades.",
     ],
   },
   {
     id: "support",
     title: "Support Sync",
-    summary: "Support timing matters more here than on a standard ADC lane.",
+    summary: "Support timing matters more here than on a normal marksman lane.",
     points: [
-      "Engage and hook supports are premium because they create direct target access for Fiora.",
-      "After Ravenous Hydra, repeated pressure becomes easier because Fiora can sustain and re-enter more comfortably.",
-      "Protective supports still work if the plan is survive lane, hold health, and spike later with better entries.",
+      "Engage and hook supports are premium because they let Fiora touch the target on purpose, not by miracle.",
+      "After Ravenous Hydra, repeat pressure becomes much easier because Fiora can heal, reset, and walk back in faster.",
+      "Protective supports still work if the plan is survive early, stay healthy, and punish later with cleaner entries.",
     ],
   },
   {
     id: "matchups",
     title: "Matchup Trend",
-    summary: "Treat labels as tendencies, not absolute truths.",
+    summary: "Treat labels as tendencies. Gold, tempo, and support timing rewrite lanes quickly.",
     points: [
       "Favorable trends: Jhin, Jinx, Kai'Sa, Lucian, Senna, Sivir, Miss Fortune.",
       "Harder trends: Ashe, Draven, Kog'Maw, Varus, Vayne, Twitch, Caitlyn.",
-      "Most lanes become far more playable once Fiora gets first lead, better tempo, or superior support timing.",
+      "Most lanes become much more playable once Fiora gets first lead, better tempo, or stronger support timing.",
     ],
   },
 ];
@@ -405,22 +405,22 @@ export const mechanics: MechanicTip[] = [
   {
     title: "Spacing",
     content:
-      "Threaten without overcommitting. Good spacing forces panic movement before you even press forward fully.",
+      "Threaten first. Commit second. Good spacing makes the enemy spend the wrong cooldown before the fight even starts.",
   },
   {
     title: "Riposte timing",
     content:
-      "Parry the spell that actually decides the fight, not the first animation that looks scary.",
+      "Do not parry the loudest spell. Parry the one that decides whether you live, stick, or lose the whole trade.",
   },
   {
     title: "Burst windows",
     content:
-      "Commit when support sync, target access, and lane state all agree. Do not force half-openings.",
+      "When support timing, target access, and wave state line up, go all the way in. Half-entries lose lanes.",
   },
   {
     title: "Vital angle",
     content:
-      "Use movement to create clean passive angles before full commitment whenever the lane allows it.",
+      "Use movement to open cleaner vitals before you hard commit whenever the lane actually gives you room.",
   },
 ];
 
@@ -507,30 +507,30 @@ export const skillOrderCards: SimpleCard[] = [
 export const supportPrinciples: SimpleCard[] = [
   {
     title: "Engage / hook",
-    text: "Supports that create direct access are premium, because Fiora wins hardest when the target cannot freely kite the first commit.",
+    text: "If support can force contact, Fiora gets to play. If not, half the lane is spent asking for permission.",
   },
   {
     title: "Hydra timing",
-    text: "Once Ravenous Hydra is completed, repeated pressure becomes easier because Fiora can sustain, reset, and re-enter faster.",
+    text: "Once Ravenous Hydra is done, repeat pressure gets much easier because Fiora can heal, reset, and walk back in fast.",
   },
   {
     title: "Protective supports",
-    text: "They still work when the goal is to survive lane, keep HP high, and unlock later spikes with better entries.",
+    text: "They still work when the lane plan is survive early, keep HP high, then punish later with cleaner entries.",
   },
 ];
 
 export const midLateCards: SimpleCard[] = [
   {
     title: "Pick one plan",
-    text: "Split, flank, pick, or group. Do not mix all plans at once.",
+    text: "Split, flank, pick, or group. Mixing all four plans is how leads evaporate.",
   },
   {
     title: "Entry timing",
-    text: "Fight after vision and cooldown checks, not just because enemies are visible.",
+    text: "Do not enter because enemies are visible. Enter because vision is set and the cooldowns that matter are gone.",
   },
   {
     title: "Conversion",
-    text: "Every successful fight should become objective pressure, tempo, or map space.",
+    text: "If a fight wins nothing, it barely counts. Turn kills into tempo, towers, dragon, or side space.",
   },
 ];
 
@@ -554,15 +554,15 @@ export const runePages: RunePage[] = [
     bullets: [
       {
         label: "Why PTA:",
-        text: "burst profile, short trades, better vs fragile ADCs.",
+        text: "best when lane can be decided by one short, brutal trade.",
       },
       {
         label: "Secondary:",
-        text: "Biscuits + Jack = safer lane.",
+        text: "Biscuits and Jack steady the lane when it gets ugly.",
       },
       {
         label: "Mini:",
-        text: "Adaptive / Adaptive / HP.",
+        text: "Adaptive, Adaptive, HP for early damage that still feels honest.",
       },
     ],
   },
@@ -574,15 +574,15 @@ export const runePages: RunePage[] = [
     bullets: [
       {
         label: "Why Phase Rush:",
-        text: "mobility, disengage, access.",
+        text: "take this when sticking, weaving out, or re-entering matters more than raw burst.",
       },
       {
         label: "Damage:",
-        text: "Absolute Focus + Last Stand.",
+        text: "Absolute Focus and Last Stand keep the page useful at both clean and messy HP bars.",
       },
       {
         label: "Mini:",
-        text: "AS / Adaptive / HP.",
+        text: "Attack Speed, Adaptive, HP for smoother access and less clunky trades.",
       },
     ],
   },

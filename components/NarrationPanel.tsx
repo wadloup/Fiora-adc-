@@ -224,7 +224,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
                     : "bg-white/30"
                 )}
               />
-              {speaking ? "Fiora is speaking" : "Fiora is waiting"}
+              {speaking ? "Narration live" : "Ready"}
             </div>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
               <span className="inline-block h-2 w-2 rounded-full bg-red-400" />
-              Fiora analysis
+              Voice track
             </div>
 
             <button
@@ -271,7 +271,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
           {hasRecordedNarration ? (
             <div className="rounded-2xl border border-red-500/20 bg-black/30 px-4 py-3 text-sm text-white/70">
-              This page uses a pre-recorded human voice track.
+              This page uses a recorded voice track.
             </div>
           ) : (
             <div className="grid gap-3 md:grid-cols-3">

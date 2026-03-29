@@ -206,7 +206,7 @@ export default function App() {
               </button>
             ))
           ) : (
-            <span className="text-sm text-white/50">No result.</span>
+            <span className="text-sm text-white/50">Nothing found.</span>
           )}
         </div>
       ) : null}
@@ -242,7 +242,7 @@ export default function App() {
                 Fiora ADC
               </p>
               <p className="whitespace-nowrap text-xs text-white/55">
-                Hybrid final version
+                Bot lane heresy
               </p>
             </div>
           </div>
@@ -304,10 +304,10 @@ export default function App() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">
-                  Background music was blocked or file not found
+                  Music needs one click to start
                 </p>
                 <p className="text-sm text-white/65">
-                  Click once to start sound. Current track:
+                  Autoplay was blocked by the browser. Current track:
                   <span className="ml-1 text-red-300">{currentTrack.label}</span>
                   <span className="ml-2 text-white/40">{currentTrack.src}</span>
                 </p>
@@ -316,7 +316,7 @@ export default function App() {
                 onClick={() => void playBackgroundMusic()}
                 className="rounded-2xl border border-red-400/40 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
               >
-                Enable music
+                Start music
               </button>
             </div>
           </NeonCard>
