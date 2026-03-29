@@ -58,11 +58,11 @@ export const musicThemes: MusicTheme[] = [
       patternSize: "140px 140px",
       veil: "radial-gradient(circle at 50% -10%, rgba(255, 20, 60, 0.16), transparent 50%)",
       artwork: {
-        src: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_8.jpg",
-        position: "center 34%",
-        opacity: 0.18,
-        scale: 1.06,
-        filter: "grayscale(0.35) contrast(1.06) brightness(0.62)",
+        src: "/backgrounds/come-home-wallpaper.gif",
+        position: "center center",
+        opacity: 0.28,
+        scale: 1.04,
+        filter: "grayscale(0.18) contrast(1.04) brightness(0.58)",
       },
       glows: [
         {
