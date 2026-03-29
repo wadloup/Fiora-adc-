@@ -160,6 +160,16 @@ export const voiceText: Record<PageName, string> = {
 
 export const narrationAudio: Partial<Record<PageName, string>> = {
   Home: "/voices/home.wav",
+  "Why Fiora ADC Works": "/voices/why-fiora-adc-works.wav",
+  Runes: "/voices/runes.wav",
+  Build: "/voices/build.wav",
+  "Skill Order": "/voices/skill-order.wav",
+  Matchups: "/voices/matchups.wav",
+  "Lane Phase": "/voices/lane-phase.wav",
+  "Fiora's Support": "/voices/fioras-support.wav",
+  "Mid/Late Game": "/voices/mid-late-game.wav",
+  "Mechanical Tips": "/voices/mechanical-tips.wav",
+  "Videos / Clips": "/voices/videos-clips.wav",
 };
 
 export type Matchup = {

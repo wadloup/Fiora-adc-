@@ -254,8 +254,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
           {hasRecordedNarration ? (
             <div className="rounded-2xl border border-red-500/20 bg-black/30 px-4 py-3 text-sm text-white/70">
-              This page uses a pre-recorded human voice track. Other pages still
-              use browser speech for now.
+              This page uses a pre-recorded human voice track.
             </div>
           ) : (
             <div className="grid gap-3 md:grid-cols-3">
