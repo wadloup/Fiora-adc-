@@ -153,6 +153,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
+  const artworkUsesContainVideo = artworkIsVideo && artwork?.fit === "contain";
 
   return (
     <AnimatePresence mode="wait">
@@ -171,14 +172,23 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
 
         {artwork && artworkIsVideo ? (
           <div className="absolute inset-0 overflow-hidden">
-            {artwork.posterSrc ? (
-              <div
-                className="absolute inset-0"
+            {artworkUsesContainVideo ? (
+              <video
+                key={`${artwork.src}-cover`}
+                src={artwork.src}
+                poster={artwork.posterSrc}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="absolute inset-0 h-full w-full object-cover"
                 style={{
-                  backgroundImage: `url("${artwork.posterSrc}")`,
-                  backgroundPosition: artwork.position || "center center",
-                  backgroundSize: "cover",
-                  filter: "contrast(1.04) saturate(1.04) brightness(0.7)",
+                  objectPosition: artwork.position || "center center",
+                  opacity: 0.72,
+                  filter:
+                    "blur(10px) contrast(1.04) saturate(1.06) brightness(0.5)",
+                  transform: "scale(1.04)",
                 }}
               />
             ) : null}
@@ -314,7 +324,15 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           />
         ) : null}
 
-        <div className={artworkIsVideo ? "absolute inset-0 bg-black/[0.02]" : "absolute inset-0 bg-black/18"} />
+        <div
+          className={
+            artworkUsesContainVideo
+              ? "absolute inset-0 bg-black/[0.06]"
+              : artworkIsVideo
+                ? "absolute inset-0 bg-black/[0.02]"
+                : "absolute inset-0 bg-black/18"
+          }
+        />
       </motion.div>
     </AnimatePresence>
   );
