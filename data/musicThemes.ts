@@ -43,6 +43,15 @@ export type MusicTheme = {
 
 export const defaultMusicTrackId: MusicTrackId = "come-home";
 
+const comeHomeBackgroundOverride =
+  import.meta.env.VITE_COME_HOME_BACKGROUND_URL?.trim() || "";
+
+const comeHomeBackgroundSrc =
+  comeHomeBackgroundOverride || "/backgrounds/come-home-wallpaper.jpg";
+
+const inferArtworkKind = (src: string): "image" | "video" =>
+  /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src) ? "video" : "image";
+
 export const musicThemes: MusicTheme[] = [
   {
     id: "come-home",
@@ -56,14 +65,14 @@ export const musicThemes: MusicTheme[] = [
       pattern: "none",
       patternSize: "100% 100%",
       veil: "none",
-        artwork: {
-          src: "/backgrounds/come-home-wallpaper.jpg",
-          kind: "image",
-          position: "center center",
-          opacity: 1,
-          scale: 1.03,
-          filter: "contrast(1.06) saturate(1.04) brightness(0.8)",
-        },
+      artwork: {
+        src: comeHomeBackgroundSrc,
+        kind: inferArtworkKind(comeHomeBackgroundSrc),
+        position: "center center",
+        opacity: 1,
+        scale: 1.03,
+        filter: "contrast(1.06) saturate(1.04) brightness(0.8)",
+      },
       glows: [],
     },
   },

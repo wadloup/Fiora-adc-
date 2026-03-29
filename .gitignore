@@ -4,3 +4,5 @@ dist/
 vite.config.js
 vite.config.d.ts
 package-lock.json
+.env.local
+.env.*.local
