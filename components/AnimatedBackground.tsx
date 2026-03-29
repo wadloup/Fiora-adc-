@@ -247,6 +247,7 @@ function renderThemeScene(themeId: ThemeId) {
 
 export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
+  const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
 
   return (
     <AnimatePresence mode="wait">
@@ -263,7 +264,26 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           style={{ background: theme.background.base }}
         />
 
-        {artwork ? (
+        {artwork && artworkIsGif ? (
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src={artwork.src}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover"
+              style={{
+                objectPosition: artwork.position || "center center",
+                opacity: artwork.opacity ?? 0.18,
+                filter:
+                  artwork.filter ||
+                  "grayscale(0.2) contrast(1.04) brightness(0.66)",
+                transform: `scale(${artwork.scale || 1.04})`,
+              }}
+            />
+          </div>
+        ) : null}
+
+        {artwork && !artworkIsGif ? (
           <motion.div
             className="absolute inset-0"
             style={{
