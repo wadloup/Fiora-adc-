@@ -1,5 +1,6 @@
 ﻿import { Music2, Pause } from "lucide-react";
 import type { MusicTheme, MusicTrackId } from "../data/musicThemes";
+import { cn } from "../utils/cn";
 
 type MusicPlayerProps = {
   tracks: MusicTheme[];
@@ -10,6 +11,7 @@ type MusicPlayerProps = {
   onTrackChange: (trackId: MusicTrackId) => void;
   onVolumeChange: (value: number) => void;
   mobile?: boolean;
+  className?: string;
 };
 
 export default function MusicPlayer({
@@ -21,10 +23,8 @@ export default function MusicPlayer({
   onTrackChange,
   onVolumeChange,
   mobile = false,
+  className,
 }: MusicPlayerProps) {
-  const currentTrack =
-    tracks.find((track) => track.id === currentTrackId) ?? tracks[0];
-
   if (mobile) {
     return (
       <div className="fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-2xl border border-red-500/35 bg-black/75 px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl xl:hidden">
@@ -70,7 +70,7 @@ export default function MusicPlayer({
   }
 
   return (
-    <div className="hidden shrink-0 items-center gap-2 xl:flex">
+    <div className={cn("flex shrink-0 items-center gap-2", className)}>
       <button
         onClick={onToggle}
         className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-white transition hover:bg-red-500/15"
@@ -94,7 +94,7 @@ export default function MusicPlayer({
           onChange={(event) =>
             onTrackChange(event.target.value as MusicTrackId)
           }
-          className="mt-1 w-[200px] bg-transparent text-sm text-white outline-none"
+          className="mt-1 w-[220px] bg-transparent text-sm text-white outline-none"
           aria-label="Select music track"
         >
           {tracks.map((track) => (
@@ -103,14 +103,6 @@ export default function MusicPlayer({
             </option>
           ))}
         </select>
-      </div>
-
-      <div className="rounded-xl border border-red-500/20 bg-black/45 px-3 py-2">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-red-300">
-          Mood
-        </p>
-        <p className="mt-1 text-sm text-white">{currentTrack.mood}</p>
-        <p className="text-[11px] text-white/55">{currentTrack.subtitle}</p>
       </div>
 
       <div className="w-24">

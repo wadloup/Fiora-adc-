@@ -175,7 +175,7 @@ export default function App() {
       <AnimatedBackground theme={currentTrack} />
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 md:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 md:px-6">
           <div className="flex shrink-0 items-center gap-3">
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.22)]">
               <Sword className="h-5 w-5 text-red-400" />
@@ -190,26 +190,18 @@ export default function App() {
             </div>
           </div>
 
-          <nav className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-2 xl:flex">
-            {pages.map((page) => (
-              <PageButton
-                key={page}
-                label={page}
-                active={currentPage === page}
-                onClick={() => goPage(page)}
-              />
-            ))}
+          <nav className="hidden min-w-0 flex-1 overflow-x-auto xl:block">
+            <div className="flex w-max min-w-full items-center justify-center gap-2 whitespace-nowrap">
+              {pages.map((page) => (
+                <PageButton
+                  key={page}
+                  label={page}
+                  active={currentPage === page}
+                  onClick={() => goPage(page)}
+                />
+              ))}
+            </div>
           </nav>
-
-          <MusicPlayer
-            tracks={musicThemes}
-            currentTrackId={selectedTrackId}
-            musicPlaying={musicPlaying}
-            musicVolume={musicVolume}
-            onToggle={() => void toggleBackgroundMusic()}
-            onTrackChange={changeTrack}
-            onVolumeChange={setMusicVolume}
-          />
 
           <button
             className="rounded-xl border border-red-500/30 p-2 xl:hidden"
@@ -300,8 +292,20 @@ export default function App() {
               </div>
 
               {currentPage === "Home" ? (
-                <div className="max-w-md">
-                  <ReportVoteBlock />
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
+                  <div className="max-w-md">
+                    <ReportVoteBlock />
+                  </div>
+                  <MusicPlayer
+                    className="hidden xl:flex"
+                    tracks={musicThemes}
+                    currentTrackId={selectedTrackId}
+                    musicPlaying={musicPlaying}
+                    musicVolume={musicVolume}
+                    onToggle={() => void toggleBackgroundMusic()}
+                    onTrackChange={changeTrack}
+                    onVolumeChange={setMusicVolume}
+                  />
                 </div>
               ) : null}
             </div>
@@ -426,3 +430,4 @@ export default function App() {
     </div>
   );
 }
+
