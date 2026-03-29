@@ -270,24 +270,7 @@ const matchups: Matchup[] = [
   },
 ];
 
-const runeIcons = {
-  pta: [
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Triumph/Triumph.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LastStand/LastStand.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/BiscuitDelivery/BiscuitDelivery.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/JackOfAllTrades/JackOfAllTrades2.png",
-  ],
-  phase: [
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/NimbusCloak/6361.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
-    "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LastStand/LastStand.png",
-  ],
-};
+
 
 const itemIcons = {
   tiamat: "https://ddragon.leagueoflegends.com/cdn/16.6.1/img/item/3077.png",
@@ -1357,59 +1340,36 @@ export default function App() {
               </>
             )}
 
-           {currentPage === "Runes" && (
+     {currentPage === "Runes" && (
   <>
     <SectionTitle
       icon={Zap}
       title="Runes"
-      subtitle="Explained setup choices with icon rows, practical logic, and clean side-by-side comparison."
+      subtitle="Two clean rune pages with the exact visual you wanted."
     />
 
-    <div className="grid gap-4 xl:grid-cols-2">
-     <NeonCard className="space-y-4 p-5">
-  <p className="text-sm uppercase tracking-[0.16em] text-red-300">
-    PTA PAGE
-  </p>
-  <IconRow icons={runeIcons.pta} />
-  <div className="space-y-2 text-white/75">
-    <p>
-      <span className="font-semibold text-white">Why PTA:</span> burst profile,
-      short trades, and better punishment against fragile ADCs.
-    </p>
-    <p>
-      <span className="font-semibold text-white">Secondary logic:</span>{" "}
-      Biscuits and Jack help survive lane and add long-term value in awkward
-      matchups.
-    </p>
-    <p>
-      <span className="font-semibold text-white">Mini runes:</span> Adaptive
-      Force, Adaptive Force, Heal.
-    </p>
-  </div>
-</NeonCard>
+    <div className="grid gap-6 xl:grid-cols-2">
+      <NeonCard className="overflow-hidden p-4">
+        <p className="mb-4 text-sm uppercase tracking-[0.16em] text-red-300">
+          PTA PAGE
+        </p>
+        <img
+          src="/runes/pta-page.png"
+          alt="PTA rune page"
+          className="w-full rounded-2xl border border-red-500/25 object-contain"
+        />
+      </NeonCard>
 
-      <NeonCard className="space-y-4 p-5">
-  <p className="text-sm uppercase tracking-[0.16em] text-red-300">
-    PHASE RUSH PAGE
-  </p>
-  <IconRow icons={runeIcons.phase} />
-  <div className="space-y-2 text-white/75">
-    <p>
-      <span className="font-semibold text-white">Why Phase Rush:</span> easier
-      gap close, cleaner disengage, and better access against mobile or
-      hard-to-reach lanes.
-    </p>
-    <p>
-      <span className="font-semibold text-white">Damage profile:</span>{" "}
-      Absolute Focus and Last Stand keep the page threatening at different HP
-      states.
-    </p>
-    <p>
-      <span className="font-semibold text-white">Mini runes:</span> Adaptive
-      Force, Attack Speed, Scaling Heal.
-    </p>
-  </div>
-</NeonCard>
+      <NeonCard className="overflow-hidden p-4">
+        <p className="mb-4 text-sm uppercase tracking-[0.16em] text-red-300">
+          PHASE RUSH PAGE
+        </p>
+        <img
+          src="/runes/phase-rush-page.png"
+          alt="Phase Rush rune page"
+          className="w-full rounded-2xl border border-red-500/25 object-contain"
+        />
+      </NeonCard>
     </div>
   </>
 )}
