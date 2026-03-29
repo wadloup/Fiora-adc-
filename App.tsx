@@ -44,6 +44,7 @@ export default function App() {
   const [musicVolume, setMusicVolume] = useState(0.06);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
+  const musicVolumeRef = useRef(0.06);
 
   const currentTrack = musicThemeMap[selectedTrackId];
   const currentTrackIndex = musicThemes.findIndex(
@@ -69,7 +70,7 @@ export default function App() {
     }
 
     try {
-      audio.volume = musicVolume;
+      audio.volume = musicVolumeRef.current;
       audio.muted = false;
       await audio.play();
       setMusicPlaying(true);
@@ -78,7 +79,7 @@ export default function App() {
       setMusicPlaying(false);
       setMusicBlocked(true);
     }
-  }, [musicVolume]);
+  }, []);
 
   const pauseBackgroundMusic = useCallback(() => {
     const audio = audioRef.current;
@@ -120,14 +121,17 @@ export default function App() {
     changeTrack(musicThemes[nextIndex].id);
   }, [changeTrack, currentTrackIndex]);
 
-  useEffect(() => {
+  const handleMusicVolumeChange = useCallback((value: number) => {
+    musicVolumeRef.current = value;
+    setMusicVolume(value);
+
     const audio = audioRef.current;
     if (!audio) {
       return;
     }
 
-    audio.volume = musicVolume;
-  }, [musicVolume]);
+    audio.volume = value;
+  }, []);
 
   useEffect(() => {
     const unlock = () => {
@@ -356,7 +360,7 @@ export default function App() {
                   musicVolume={musicVolume}
                   onToggle={() => void toggleBackgroundMusic()}
                   onTrackChange={changeTrack}
-                  onVolumeChange={setMusicVolume}
+                  onVolumeChange={handleMusicVolumeChange}
                   onPrevious={goToPreviousTrack}
                   onNext={goToNextTrack}
                 />
@@ -461,7 +465,7 @@ export default function App() {
         musicVolume={musicVolume}
         onToggle={() => void toggleBackgroundMusic()}
         onTrackChange={changeTrack}
-        onVolumeChange={setMusicVolume}
+        onVolumeChange={handleMusicVolumeChange}
         onPrevious={goToPreviousTrack}
         onNext={goToNextTrack}
         mobile

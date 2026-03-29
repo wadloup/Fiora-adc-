@@ -93,7 +93,9 @@ export default function MusicPlayer({
           max="0.5"
           step="0.01"
           value={musicVolume}
-          onChange={(event) => onVolumeChange(Number(event.target.value))}
+          onInput={(event) =>
+            onVolumeChange(Number((event.target as HTMLInputElement).value))
+          }
           className="music-slider w-16 shrink-0"
           aria-label="Adjust music volume"
         />
@@ -142,7 +144,9 @@ export default function MusicPlayer({
             max="0.5"
             step="0.01"
             value={musicVolume}
-            onChange={(event) => onVolumeChange(Number(event.target.value))}
+            onInput={(event) =>
+              onVolumeChange(Number((event.target as HTMLInputElement).value))
+            }
             className="music-slider w-full"
             aria-label="Adjust music volume"
           />
