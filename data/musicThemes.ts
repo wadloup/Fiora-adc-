@@ -97,39 +97,23 @@ export const musicThemes: MusicTheme[] = [
     mood: "Innocence and violence",
     src: "/audio/lilium-music-box-ii.mp3",
     background: {
-      base: "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12), transparent 24%), radial-gradient(circle at 18% 12%, rgba(160,0,20,0.16), transparent 24%), linear-gradient(180deg, #060606 0%, #15080b 42%, #030303 100%)",
+      base: "linear-gradient(180deg, #020202 0%, #070506 42%, #010101 100%)",
       overlay:
-        "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(140,0,24,0.06) 42%, rgba(0,0,0,0) 100%)",
-      pattern:
-        "linear-gradient(135deg, rgba(255,255,255,0.06) 12%, transparent 12%), linear-gradient(225deg, rgba(255,255,255,0.06) 12%, transparent 12%), linear-gradient(315deg, rgba(255,255,255,0.035) 12%, transparent 12%), linear-gradient(45deg, rgba(140,0,24,0.08) 12%, transparent 12%)",
-      patternSize: "180px 180px",
-      veil: "radial-gradient(circle at 50% 15%, rgba(255,255,255,0.12), transparent 46%)",
-      glows: [
-        {
-          top: "-4%",
-          left: "40%",
-          width: "30rem",
-          height: "20rem",
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,220,220,0.08) 40%, transparent 74%)",
-          opacity: 0.72,
-          duration: 20,
-          x: [0, 10, 0],
-          y: [0, -10, 0],
-        },
-        {
-          top: "28%",
-          left: "6%",
-          width: "22rem",
-          height: "22rem",
-          background:
-            "radial-gradient(circle, rgba(170,0,35,0.26) 0%, rgba(110,0,24,0.12) 45%, transparent 70%)",
-          opacity: 0.6,
-          duration: 24,
-          x: [0, 12, 0],
-          y: [0, 10, 0],
-        },
-      ],
+        "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(120,0,24,0.04) 44%, rgba(0,0,0,0.14) 100%)",
+      pattern: "none",
+      patternSize: "100% 100%",
+      veil: "radial-gradient(circle at 50% 8%, rgba(255,255,255,0.06), transparent 42%)",
+      artwork: {
+        src: "/backgrounds/lilium-wallpaper.mp4",
+        kind: "video",
+        posterSrc: "/backgrounds/lilium-wallpaper.jpg",
+        fit: "cover",
+        position: "center center",
+        opacity: 0.96,
+        scale: 1,
+        filter: "contrast(1.01) saturate(0.92) brightness(0.86)",
+      },
+      glows: [],
     },
   },
   {
