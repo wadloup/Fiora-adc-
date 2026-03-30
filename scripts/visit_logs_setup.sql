@@ -8,11 +8,15 @@ create table if not exists public.visit_logs (
   city text,
   referrer text,
   user_agent text,
-  source_fingerprint text
+  source_fingerprint text,
+  dedupe_key text
 );
 
 alter table public.visit_logs
   add column if not exists source_fingerprint text;
+
+alter table public.visit_logs
+  add column if not exists dedupe_key text;
 
 create index if not exists visit_logs_visited_at_idx
   on public.visit_logs (visited_at desc);
@@ -22,6 +26,9 @@ create index if not exists visit_logs_country_idx
 
 create index if not exists visit_logs_source_fingerprint_idx
   on public.visit_logs (source_fingerprint);
+
+create index if not exists visit_logs_dedupe_key_idx
+  on public.visit_logs (dedupe_key);
 
 create or replace view public.visit_logs_readable as
 select
@@ -38,6 +45,7 @@ select
   region,
   city,
   source_fingerprint,
+  dedupe_key,
   referrer,
   user_agent,
   case
@@ -61,9 +69,10 @@ with normalized as (
     country,
     region,
     city,
-    source_fingerprint,
-    referrer,
-    user_agent,
+  source_fingerprint,
+  dedupe_key,
+  referrer,
+  user_agent,
     case
       when user_agent ilike 'vercel-screenshot/%' then true
       else false
@@ -82,6 +91,7 @@ with normalized as (
 select
   visitor_key,
   max(source_fingerprint) as source_fingerprint,
+  max(dedupe_key) as dedupe_key,
   count(*) as visit_count,
   min(visited_at) as first_seen_utc,
   to_char(
@@ -111,6 +121,7 @@ select
       'region', region,
       'city', city,
       'source_fingerprint', source_fingerprint,
+      'dedupe_key', dedupe_key,
       'referrer', referrer,
       'user_agent', user_agent,
       'is_vercel_screenshot', is_vercel_screenshot

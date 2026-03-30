@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 
+const RECENT_DUPLICATE_WINDOW_MS = 8 * 60 * 1000;
+
 function sanitize(value, maxLength = 180) {
   if (typeof value !== "string") {
     return null;
@@ -80,6 +82,27 @@ function buildSourceFingerprint(ip, salt) {
     .slice(0, 20);
 }
 
+function shouldIgnoreVisit(userAgent) {
+  if (!userAgent) {
+    return false;
+  }
+
+  const normalized = userAgent.toLowerCase();
+
+  return (
+    normalized.startsWith("vercel-screenshot/") ||
+    normalized.includes("headlesschrome") ||
+    normalized.includes("bytespider") ||
+    normalized.includes("facebookexternalhit") ||
+    normalized.includes("discordbot") ||
+    normalized.includes("telegrambot")
+  );
+}
+
+function escapeFilterValue(value) {
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
 async function insertVisitRecord(supabaseUrl, serviceRoleKey, payload) {
   const insertResponse = await fetch(`${supabaseUrl}/rest/v1/visit_logs`, {
     method: "POST",
@@ -98,6 +121,55 @@ async function insertVisitRecord(supabaseUrl, serviceRoleKey, payload) {
   }
 
   return { ok: true };
+}
+
+async function findRecentDuplicate(
+  supabaseUrl,
+  serviceRoleKey,
+  payload,
+  dedupeKey
+) {
+  const baseUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
+  baseUrl.searchParams.set("select", "visited_at,id");
+  baseUrl.searchParams.set("order", "visited_at.desc");
+  baseUrl.searchParams.set("limit", "1");
+  baseUrl.searchParams.set("guide_page", `eq.${escapeFilterValue(payload.guide_page)}`);
+  baseUrl.searchParams.set("pathname", `eq.${escapeFilterValue(payload.pathname)}`);
+
+  if (payload.source_fingerprint) {
+    baseUrl.searchParams.set(
+      "source_fingerprint",
+      `eq.${escapeFilterValue(payload.source_fingerprint)}`
+    );
+  } else {
+    baseUrl.searchParams.set("dedupe_key", `eq.${escapeFilterValue(dedupeKey)}`);
+  }
+
+  const result = await fetch(baseUrl, {
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+    },
+  });
+
+  if (!result.ok) {
+    return false;
+  }
+
+  const rows = await result.json();
+  const latest = rows?.[0];
+
+  if (!latest?.visited_at) {
+    return false;
+  }
+
+  const latestTimestamp = Date.parse(latest.visited_at);
+
+  if (Number.isNaN(latestTimestamp)) {
+    return false;
+  }
+
+  return Date.now() - latestTimestamp < RECENT_DUPLICATE_WINDOW_MS;
 }
 
 export default async function handler(request, response) {
@@ -131,6 +203,14 @@ export default async function handler(request, response) {
   const referrer = sanitize(body.referrer || "", 200);
   const clientIp = extractClientIp(request.headers);
   const sourceFingerprint = buildSourceFingerprint(clientIp, fingerprintSalt);
+  const dedupeKey = buildSourceFingerprint(
+    `${userAgent || "unknown"}|${country || ""}|${region || ""}|${city || ""}`,
+    fingerprintSalt
+  );
+
+  if (shouldIgnoreVisit(userAgent)) {
+    return response.status(204).end();
+  }
 
   const payload = {
     guide_page: guidePage,
@@ -141,13 +221,32 @@ export default async function handler(request, response) {
     referrer,
     user_agent: userAgent,
     source_fingerprint: sourceFingerprint,
+    dedupe_key: dedupeKey,
   };
 
   try {
+    const isRecentDuplicate = await findRecentDuplicate(
+      supabaseUrl,
+      serviceRoleKey,
+      payload,
+      dedupeKey
+    );
+
+    if (isRecentDuplicate) {
+      return response.status(202).json({
+        ok: true,
+        skipped: "recent_duplicate",
+      });
+    }
+
     let result = await insertVisitRecord(supabaseUrl, serviceRoleKey, payload);
 
-    if (!result.ok && result.errorText.includes("source_fingerprint")) {
-      const { source_fingerprint: _, ...legacyPayload } = payload;
+    if (
+      !result.ok &&
+      (result.errorText.includes("source_fingerprint") ||
+        result.errorText.includes("dedupe_key"))
+    ) {
+      const { source_fingerprint: _, dedupe_key: __, ...legacyPayload } = payload;
       result = await insertVisitRecord(supabaseUrl, serviceRoleKey, legacyPayload);
     }
 
