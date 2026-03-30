@@ -8,6 +8,11 @@ type AnimatedBackgroundProps = {
 
 type ThemeId = MusicTheme["id"];
 
+const backgroundLayerTransition = {
+  duration: 0.82,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
+
 function renderThemeScene(themeId: ThemeId) {
   switch (themeId) {
     case "come-home":
@@ -316,23 +321,33 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
 
   return (
     <>
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false} mode="sync">
         <motion.div
           key={theme.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          initial={{ opacity: 0, scale: 1.018 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.992 }}
+          transition={backgroundLayerTransition}
           className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
         >
-          <div
+          <motion.div
             className="absolute inset-0"
+            initial={{ opacity: 0.72 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0.68 }}
+            transition={backgroundLayerTransition}
             style={{ background: theme.background.base }}
           />
 
         {artwork && artworkIsVideo ? (
-          <div className="absolute inset-0 overflow-hidden">
-            <video
+          <motion.div
+            className="absolute inset-0 overflow-hidden"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.988 }}
+            transition={{ ...backgroundLayerTransition, duration: 1.02 }}
+          >
+            <motion.video
               key={artwork.src}
               src={artwork.src}
               poster={artwork.posterSrc}
@@ -342,68 +357,92 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               playsInline
               preload="auto"
               className="h-full w-full"
+              initial={{ opacity: 0.62 }}
+              animate={{ opacity: artwork.opacity ?? 0.7 }}
+              exit={{ opacity: 0 }}
+              transition={{ ...backgroundLayerTransition, duration: 1.08 }}
               style={{
                 objectFit: artwork.fit || "cover",
                 objectPosition: artwork.position || "center center",
                 backgroundColor: "transparent",
-                opacity: artwork.opacity ?? 0.7,
                 filter:
                   artwork.filter ||
                   "grayscale(0.08) contrast(1.02) brightness(0.7)",
                 transform: `scale(${artwork.scale || 1})`,
               }}
             />
-          </div>
+          </motion.div>
         ) : null}
 
         {artwork && artworkIsGif ? (
-          <div className="absolute inset-0 overflow-hidden">
-            <img
+          <motion.div
+            className="absolute inset-0 overflow-hidden"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.988 }}
+            transition={backgroundLayerTransition}
+          >
+            <motion.img
               src={artwork.src}
               alt=""
               aria-hidden="true"
               className="h-full w-full object-cover"
+              initial={{ opacity: 0.58 }}
+              animate={{ opacity: artwork.opacity ?? 0.18 }}
+              exit={{ opacity: 0 }}
+              transition={backgroundLayerTransition}
               style={{
                 objectPosition: artwork.position || "center center",
-                opacity: artwork.opacity ?? 0.18,
                 filter:
                   artwork.filter ||
                   "grayscale(0.2) contrast(1.04) brightness(0.66)",
                 transform: `scale(${artwork.scale || 1.04})`,
               }}
             />
-          </div>
+          </motion.div>
         ) : null}
 
         {artwork && !artworkIsGif && !artworkIsVideo ? (
           <motion.div
             className="absolute inset-0"
-            style={{
-              backgroundImage: `url("${artwork.src}")`,
-              backgroundPosition: artwork.position || "center center",
-              backgroundSize: artwork.fit || "cover",
-              opacity: artwork.opacity ?? 0.18,
-              filter:
-                artwork.filter || "grayscale(0.2) contrast(1.04) brightness(0.66)",
-            }}
+            initial={{ opacity: 0, scale: (artwork.scale || 1.04) + 0.025 }}
             animate={{
+              opacity: artwork.opacity ?? 0.18,
               scale: [artwork.scale || 1.04, (artwork.scale || 1.04) + 0.03, artwork.scale || 1.04],
               x: [0, -18, 0],
               y: [0, 10, 0],
             }}
-            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+            exit={{ opacity: 0, scale: artwork.scale || 1.04 }}
+            transition={{
+              opacity: backgroundLayerTransition,
+              scale: { duration: 16, repeat: Infinity, ease: "easeInOut" },
+              x: { duration: 16, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 16, repeat: Infinity, ease: "easeInOut" },
+            }}
+            style={{
+              backgroundImage: `url("${artwork.src}")`,
+              backgroundPosition: artwork.position || "center center",
+              backgroundSize: artwork.fit || "cover",
+              filter:
+                artwork.filter || "grayscale(0.2) contrast(1.04) brightness(0.66)",
+            }}
           />
         ) : null}
 
         {theme.background.pattern !== "none" ? (
           <motion.div
             className="absolute inset-0 opacity-55"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.55, backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }}
+            exit={{ opacity: 0 }}
+            transition={{
+              opacity: backgroundLayerTransition,
+              backgroundPosition: { duration: 26, repeat: Infinity, ease: "linear" },
+            }}
             style={{
               backgroundImage: theme.background.pattern,
               backgroundSize: theme.background.patternSize,
             }}
-            animate={{ backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }}
-            transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
           />
         ) : null}
 
@@ -411,8 +450,18 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           <motion.div
             className="absolute inset-0 mix-blend-screen"
             style={{ background: theme.background.overlay }}
-            animate={{ opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5] }}
-            transition={{ duration: artworkIsVideo ? 12 : 9, repeat: Infinity, ease: "easeInOut" }}
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5],
+            }}
+            exit={{ opacity: 0 }}
+            transition={{
+              opacity: {
+                duration: artworkIsVideo ? 12 : 9,
+                repeat: Infinity,
+                ease: "easeInOut",
+              },
+            }}
           />
         ) : null}
 
@@ -420,8 +469,18 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           <motion.div
             className="absolute inset-0"
             style={{ background: theme.background.veil }}
-            animate={{ opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35] }}
-            transition={{ duration: artworkIsVideo ? 11 : 8, repeat: Infinity, ease: "easeInOut" }}
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35],
+            }}
+            exit={{ opacity: 0 }}
+            transition={{
+              opacity: {
+                duration: artworkIsVideo ? 11 : 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              },
+            }}
           />
         ) : null}
 
@@ -456,21 +515,29 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         {!artworkIsVideo ? (
           <motion.div
             className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.18, 0.34, 0.18] }}
+            exit={{ opacity: 0 }}
+            transition={{
+              opacity: { duration: 7, repeat: Infinity, ease: "easeInOut" },
+            }}
             style={{
               background:
                 "radial-gradient(circle at 50% 120%, rgba(255,255,255,0.08), transparent 38%), radial-gradient(circle at 50% -15%, rgba(255,255,255,0.06), transparent 34%)",
             }}
-            animate={{ opacity: [0.18, 0.34, 0.18] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
         ) : null}
 
-        <div
+        <motion.div
           className={
             artworkIsVideo
               ? "absolute inset-0 bg-black/[0.02]"
               : "absolute inset-0 bg-black/18"
           }
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={backgroundLayerTransition}
         />
         </motion.div>
       </AnimatePresence>
