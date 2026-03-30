@@ -33,6 +33,11 @@ create index if not exists visit_logs_dedupe_key_idx
 drop view if exists public.visit_logs_grouped;
 drop view if exists public.visit_logs_readable;
 
+create or replace view public.visit_logs_human_source as
+select *
+from public.visit_logs
+where coalesce(user_agent, '') !~* '(vercel-screenshot|headlesschrome|bytespider|facebookexternalhit|discordbot|telegrambot|googlebot|bingbot|crawler|spider|lighthouse|playwright|puppeteer|selenium|wget|curl)';
+
 create or replace view public.visit_logs_readable as
 select
   id,
@@ -41,28 +46,25 @@ select
   city,
   guide_page,
   pathname,
-  visited_at,
-  timezone('Europe/Paris', visited_at) as visited_at_paris,
   to_char(
     timezone('Europe/Paris', visited_at),
     'YYYY-MM-DD HH24:MI:SS'
   ) as visited_at_paris_text,
-  source_fingerprint,
-  dedupe_key,
   referrer,
   user_agent,
   case
     when user_agent ilike 'vercel-screenshot/%' then true
     else false
-  end as is_vercel_screenshot
-from public.visit_logs;
+  end as is_vercel_screenshot,
+  source_fingerprint,
+  dedupe_key
+from public.visit_logs_human_source;
 
 create or replace view public.visit_logs_grouped as
 with normalized as (
   select
     id,
     visited_at,
-    timezone('Europe/Paris', visited_at) as visited_at_paris,
     to_char(
       timezone('Europe/Paris', visited_at),
       'YYYY-MM-DD HH24:MI:SS'
@@ -89,19 +91,17 @@ with normalized as (
         coalesce(city, '')
       )
     ) as visitor_key
-  from public.visit_logs
+  from public.visit_logs_human_source
 ), aggregated as (
   select
     visitor_key,
     max(source_fingerprint) as source_fingerprint,
     max(dedupe_key) as dedupe_key,
     count(*) as visit_count,
-    min(visited_at) as first_seen_utc,
     to_char(
       timezone('Europe/Paris', min(visited_at)),
       'YYYY-MM-DD HH24:MI:SS'
     ) as first_seen_paris_text,
-    max(visited_at) as last_seen_utc,
     to_char(
       timezone('Europe/Paris', max(visited_at)),
       'YYYY-MM-DD HH24:MI:SS'
@@ -140,15 +140,13 @@ select
   latest_city,
   latest_guide_page,
   latest_pathname,
-  visitor_key,
-  source_fingerprint,
-  dedupe_key,
   visit_count,
-  first_seen_utc,
   first_seen_paris_text,
-  last_seen_utc,
   last_seen_paris_text,
   latest_user_agent,
   has_vercel_screenshot,
-  visit_history
+  visit_history,
+  visitor_key,
+  source_fingerprint,
+  dedupe_key
 from aggregated;

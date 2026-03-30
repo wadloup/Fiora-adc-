@@ -95,7 +95,17 @@ function shouldIgnoreVisit(userAgent) {
     normalized.includes("bytespider") ||
     normalized.includes("facebookexternalhit") ||
     normalized.includes("discordbot") ||
-    normalized.includes("telegrambot")
+    normalized.includes("telegrambot") ||
+    normalized.includes("googlebot") ||
+    normalized.includes("bingbot") ||
+    normalized.includes("crawler") ||
+    normalized.includes("spider") ||
+    normalized.includes("lighthouse") ||
+    normalized.includes("playwright") ||
+    normalized.includes("puppeteer") ||
+    normalized.includes("selenium") ||
+    normalized.includes("wget") ||
+    normalized.includes("curl")
   );
 }
 
