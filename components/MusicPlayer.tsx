@@ -121,7 +121,7 @@ export default function MusicPlayer({
             compact ? "text-xl tracking-[0.08em]" : "text-[1.7rem] tracking-[0.1em]"
           )}
         >
-          Choisis ton ambiance
+          Choose your vibe
         </h3>
       </div>
 
