@@ -45,16 +45,7 @@ export type MusicTheme = {
 
 export const defaultMusicTrackId: MusicTrackId = "come-home";
 
-const defaultComeHomeBlobUrl =
-  "https://lsqneo6b3ck4w3wn.public.blob.vercel-storage.com/87094-601076610.mov";
-
-const comeHomeBackgroundOverride =
-  import.meta.env.VITE_COME_HOME_BACKGROUND_URL?.trim() || "";
-
-const comeHomeBackgroundSrc =
-  comeHomeBackgroundOverride ||
-  defaultComeHomeBlobUrl ||
-  "/backgrounds/come-home-wallpaper.jpg";
+const comeHomeBackgroundSrc = "/backgrounds/come-home-wallpaper.jpg";
 
 const inferArtworkKind = (src: string): "image" | "video" =>
   /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src) ? "video" : "image";
