@@ -7,9 +7,27 @@ function sanitize(value, maxLength = 180) {
   return cleaned ? cleaned.slice(0, maxLength) : null;
 }
 
+function decodeHeaderValue(value, maxLength = 180) {
+  const sanitized = sanitize(value, maxLength);
+
+  if (!sanitized) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(sanitized);
+  } catch {
+    return sanitized;
+  }
+}
+
 async function readJsonBody(request) {
   if (!request.body) {
     return {};
+  }
+
+  if (typeof request.body === "object" && !Buffer.isBuffer(request.body)) {
+    return request.body;
   }
 
   if (typeof request.body === "string") {
@@ -49,11 +67,11 @@ export default async function handler(request, response) {
 
   const body = await readJsonBody(request);
   const country = sanitize(request.headers["x-vercel-ip-country"] || "", 8);
-  const region = sanitize(
+  const region = decodeHeaderValue(
     request.headers["x-vercel-ip-country-region"] || "",
     80
   );
-  const city = sanitize(request.headers["x-vercel-ip-city"] || "", 80);
+  const city = decodeHeaderValue(request.headers["x-vercel-ip-city"] || "", 80);
   const userAgent = sanitize(request.headers["user-agent"] || "", 255);
   const guidePage = sanitize(body.page || "Unknown", 80);
   const pathname = sanitize(body.path || "/", 200);
