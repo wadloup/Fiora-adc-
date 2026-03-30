@@ -23,6 +23,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
   const config = pageMeta[page];
   const [auto, setAuto] = useState(true);
   const [speaking, setSpeaking] = useState(false);
+  const [awaitingInteraction, setAwaitingInteraction] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState("");
   const [rate, setRate] = useState(0.92);
@@ -48,6 +49,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
       audioRef.current.currentTime = 0;
     }
 
+    setAwaitingInteraction(false);
     setSpeaking(false);
     setDisplayText(voiceText[page]);
   }, [page]);
@@ -71,7 +73,11 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
       try {
         await audio.play();
+        setAwaitingInteraction(false);
       } catch {
+        if (auto) {
+          setAwaitingInteraction(true);
+        }
         setSpeaking(false);
       }
 
@@ -130,7 +136,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
     };
 
     window.speechSynthesis.speak(utterance);
-  }, [page, pitch, rate, recordedAudioSrc, selectedVoice, stop]);
+  }, [auto, page, pitch, rate, recordedAudioSrc, selectedVoice, stop]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -204,6 +210,29 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
     return () => window.clearTimeout(timer);
   }, [auto, page, speak, stop]);
+
+  useEffect(() => {
+    if (!awaitingInteraction) {
+      return undefined;
+    }
+
+    const retryAfterInteraction = () => {
+      setAwaitingInteraction(false);
+      void speak();
+    };
+
+    window.addEventListener("pointerdown", retryAfterInteraction, {
+      once: true,
+    });
+    window.addEventListener("keydown", retryAfterInteraction, {
+      once: true,
+    });
+
+    return () => {
+      window.removeEventListener("pointerdown", retryAfterInteraction);
+      window.removeEventListener("keydown", retryAfterInteraction);
+    };
+  }, [awaitingInteraction, speak]);
 
   return (
     <NeonCard className="overflow-hidden">
