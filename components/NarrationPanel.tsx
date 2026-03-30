@@ -159,6 +159,8 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
   }, [selectedVoice]);
 
   useEffect(() => {
+    const audio = audioRef.current;
+
     return () => {
       if (tickerRef.current) {
         window.clearInterval(tickerRef.current);
@@ -169,9 +171,9 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
         window.speechSynthesis.cancel();
       }
 
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
       }
     };
   }, []);

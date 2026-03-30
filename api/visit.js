@@ -223,7 +223,15 @@ export default async function handler(request, response) {
       (result.errorText.includes("source_fingerprint") ||
         result.errorText.includes("dedupe_key"))
     ) {
-      const { source_fingerprint: _, dedupe_key: __, ...legacyPayload } = payload;
+      const legacyPayload = {
+        guide_page: payload.guide_page,
+        pathname: payload.pathname,
+        country: payload.country,
+        region: payload.region,
+        city: payload.city,
+        referrer: payload.referrer,
+        user_agent: payload.user_agent,
+      };
       result = await insertVisitRecord(supabaseUrl, serviceRoleKey, legacyPayload);
     }
 
