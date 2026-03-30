@@ -261,8 +261,8 @@ export default function ReportVoteBlock({
                     <div
                       className={
                         compact
-                          ? "text-[9px] uppercase tracking-[0.24em] text-white/60"
-                          : "text-[10px] uppercase tracking-[0.26em] text-white/60"
+                          ? "text-[10px] uppercase tracking-[0.24em] text-white/60"
+                          : "text-[11px] uppercase tracking-[0.26em] text-white/60"
                       }
                     >
                       {voteCard.tone}
@@ -271,8 +271,8 @@ export default function ReportVoteBlock({
                     <div
                       className={
                         compact
-                          ? "text-[12px] font-black leading-tight tracking-[0.08em]"
-                          : "text-[15px] font-black leading-tight tracking-[0.08em]"
+                          ? "text-[14px] font-black leading-tight tracking-[0.08em]"
+                          : "text-[18px] font-black leading-tight tracking-[0.08em]"
                       }
                     >
                       {voteCard.message}
@@ -281,8 +281,8 @@ export default function ReportVoteBlock({
                     <div
                       className={
                         compact
-                          ? "text-[9px] text-white/72"
-                          : "text-[10px] text-white/72"
+                          ? "text-[10px] text-white/72"
+                          : "text-[12px] text-white/72"
                       }
                     >
                       {voteCard.detail}
@@ -291,8 +291,8 @@ export default function ReportVoteBlock({
                     <div
                       className={
                         compact
-                          ? "text-[10px] font-semibold text-white/85"
-                          : "text-[11px] font-semibold text-white/85"
+                          ? "text-[11px] font-semibold text-white/85"
+                          : "text-[12px] font-semibold text-white/85"
                       }
                     >
                       {counts[voteCard.key]} vote{counts[voteCard.key] > 1 ? "s" : ""}
