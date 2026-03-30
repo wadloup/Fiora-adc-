@@ -30,6 +30,9 @@ create index if not exists visit_logs_source_fingerprint_idx
 create index if not exists visit_logs_dedupe_key_idx
   on public.visit_logs (dedupe_key);
 
+drop view if exists public.visit_logs_grouped;
+drop view if exists public.visit_logs_readable;
+
 create or replace view public.visit_logs_readable as
 select
   id,
