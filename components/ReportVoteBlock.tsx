@@ -281,8 +281,8 @@ export default function ReportVoteBlock({
                     <div
                       className={
                         compact
-                          ? "text-[11px] text-white/78"
-                          : "text-[14px] text-white/78"
+                          ? "text-[12px] leading-tight text-white/82"
+                          : "text-[16px] leading-tight text-white/82"
                       }
                     >
                       {voteCard.detail}
@@ -291,8 +291,8 @@ export default function ReportVoteBlock({
                     <div
                       className={
                         compact
-                          ? "text-[12px] font-semibold text-white/90"
-                          : "text-[14px] font-semibold text-white/90"
+                          ? "text-[13px] font-semibold text-white/95"
+                          : "text-[16px] font-semibold text-white/95"
                       }
                     >
                       {counts[voteCard.key]} vote{counts[voteCard.key] > 1 ? "s" : ""}
