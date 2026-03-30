@@ -125,7 +125,7 @@ export default function MusicPlayer({
             Choose your vibe
           </h3>
           <p className="pb-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/60">
-            I like LILIUM 2/5
+            I have a preference for LILIUM 2/5
           </p>
         </div>
       </div>
