@@ -115,14 +115,19 @@ export default function MusicPlayer({
         <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300/80">
           Music mood
         </p>
-        <h3
-          className={cn(
-            "font-black uppercase leading-none text-white",
-            compact ? "text-xl tracking-[0.08em]" : "text-[1.7rem] tracking-[0.1em]"
-          )}
-        >
-          Choose your vibe
-        </h3>
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <h3
+            className={cn(
+              "font-black uppercase leading-none text-white",
+              compact ? "text-xl tracking-[0.08em]" : "text-[1.7rem] tracking-[0.1em]"
+            )}
+          >
+            Choose your vibe
+          </h3>
+          <p className="pb-0.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/60">
+            I like LILIUM 2/5
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
