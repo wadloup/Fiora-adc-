@@ -155,9 +155,26 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
-      stop();
     };
-  }, [selectedVoice, stop]);
+  }, [selectedVoice]);
+
+  useEffect(() => {
+    return () => {
+      if (tickerRef.current) {
+        window.clearInterval(tickerRef.current);
+        tickerRef.current = null;
+      }
+
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const stopRequested = () => {
