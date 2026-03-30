@@ -1,21 +1,35 @@
-const loggedVisitKeys = new Set<string>();
+const CLIENT_DEDUPE_WINDOW_MS = 15_000;
+const RESUME_LOG_WINDOW_MS = 90_000;
 
-export function logVisitorPageView(page: string) {
+const lastLoggedAtByVisitKey = new Map<string, number>();
+
+let activePage: string | null = null;
+let listenersAttached = false;
+
+function getCurrentPath() {
+  return (
+    window.location.pathname +
+    window.location.search +
+    window.location.hash
+  );
+}
+
+function sendVisit(page: string, minWindowMs: number) {
   if (typeof window === "undefined" || import.meta.env.DEV) {
     return;
   }
 
-  const path =
-    window.location.pathname +
-    window.location.search +
-    window.location.hash;
+  const path = getCurrentPath();
   const visitKey = `${page}::${path}`;
+  const now = Date.now();
+  const lastLoggedAt = lastLoggedAtByVisitKey.get(visitKey) ?? 0;
 
-  if (loggedVisitKeys.has(visitKey)) {
+  if (now - lastLoggedAt < minWindowMs) {
     return;
   }
 
-  loggedVisitKeys.add(visitKey);
+  lastLoggedAtByVisitKey.set(visitKey, now);
+  activePage = page;
 
   const payload = JSON.stringify({
     page,
@@ -37,4 +51,32 @@ export function logVisitorPageView(page: string) {
     body: payload,
     keepalive: true,
   });
+}
+
+function logResumedVisit() {
+  if (!activePage) {
+    return;
+  }
+
+  sendVisit(activePage, RESUME_LOG_WINDOW_MS);
+}
+
+function attachResumeListeners() {
+  if (listenersAttached || typeof window === "undefined") {
+    return;
+  }
+
+  listenersAttached = true;
+
+  window.addEventListener("focus", logResumedVisit);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      logResumedVisit();
+    }
+  });
+}
+
+export function logVisitorPageView(page: string) {
+  attachResumeListeners();
+  sendVisit(page, CLIENT_DEDUPE_WINDOW_MS);
 }

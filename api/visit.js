@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-const RECENT_DUPLICATE_WINDOW_MS = 8 * 60 * 1000;
+const RECENT_DUPLICATE_WINDOW_MS = 75 * 1000;
 
 function sanitize(value, maxLength = 180) {
   if (typeof value !== "string") {
