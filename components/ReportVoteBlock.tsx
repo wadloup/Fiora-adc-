@@ -137,8 +137,8 @@ export default function ReportVoteBlock({
             <p
               className={
                 compact
-                  ? "text-[15px] uppercase tracking-[0.2em] text-red-300"
-                  : "text-[20px] uppercase tracking-[0.24em] text-red-300"
+                  ? "text-[24px] font-black uppercase tracking-[0.22em] text-red-300"
+                  : "text-[32px] font-black uppercase tracking-[0.24em] text-red-300"
               }
             >
               VOTE HERE
