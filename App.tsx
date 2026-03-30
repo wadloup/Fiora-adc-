@@ -42,6 +42,7 @@ import { recoverImage } from "./utils/imageFallback";
 import { cn } from "./utils/cn";
 import { trackGuidePageViewed } from "./utils/analytics";
 import { requestAllVoiceStop } from "./utils/audioControl";
+import { logVisitorPageView } from "./utils/visitLogger";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -177,6 +178,7 @@ export default function App() {
 
   useEffect(() => {
     trackGuidePageViewed(currentPage);
+    logVisitorPageView(currentPage);
   }, [currentPage]);
 
   const goPage = (page: PageName) => {
