@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import NeonCard from "./ui/NeonCard";
 import { supabase } from "../supabase";
@@ -18,28 +19,41 @@ const VOTE_STORAGE_KEY = "report_vote_choice";
 const voteCards: Array<{
   key: VoteChoice;
   tone: string;
+  message: string;
+  detail: string;
   accent: string;
   icon: typeof ArrowBigUp;
 }> = [
   {
     key: "up",
     tone: "UP",
+    message: "YOU'RE REAL",
+    detail: "Respect secured.",
     accent: "border-green-400/40 bg-green-500/15 text-green-200",
     icon: ArrowBigUp,
   },
   {
     key: "down",
     tone: "DOWN",
+    message: "STAY MAD",
+    detail: "Hater energy logged.",
     accent: "border-red-400/40 bg-red-500/15 text-red-200",
     icon: ArrowBigDown,
   },
   {
     key: "poop",
     tone: "POOP",
+    message: "FAIR ENOUGH",
+    detail: "Chaos vote accepted.",
     accent: "border-yellow-400/40 bg-yellow-500/15 text-yellow-200",
     icon: ArrowBigUp,
   },
 ];
+
+const flipTransition = {
+  duration: 0.68,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
 
 export default function ReportVoteBlock({
   compact = false,
@@ -164,10 +178,11 @@ export default function ReportVoteBlock({
             return (
               <button
                 key={voteCard.key}
+                type="button"
                 onClick={() => void handleVote(voteCard.key)}
                 disabled={!!selected || loading}
-                className={`rounded-xl border font-semibold transition ${
-                  compact ? "min-h-[88px] px-2 py-2 text-[11px]" : "px-3 py-3 text-[13px]"
+                className={`relative overflow-hidden rounded-xl border font-semibold transition ${
+                  compact ? "min-h-[88px]" : "min-h-[112px]"
                 } ${
                   selected === voteCard.key
                     ? voteCard.accent
@@ -177,42 +192,113 @@ export default function ReportVoteBlock({
                     ? "shadow-[0_0_18px_rgba(255,0,60,0.18)]"
                     : ""
                 } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+                style={{ perspective: "1200px" }}
               >
-                {isPoop ? (
-                  <span
-                    className={
-                      compact
-                        ? "mx-auto mb-1 block text-[16px] leading-none"
-                        : "mx-auto mb-2 block text-[20px] leading-none"
-                    }
-                    aria-hidden="true"
-                  >
-                    {"\uD83D\uDCA9"}
-                  </span>
-                ) : (
-                  <Icon
-                    className={
-                      compact
-                        ? "mx-auto mb-1 h-4 w-4"
-                        : "mx-auto mb-2 h-5 w-5"
-                    }
-                    aria-hidden="true"
-                  />
-                )}
-
-                <div
-                  className={
-                    compact
-                      ? "text-[12px] font-black tracking-[0.18em]"
-                      : "text-[16px] font-black tracking-[0.22em]"
-                  }
+                <motion.div
+                  className="relative h-full w-full"
+                  initial={false}
+                  animate={{ rotateY: selected === voteCard.key ? 180 : 0 }}
+                  transition={flipTransition}
+                  style={{
+                    minHeight: compact ? "88px" : "112px",
+                    transformStyle: "preserve-3d",
+                  }}
                 >
-                  {voteCard.tone}
-                </div>
+                  <div
+                    className="absolute inset-0 flex h-full w-full flex-col items-center justify-center px-2 text-center"
+                    style={{ backfaceVisibility: "hidden" }}
+                  >
+                    {isPoop ? (
+                      <span
+                        className={
+                          compact
+                            ? "mx-auto mb-1 block text-[16px] leading-none"
+                            : "mx-auto mb-2 block text-[20px] leading-none"
+                        }
+                        aria-hidden="true"
+                      >
+                        {"\uD83D\uDCA9"}
+                      </span>
+                    ) : (
+                      <Icon
+                        className={
+                          compact
+                            ? "mx-auto mb-1 h-4 w-4"
+                            : "mx-auto mb-2 h-5 w-5"
+                        }
+                        aria-hidden="true"
+                      />
+                    )}
 
-                <div className={compact ? "mt-1 text-[12px]" : "mt-1 text-[15px]"}>
-                  {counts[voteCard.key]}
-                </div>
+                    <div
+                      className={
+                        compact
+                          ? "text-[12px] font-black tracking-[0.18em]"
+                          : "text-[16px] font-black tracking-[0.22em]"
+                      }
+                    >
+                      {voteCard.tone}
+                    </div>
+
+                    <div
+                      className={compact ? "mt-1 text-[12px]" : "mt-1 text-[15px]"}
+                    >
+                      {counts[voteCard.key]}
+                    </div>
+                  </div>
+
+                  <div
+                    className={
+                      compact
+                        ? "absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-1 px-2 text-center"
+                        : "absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-1.5 px-3 text-center"
+                    }
+                    style={{
+                      backfaceVisibility: "hidden",
+                      transform: "rotateY(180deg)",
+                    }}
+                  >
+                    <div
+                      className={
+                        compact
+                          ? "text-[9px] uppercase tracking-[0.24em] text-white/60"
+                          : "text-[10px] uppercase tracking-[0.26em] text-white/60"
+                      }
+                    >
+                      {voteCard.tone}
+                    </div>
+
+                    <div
+                      className={
+                        compact
+                          ? "text-[12px] font-black leading-tight tracking-[0.08em]"
+                          : "text-[15px] font-black leading-tight tracking-[0.08em]"
+                      }
+                    >
+                      {voteCard.message}
+                    </div>
+
+                    <div
+                      className={
+                        compact
+                          ? "text-[9px] text-white/72"
+                          : "text-[10px] text-white/72"
+                      }
+                    >
+                      {voteCard.detail}
+                    </div>
+
+                    <div
+                      className={
+                        compact
+                          ? "text-[10px] font-semibold text-white/85"
+                          : "text-[11px] font-semibold text-white/85"
+                      }
+                    >
+                      {counts[voteCard.key]} vote{counts[voteCard.key] > 1 ? "s" : ""}
+                    </div>
+                  </div>
+                </motion.div>
               </button>
             );
           })}
