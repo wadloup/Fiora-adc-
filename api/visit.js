@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 function sanitize(value, maxLength = 180) {
   if (typeof value !== "string") {
     return null;
@@ -49,6 +51,55 @@ async function readJsonBody(request) {
   return {};
 }
 
+function readHeaderValue(value) {
+  if (Array.isArray(value)) {
+    return value[0] || "";
+  }
+
+  return typeof value === "string" ? value : "";
+}
+
+function extractClientIp(headers) {
+  const directIp = readHeaderValue(headers["x-real-ip"]);
+  const vercelForwardedIp = readHeaderValue(headers["x-vercel-forwarded-for"]);
+  const forwardedFor = readHeaderValue(headers["x-forwarded-for"]);
+  const raw =
+    directIp || vercelForwardedIp || forwardedFor.split(",")[0] || "";
+
+  return sanitize(raw.trim(), 120);
+}
+
+function buildSourceFingerprint(ip, salt) {
+  if (!ip || !salt) {
+    return null;
+  }
+
+  return createHash("sha256")
+    .update(`${salt}:${ip}`)
+    .digest("hex")
+    .slice(0, 20);
+}
+
+async function insertVisitRecord(supabaseUrl, serviceRoleKey, payload) {
+  const insertResponse = await fetch(`${supabaseUrl}/rest/v1/visit_logs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify([payload]),
+  });
+
+  if (!insertResponse.ok) {
+    const errorText = await insertResponse.text();
+    return { ok: false, errorText };
+  }
+
+  return { ok: true };
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -57,6 +108,8 @@ export default async function handler(request, response) {
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const fingerprintSalt =
+    process.env.VISIT_LOG_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
     return response.status(202).json({
@@ -76,6 +129,8 @@ export default async function handler(request, response) {
   const guidePage = sanitize(body.page || "Unknown", 80);
   const pathname = sanitize(body.path || "/", 200);
   const referrer = sanitize(body.referrer || "", 200);
+  const clientIp = extractClientIp(request.headers);
+  const sourceFingerprint = buildSourceFingerprint(clientIp, fingerprintSalt);
 
   const payload = {
     guide_page: guidePage,
@@ -85,26 +140,22 @@ export default async function handler(request, response) {
     city,
     referrer,
     user_agent: userAgent,
+    source_fingerprint: sourceFingerprint,
   };
 
   try {
-    const insertResponse = await fetch(`${supabaseUrl}/rest/v1/visit_logs`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify([payload]),
-    });
+    let result = await insertVisitRecord(supabaseUrl, serviceRoleKey, payload);
 
-    if (!insertResponse.ok) {
-      const errorText = await insertResponse.text();
+    if (!result.ok && result.errorText.includes("source_fingerprint")) {
+      const { source_fingerprint: _, ...legacyPayload } = payload;
+      result = await insertVisitRecord(supabaseUrl, serviceRoleKey, legacyPayload);
+    }
+
+    if (!result.ok) {
       return response.status(500).json({
         ok: false,
         reason: "insert_failed",
-        details: errorText.slice(0, 240),
+        details: result.errorText.slice(0, 240),
       });
     }
 
@@ -113,6 +164,7 @@ export default async function handler(request, response) {
       country,
       region,
       city,
+      sourceFingerprint,
       guidePage,
     });
   } catch (error) {
