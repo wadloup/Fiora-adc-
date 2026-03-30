@@ -7,11 +7,20 @@ let activePage: string | null = null;
 let listenersAttached = false;
 
 function getCurrentPath() {
-  return (
-    window.location.pathname +
-    window.location.search +
-    window.location.hash
-  );
+  return window.location.pathname;
+}
+
+function getSanitizedReferrer() {
+  if (!document.referrer) {
+    return "";
+  }
+
+  try {
+    const referrerUrl = new URL(document.referrer);
+    return `${referrerUrl.origin}${referrerUrl.pathname}`;
+  } catch {
+    return "";
+  }
 }
 
 function sendVisit(page: string, minWindowMs: number) {
@@ -34,7 +43,7 @@ function sendVisit(page: string, minWindowMs: number) {
   const payload = JSON.stringify({
     page,
     path,
-    referrer: document.referrer || "",
+    referrer: getSanitizedReferrer(),
   });
 
   if (navigator.sendBeacon) {

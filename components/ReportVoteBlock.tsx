@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import NeonCard from "./ui/NeonCard";
-import { supabase } from "../supabase";
 
 type VoteChoice = "up" | "down" | "poop";
 
@@ -71,24 +70,28 @@ export default function ReportVoteBlock({
     }
 
     const loadVotes = async () => {
-      const { data, error } = await supabase
-        .from("report_votes")
-        .select("option_key, count");
+      try {
+        const response = await fetch("/api/report-vote", {
+          method: "GET",
+          credentials: "same-origin",
+          cache: "no-store",
+        });
 
-      if (error || !data) {
+        const payload = await response.json();
+
+        if (!response.ok || !payload?.counts) {
+          throw new Error("vote_counts_unavailable");
+        }
+
+        setCounts({
+          up: Number(payload.counts.up) || 0,
+          down: Number(payload.counts.down) || 0,
+          poop: Number(payload.counts.poop) || 0,
+        });
+      } catch (error) {
         console.error(error);
         return;
       }
-
-      const nextCounts: VoteCounts = { ...INITIAL_COUNTS };
-
-      for (const row of data) {
-        if (row.option_key === "up") nextCounts.up = row.count;
-        if (row.option_key === "down") nextCounts.down = row.count;
-        if (row.option_key === "poop") nextCounts.poop = row.count;
-      }
-
-      setCounts(nextCounts);
     };
 
     void loadVotes();
@@ -100,21 +103,38 @@ export default function ReportVoteBlock({
     }
 
     setLoading(true);
+    try {
+      const response = await fetch("/api/report-vote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({ choice }),
+      });
 
-    const currentValue = counts[choice];
-    const { error } = await supabase
-      .from("report_votes")
-      .update({ count: currentValue + 1 })
-      .eq("option_key", choice);
+      const payload = await response.json();
 
-    if (!error) {
-      setCounts((previous) => ({
-        ...previous,
-        [choice]: currentValue + 1,
-      }));
-      setSelected(choice);
-      localStorage.setItem(VOTE_STORAGE_KEY, choice);
-    } else {
+      if (!response.ok || !payload?.counts) {
+        throw new Error(payload?.reason || "vote_request_failed");
+      }
+
+      setCounts({
+        up: Number(payload.counts.up) || 0,
+        down: Number(payload.counts.down) || 0,
+        poop: Number(payload.counts.poop) || 0,
+      });
+
+      const selectedChoice =
+        payload.selectedChoice === "up" ||
+        payload.selectedChoice === "down" ||
+        payload.selectedChoice === "poop"
+          ? payload.selectedChoice
+          : choice;
+
+      setSelected(selectedChoice);
+      localStorage.setItem(VOTE_STORAGE_KEY, selectedChoice);
+    } catch (error) {
       console.error(error);
     }
 

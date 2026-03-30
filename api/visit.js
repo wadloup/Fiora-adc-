@@ -1,29 +1,13 @@
-import { createHash } from "node:crypto";
+import {
+  buildVisitorIdentity,
+  hasTrustedRequestSource,
+  isJsonRequest,
+  sanitize,
+  setApiSecurityHeaders,
+  getContentLength,
+} from "./_shared/security.js";
 
 const RECENT_DUPLICATE_WINDOW_MS = 75 * 1000;
-
-function sanitize(value, maxLength = 180) {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const cleaned = value.replace(/\s+/g, " ").trim();
-  return cleaned ? cleaned.slice(0, maxLength) : null;
-}
-
-function decodeHeaderValue(value, maxLength = 180) {
-  const sanitized = sanitize(value, maxLength);
-
-  if (!sanitized) {
-    return null;
-  }
-
-  try {
-    return decodeURIComponent(sanitized);
-  } catch {
-    return sanitized;
-  }
-}
 
 async function readJsonBody(request) {
   if (!request.body) {
@@ -51,35 +35,6 @@ async function readJsonBody(request) {
   }
 
   return {};
-}
-
-function readHeaderValue(value) {
-  if (Array.isArray(value)) {
-    return value[0] || "";
-  }
-
-  return typeof value === "string" ? value : "";
-}
-
-function extractClientIp(headers) {
-  const directIp = readHeaderValue(headers["x-real-ip"]);
-  const vercelForwardedIp = readHeaderValue(headers["x-vercel-forwarded-for"]);
-  const forwardedFor = readHeaderValue(headers["x-forwarded-for"]);
-  const raw =
-    directIp || vercelForwardedIp || forwardedFor.split(",")[0] || "";
-
-  return sanitize(raw.trim(), 120);
-}
-
-function buildSourceFingerprint(ip, salt) {
-  if (!ip || !salt) {
-    return null;
-  }
-
-  return createHash("sha256")
-    .update(`${salt}:${ip}`)
-    .digest("hex")
-    .slice(0, 20);
 }
 
 function shouldIgnoreVisit(userAgent) {
@@ -183,12 +138,35 @@ async function findRecentDuplicate(
 }
 
 export default async function handler(request, response) {
+  setApiSecurityHeaders(response);
+
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     return response.status(405).json({ ok: false });
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  if (!hasTrustedRequestSource(request)) {
+    return response.status(403).json({
+      ok: false,
+      reason: "untrusted_request_source",
+    });
+  }
+
+  if (!isJsonRequest(request)) {
+    return response.status(415).json({
+      ok: false,
+      reason: "invalid_content_type",
+    });
+  }
+
+  if (getContentLength(request) > 4_096) {
+    return response.status(413).json({
+      ok: false,
+      reason: "payload_too_large",
+    });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const fingerprintSalt =
     process.env.VISIT_LOG_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -201,22 +179,11 @@ export default async function handler(request, response) {
   }
 
   const body = await readJsonBody(request);
-  const country = sanitize(request.headers["x-vercel-ip-country"] || "", 8);
-  const region = decodeHeaderValue(
-    request.headers["x-vercel-ip-country-region"] || "",
-    80
-  );
-  const city = decodeHeaderValue(request.headers["x-vercel-ip-city"] || "", 80);
-  const userAgent = sanitize(request.headers["user-agent"] || "", 255);
+  const { country, region, city, userAgent, sourceFingerprint, dedupeKey } =
+    buildVisitorIdentity(request, fingerprintSalt);
   const guidePage = sanitize(body.page || "Unknown", 80);
   const pathname = sanitize(body.path || "/", 200);
-  const referrer = sanitize(body.referrer || "", 200);
-  const clientIp = extractClientIp(request.headers);
-  const sourceFingerprint = buildSourceFingerprint(clientIp, fingerprintSalt);
-  const dedupeKey = buildSourceFingerprint(
-    `${userAgent || "unknown"}|${country || ""}|${region || ""}|${city || ""}`,
-    fingerprintSalt
-  );
+  const referrer = sanitize(body.referrer || "", 160);
 
   if (shouldIgnoreVisit(userAgent)) {
     return response.status(204).end();
