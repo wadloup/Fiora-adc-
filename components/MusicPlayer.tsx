@@ -111,6 +111,20 @@ export default function MusicPlayer({
         className
       )}
     >
+      <div className="space-y-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300/80">
+          Music mood
+        </p>
+        <h3
+          className={cn(
+            "font-black uppercase leading-none text-white",
+            compact ? "text-xl tracking-[0.08em]" : "text-[1.7rem] tracking-[0.1em]"
+          )}
+        >
+          Choisis ton ambiance
+        </h3>
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={onToggle}
