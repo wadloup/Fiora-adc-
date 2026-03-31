@@ -557,28 +557,6 @@ export default function App() {
       </header>
 
       <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10">
-        {musicBlocked ? (
-          <NeonCard className="p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  Music needs one click to start
-                </p>
-                <p className="text-sm text-white/65">
-                  Autoplay was blocked by the browser. Current track:
-                  <span className="ml-1 text-red-300">{currentTrack.label}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => void playBackgroundMusic()}
-                className="rounded-2xl border border-red-400/40 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-              >
-                Start music
-              </button>
-            </div>
-          </NeonCard>
-        ) : null}
-
         <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
             <div className="space-y-4">
