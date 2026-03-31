@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Music2, Pause, SkipBack, SkipForward } from "lucide-react";
 import type { MusicTheme, MusicTrackId } from "../data/musicThemes";
 import { cn } from "../utils/cn";
@@ -17,7 +18,7 @@ type MusicPlayerProps = {
   className?: string;
 };
 
-export default function MusicPlayer({
+function MusicPlayer({
   tracks,
   currentTrackId,
   musicPlaying,
@@ -35,7 +36,7 @@ export default function MusicPlayer({
 
   if (mobile) {
     return (
-      <div className="fixed bottom-5 left-5 z-50 flex max-w-[calc(100vw-5.5rem)] items-center gap-2 rounded-2xl border border-red-500/35 bg-black/75 px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl lg:hidden">
+      <div className="fixed bottom-5 left-5 z-50 flex max-w-[calc(100vw-5.5rem)] items-center gap-2 rounded-2xl border border-red-500/35 bg-[rgba(8,8,10,0.92)] px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] lg:hidden">
         <button
           onClick={onToggle}
           className="text-red-300"
@@ -106,7 +107,7 @@ export default function MusicPlayer({
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col gap-3 rounded-3xl border border-red-500/25 bg-white/[0.04] p-3.5 shadow-[0_0_24px_rgba(255,0,60,0.12)] backdrop-blur-md md:p-4",
+        "flex shrink-0 flex-col gap-3 rounded-3xl border border-red-500/25 bg-[rgba(18,7,10,0.76)] p-3.5 shadow-[0_0_24px_rgba(255,0,60,0.12)] md:p-4",
         compact ? "w-full max-w-[320px]" : "w-full max-w-[420px]",
         className
       )}
@@ -244,3 +245,5 @@ export default function MusicPlayer({
     </div>
   );
 }
+
+export default memo(MusicPlayer);

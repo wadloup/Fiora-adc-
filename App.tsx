@@ -423,7 +423,7 @@ export default function App() {
 
       <AnimatedBackground theme={currentTrack} />
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/92">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 md:px-6">
           <div className="flex shrink-0 items-center gap-3">
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.22)]">
@@ -863,7 +863,7 @@ export default function App() {
 
       <button
         onClick={requestAllVoiceStop}
-        className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-black/85 px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] backdrop-blur-xl transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
+        className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-[rgba(8,8,10,0.94)] px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
         aria-label="Stop every voice"
       >
         <span className="rounded-xl border border-red-400/35 bg-red-500/15 p-2.5 text-red-300">
@@ -879,7 +879,7 @@ export default function App() {
         </span>
       </button>
 
-      <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-black/85 p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] backdrop-blur-xl lg:block sm:right-5 md:right-6">
+      <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] lg:block sm:right-5 md:right-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-red-300">

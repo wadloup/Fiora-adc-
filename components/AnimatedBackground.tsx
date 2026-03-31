@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useMotionValue } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import type { MusicTheme } from "../data/musicThemes";
 
 type AnimatedBackgroundProps = {
@@ -155,12 +155,13 @@ function renderThemeScene(themeId: ThemeId) {
   return null;
 }
 
-export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
+function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
   const [cursorVisible, setCursorVisible] = useState(false);
   const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
+  const [liteMode, setLiteMode] = useState(false);
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
   const cursorVisibleRef = useRef(false);
@@ -171,13 +172,38 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     }
 
     const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const updateCapability = () => setCursorFxEnabled(mediaQuery.matches);
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
+
+    const updateCapability = () => {
+      const runtimeNavigator = navigator as Navigator & {
+        deviceMemory?: number;
+        connection?: { saveData?: boolean };
+      };
+      const hardwareThreads = runtimeNavigator.hardwareConcurrency || 0;
+      const deviceMemory = runtimeNavigator.deviceMemory || 0;
+      const saveData = Boolean(runtimeNavigator.connection?.saveData);
+      const shouldUseLiteMode =
+        reducedMotionQuery.matches ||
+        coarsePointerQuery.matches ||
+        saveData ||
+        (hardwareThreads > 0 && hardwareThreads <= 6) ||
+        (deviceMemory > 0 && deviceMemory <= 4);
+
+      setLiteMode(shouldUseLiteMode);
+      setCursorFxEnabled(mediaQuery.matches && !shouldUseLiteMode);
+    };
+
     updateCapability();
 
     mediaQuery.addEventListener("change", updateCapability);
+    reducedMotionQuery.addEventListener("change", updateCapability);
+    coarsePointerQuery.addEventListener("change", updateCapability);
 
     return () => {
       mediaQuery.removeEventListener("change", updateCapability);
+      reducedMotionQuery.removeEventListener("change", updateCapability);
+      coarsePointerQuery.removeEventListener("change", updateCapability);
     };
   }, []);
 
@@ -240,93 +266,46 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     cursorFxEnabled && cursorVisible ? (
       <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
         <motion.div
-          className="absolute h-[7.5rem] w-[7.5rem] rounded-full"
+          className="absolute h-[5.4rem] w-[5.4rem] rounded-full"
           style={{
             x: cursorX,
             y: cursorY,
             translateX: "-50%",
             translateY: "-50%",
             background:
-              "repeating-radial-gradient(circle, rgba(255,255,255,0.24) 0 1px, rgba(255,255,255,0.09) 2px 3px, transparent 6px 14px)",
-            filter: "blur(1.4px)",
+              "radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.07) 44%, transparent 74%)",
+            filter: "blur(7px)",
             mixBlendMode: "screen",
             willChange: "transform, opacity",
-          }}
-          animate={{
-            scale: [0.24, 1.34],
-            opacity: [0.34, 0],
-          }}
-          transition={{ duration: 1.15, repeat: Infinity, ease: "easeOut" }}
-        />
-
-        <motion.div
-          className="absolute h-[7.5rem] w-[7.5rem] rounded-full"
-          style={{
-            x: cursorX,
-            y: cursorY,
-            translateX: "-50%",
-            translateY: "-50%",
-            background:
-              "repeating-radial-gradient(circle, rgba(255,255,255,0.18) 0 1px, rgba(255,255,255,0.06) 2px 3px, transparent 6px 14px)",
-            filter: "blur(1.8px)",
-            mixBlendMode: "screen",
-            willChange: "transform, opacity",
-          }}
-          animate={{
-            scale: [0.18, 1.62],
-            opacity: [0.28, 0],
-          }}
-          transition={{
-            duration: 1.35,
-            repeat: Infinity,
-            ease: "easeOut",
-            delay: 0.28,
+            opacity: 0.7,
           }}
         />
 
         <motion.div
-          className="absolute h-[4.2rem] w-[4.2rem] rounded-full"
-          style={{
-            x: cursorX,
-            y: cursorY,
-            translateX: "-50%",
-            translateY: "-50%",
-            background:
-              "radial-gradient(circle, transparent 34%, rgba(255,255,255,0.82) 48%, rgba(255,255,255,0.22) 58%, rgba(255,255,255,0.06) 67%, transparent 76%)",
-            filter: "blur(8px)",
-            opacity: 0.88,
-            willChange: "transform, opacity",
-          }}
-        />
-
-        <motion.div
-          className="absolute h-[2.9rem] w-[2.9rem] rounded-full"
-          animate={{ scale: [1, 1.01, 1] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute h-[3.2rem] w-[3.2rem] rounded-full"
           style={{
             x: cursorX,
             y: cursorY,
             translateX: "-50%",
             translateY: "-50%",
             background: "transparent",
-            border: "2px solid rgba(12,12,12,0.92)",
+            border: "2px solid rgba(16,16,16,0.9)",
             boxShadow:
-              "0 0 0 1px rgba(255,255,255,0.34), 0 0 14px rgba(255,255,255,0.14)",
-            willChange: "transform, opacity",
+              "0 0 0 1px rgba(255,255,255,0.26), 0 0 10px rgba(255,255,255,0.1)",
+            willChange: "transform",
           }}
         />
 
         <motion.div
-          className="absolute h-[2.45rem] w-[2.45rem] rounded-full"
+          className="absolute h-[2.35rem] w-[2.35rem] rounded-full"
           style={{
             x: cursorX,
             y: cursorY,
             translateX: "-50%",
             translateY: "-50%",
             background:
-              "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 42%, transparent 72%)",
-            opacity: 0.42,
-            willChange: "transform, opacity",
+              "radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 52%, transparent 76%)",
+            willChange: "transform",
           }}
         />
       </div>
@@ -378,10 +357,9 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
                 objectFit: artwork.fit || "cover",
                 objectPosition: artwork.position || "center center",
                 backgroundColor: "transparent",
-                filter:
-                  artwork.filter ||
-                  "grayscale(0.08) contrast(1.02) brightness(0.7)",
+                filter: liteMode ? "none" : undefined,
                 transform: `scale(${artwork.scale || 1})`,
+                willChange: "transform, opacity",
               }}
             />
           </motion.div>
@@ -410,6 +388,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
                   artwork.filter ||
                   "grayscale(0.2) contrast(1.04) brightness(0.66)",
                 transform: `scale(${artwork.scale || 1.04})`,
+                willChange: "transform, opacity",
               }}
             />
           </motion.div>
@@ -438,6 +417,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               backgroundSize: artwork.fit || "cover",
               filter:
                 artwork.filter || "grayscale(0.2) contrast(1.04) brightness(0.66)",
+              willChange: "transform, opacity",
             }}
           />
         ) : null}
@@ -446,12 +426,24 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           <motion.div
             className="absolute inset-0 opacity-55"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.55, backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }}
+            animate={
+              liteMode
+                ? { opacity: 0.38 }
+                : { opacity: 0.55, backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }
+            }
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: backgroundLayerTransition,
-              backgroundPosition: { duration: 26, repeat: Infinity, ease: "linear" },
-            }}
+            transition={
+              liteMode
+                ? backgroundLayerTransition
+                : {
+                    opacity: backgroundLayerTransition,
+                    backgroundPosition: {
+                      duration: 26,
+                      repeat: Infinity,
+                      ease: "linear",
+                    },
+                  }
+            }
             style={{
               backgroundImage: theme.background.pattern,
               backgroundSize: theme.background.patternSize,
@@ -464,17 +456,25 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             className="absolute inset-0 mix-blend-screen"
             style={{ background: theme.background.overlay }}
             initial={{ opacity: 0 }}
-            animate={{
-              opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5],
-            }}
+            animate={
+              liteMode
+                ? { opacity: artworkIsVideo ? 0.18 : 0.4 }
+                : {
+                    opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5],
+                  }
+            }
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: {
-                duration: artworkIsVideo ? 12 : 9,
-                repeat: Infinity,
-                ease: "easeInOut",
-              },
-            }}
+            transition={
+              liteMode
+                ? backgroundLayerTransition
+                : {
+                    opacity: {
+                      duration: artworkIsVideo ? 12 : 9,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                  }
+            }
           />
         ) : null}
 
@@ -483,21 +483,29 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             className="absolute inset-0"
             style={{ background: theme.background.veil }}
             initial={{ opacity: 0 }}
-            animate={{
-              opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35],
-            }}
+            animate={
+              liteMode
+                ? { opacity: artworkIsVideo ? 0.14 : 0.28 }
+                : {
+                    opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35],
+                  }
+            }
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: {
-                duration: artworkIsVideo ? 11 : 8,
-                repeat: Infinity,
-                ease: "easeInOut",
-              },
-            }}
+            transition={
+              liteMode
+                ? backgroundLayerTransition
+                : {
+                    opacity: {
+                      duration: artworkIsVideo ? 11 : 8,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                  }
+            }
           />
         ) : null}
 
-        {renderThemeScene(theme.id)}
+        {!liteMode ? renderThemeScene(theme.id) : null}
 
         {theme.background.glows.map((glow, index) => (
           <motion.div
@@ -511,17 +519,29 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               background: glow.background,
               opacity: glow.opacity,
             }}
-            animate={{
-              x: glow.x,
-              y: glow.y,
-              scale: [1, 1.14, 1],
-              opacity: [glow.opacity * 0.72, glow.opacity, glow.opacity * 0.72],
-            }}
-            transition={{
-              duration: glow.duration,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            animate={
+              liteMode
+                ? undefined
+                : {
+                    x: glow.x,
+                    y: glow.y,
+                    scale: [1, 1.14, 1],
+                    opacity: [
+                      glow.opacity * 0.72,
+                      glow.opacity,
+                      glow.opacity * 0.72,
+                    ],
+                  }
+            }
+            transition={
+              liteMode
+                ? undefined
+                : {
+                    duration: glow.duration,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }
+            }
           />
         ))}
 
@@ -529,11 +549,15 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0.18, 0.34, 0.18] }}
+            animate={liteMode ? { opacity: 0.14 } : { opacity: [0.18, 0.34, 0.18] }}
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: { duration: 7, repeat: Infinity, ease: "easeInOut" },
-            }}
+            transition={
+              liteMode
+                ? backgroundLayerTransition
+                : {
+                    opacity: { duration: 7, repeat: Infinity, ease: "easeInOut" },
+                  }
+            }
             style={{
               background:
                 "radial-gradient(circle at 50% 120%, rgba(255,255,255,0.08), transparent 38%), radial-gradient(circle at 50% -15%, rgba(255,255,255,0.06), transparent 34%)",
@@ -558,3 +582,5 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     </>
   );
 }
+
+export default memo(AnimatedBackground);
