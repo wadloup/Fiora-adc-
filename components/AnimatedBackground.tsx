@@ -162,15 +162,10 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const [cursorVisible, setCursorVisible] = useState(false);
   const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
   const [liteMode, setLiteMode] = useState(false);
-  const [videoReady, setVideoReady] = useState(!artworkIsVideo);
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
   const cursorVisibleRef = useRef(false);
   const activeVideoRef = useRef<HTMLVideoElement | null>(null);
-  const warmedVideoSrcsRef = useRef<Set<string>>(new Set());
-  const backgroundPreloadVideosRef = useRef<Map<string, HTMLVideoElement>>(
-    new Map()
-  );
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -269,10 +264,6 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   }, [cursorFxEnabled]);
 
   useEffect(() => {
-    setVideoReady(!artworkIsVideo);
-  }, [artwork?.src, artworkIsVideo]);
-
-  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
@@ -299,94 +290,26 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       return;
     }
 
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      setVideoReady(true);
-    }
-  }, [artwork?.src, artworkIsVideo]);
-
-  useEffect(() => {
-    if (
-      typeof document === "undefined" ||
-      liteMode
-    ) {
-      return;
-    }
-
-    const currentThemeIndex = musicThemes.findIndex(
-      (themeOption) => themeOption.id === theme.id
-    );
-
-    if (currentThemeIndex === -1) {
-      return;
-    }
-
-    const warmTargets = [
-      musicThemes[(currentThemeIndex + 1) % musicThemes.length],
-      musicThemes[
-        (currentThemeIndex - 1 + musicThemes.length) % musicThemes.length
-      ],
-    ]
-      .map((themeOption) => themeOption.background.artwork)
-      .filter(
-        (themeArtwork): themeArtwork is NonNullable<typeof themeArtwork> =>
-          Boolean(themeArtwork?.kind === "video" && themeArtwork.src)
-      );
-
-    const timers: number[] = [];
-
-    warmTargets.forEach((themeArtwork, index) => {
-      if (warmedVideoSrcsRef.current.has(themeArtwork.src)) {
-        return;
-      }
-
-      const timer = window.setTimeout(() => {
-        if (
-          warmedVideoSrcsRef.current.has(themeArtwork.src) ||
-          backgroundPreloadVideosRef.current.has(themeArtwork.src)
-        ) {
-          return;
-        }
-
-        const preloadVideo = document.createElement("video");
-        preloadVideo.src = themeArtwork.src;
-        preloadVideo.preload = "auto";
-        preloadVideo.muted = true;
-        preloadVideo.playsInline = true;
-        preloadVideo.style.position = "fixed";
-        preloadVideo.style.width = "1px";
-        preloadVideo.style.height = "1px";
-        preloadVideo.style.opacity = "0";
-        preloadVideo.style.pointerEvents = "none";
-        preloadVideo.style.left = "-9999px";
-        preloadVideo.style.top = "-9999px";
-
-        document.body.appendChild(preloadVideo);
-        preloadVideo.load();
-
-        backgroundPreloadVideosRef.current.set(themeArtwork.src, preloadVideo);
-        warmedVideoSrcsRef.current.add(themeArtwork.src);
-      }, 180 + index * 240);
-
-      timers.push(timer);
-    });
-
-    return () => {
-      timers.forEach((timer) => window.clearTimeout(timer));
-    };
-  }, [liteMode, theme.id]);
-
-  useEffect(() => {
-    const preloadVideos = backgroundPreloadVideosRef.current;
-    const warmedVideoSrcs = warmedVideoSrcsRef.current;
-
-    return () => {
-      preloadVideos.forEach((preloadVideo) => {
-        preloadVideo.remove();
+    const startPlayback = () => {
+      void video.play().catch(() => {
+        // Decorative only: if autoplay is blocked for any reason,
+        // the poster still gives an immediate visual switch.
       });
-      preloadVideos.clear();
-      warmedVideoSrcs.clear();
     };
-  }, []);
+
+    video.load();
+
+    if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      startPlayback();
+      return;
+    }
+
+    video.addEventListener("canplay", startPlayback, { once: true });
+
+    return () => {
+      video.removeEventListener("canplay", startPlayback);
+    };
+  }, [artwork?.src, artworkIsVideo]);
 
   const cursorLens =
     cursorFxEnabled && cursorVisible ? (
@@ -442,10 +365,10 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       <AnimatePresence initial={false} mode="sync">
         <motion.div
           key={theme.id}
-          initial={{ opacity: 0, scale: 1.018 }}
+          initial={{ opacity: 1, scale: 1.006 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.992 }}
-          transition={backgroundLayerTransition}
+          transition={{ ...backgroundLayerTransition, duration: 0.34 }}
           className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
         >
           <motion.div
@@ -460,30 +383,11 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         {artwork && artworkIsVideo ? (
           <motion.div
             className="absolute inset-0 overflow-hidden"
-            initial={{ opacity: 0, scale: 1.02 }}
+            initial={{ opacity: 1, scale: 1.006 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.988 }}
-            transition={{ ...backgroundLayerTransition, duration: 1.02 }}
+            transition={{ ...backgroundLayerTransition, duration: 0.36 }}
           >
-            {artwork.posterSrc ? (
-              <motion.div
-                className="absolute inset-0"
-                initial={{ opacity: 0.42 }}
-                animate={{ opacity: videoReady ? 0.16 : artwork.opacity ?? 0.94 }}
-                exit={{ opacity: 0 }}
-                transition={{ ...backgroundLayerTransition, duration: 0.52 }}
-                style={{
-                  backgroundImage: `url("${artwork.posterSrc}")`,
-                  backgroundPosition: artwork.position || "center center",
-                  backgroundSize: artwork.fit || "cover",
-                  filter:
-                    artwork.filter || "contrast(1.03) saturate(0.98) brightness(0.84)",
-                  transform: `scale(${artwork.scale || 1})`,
-                  willChange: "opacity",
-                }}
-              />
-            ) : null}
-
             <motion.video
               ref={activeVideoRef}
               key={artwork.src}
@@ -495,13 +399,10 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               playsInline
               preload="auto"
               className="h-full w-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: videoReady ? (artwork.opacity ?? 0.7) : 0 }}
+              initial={{ opacity: artwork.opacity ?? 0.7 }}
+              animate={{ opacity: artwork.opacity ?? 0.7 }}
               exit={{ opacity: 0 }}
-              transition={{ ...backgroundLayerTransition, duration: 1.08 }}
-              onLoadedData={() => setVideoReady(true)}
-              onCanPlay={() => setVideoReady(true)}
-              onPlaying={() => setVideoReady(true)}
+              transition={{ ...backgroundLayerTransition, duration: 0.36 }}
               style={{
                 objectFit: artwork.fit || "cover",
                 objectPosition: artwork.position || "center center",
