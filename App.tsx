@@ -165,6 +165,7 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
   const musicVolumeRef = useRef(0.06);
+  const initialMusicAutoplayAttemptedRef = useRef(false);
   const launchFxCounterRef = useRef(0);
   const launchFxTimeoutsRef = useRef<number[]>([]);
   const launchSpamCountRef = useRef(0);
@@ -259,6 +260,15 @@ export default function App() {
     audio.volume = value;
   }, []);
 
+  const attemptInitialMusicAutoplay = useCallback(() => {
+    if (initialMusicAutoplayAttemptedRef.current) {
+      return;
+    }
+
+    initialMusicAutoplayAttemptedRef.current = true;
+    void playBackgroundMusic();
+  }, [playBackgroundMusic]);
+
   const triggerLaunchFx = useCallback(() => {
     launchFxCounterRef.current += 1;
     const burstId = launchFxCounterRef.current;
@@ -318,12 +328,37 @@ export default function App() {
   }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      void playBackgroundMusic();
-    }, 140);
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
 
-    return () => window.clearTimeout(timer);
-  }, [playBackgroundMusic]);
+    let timer: number | null = null;
+
+    const scheduleAutoplay = () => {
+      if (timer !== null) {
+        window.clearTimeout(timer);
+      }
+
+      timer = window.setTimeout(() => {
+        attemptInitialMusicAutoplay();
+      }, 120);
+    };
+
+    if (audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      scheduleAutoplay();
+    } else {
+      audio.addEventListener("canplay", scheduleAutoplay, { once: true });
+    }
+
+    return () => {
+      if (timer !== null) {
+        window.clearTimeout(timer);
+      }
+
+      audio.removeEventListener("canplay", scheduleAutoplay);
+    };
+  }, [attemptInitialMusicAutoplay]);
 
   useEffect(() => {
     if (!musicBlocked || musicPlaying) {
@@ -436,18 +471,20 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
-      <audio
-        ref={audioRef}
-        src={currentTrack.src}
-        loop
-        preload="auto"
-        onPlay={() => setMusicPlaying(true)}
-        onPause={() => setMusicPlaying(false)}
-        onCanPlay={() => setMusicBlocked(false)}
-        onError={() => {
-          setMusicPlaying(false);
-          setMusicBlocked(true);
-        }}
+        <audio
+          ref={audioRef}
+          src={currentTrack.src}
+          loop
+          preload="auto"
+          onPlay={() => {
+            setMusicPlaying(true);
+            setMusicBlocked(false);
+          }}
+          onPause={() => setMusicPlaying(false)}
+          onError={() => {
+            setMusicPlaying(false);
+            setMusicBlocked(true);
+          }}
       />
 
       <AnimatedBackground theme={currentTrack} />
