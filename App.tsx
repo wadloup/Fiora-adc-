@@ -318,6 +318,27 @@ export default function App() {
   }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
+    if (!musicBlocked || musicPlaying) {
+      return;
+    }
+
+    const unlockMusic = () => {
+      void playBackgroundMusic();
+    };
+
+    window.addEventListener("pointerdown", unlockMusic, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", unlockMusic, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unlockMusic);
+      window.removeEventListener("keydown", unlockMusic);
+    };
+  }, [musicBlocked, musicPlaying, playBackgroundMusic]);
+
+  useEffect(() => {
     return () => {
       launchFxTimeoutsRef.current.forEach((timeoutId) =>
         window.clearTimeout(timeoutId)
