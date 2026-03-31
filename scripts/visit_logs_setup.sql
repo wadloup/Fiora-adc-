@@ -40,16 +40,17 @@ where coalesce(user_agent, '') !~* '(vercel-screenshot|headlesschrome|bytespider
 
 create or replace view public.visit_logs_readable as
 select
+  timezone('Europe/Paris', visited_at) as visited_at_paris,
+  to_char(
+    timezone('Europe/Paris', visited_at),
+    'YYYY-MM-DD HH24:MI:SS'
+  ) as visited_at_paris_text,
   id,
   country,
   region,
   city,
   guide_page,
   pathname,
-  to_char(
-    timezone('Europe/Paris', visited_at),
-    'YYYY-MM-DD HH24:MI:SS'
-  ) as visited_at_paris_text,
   referrer,
   user_agent,
   case
@@ -100,10 +101,12 @@ with normalized as (
     max(dedupe_key) as dedupe_key,
     count(*) as visit_count,
     max(visited_at) as last_seen_at,
+    timezone('Europe/Paris', min(visited_at)) as first_seen_at_paris,
     to_char(
       timezone('Europe/Paris', min(visited_at)),
       'YYYY-MM-DD HH24:MI:SS'
     ) as first_seen_paris_text,
+    timezone('Europe/Paris', max(visited_at)) as last_seen_at_paris,
     to_char(
       timezone('Europe/Paris', max(visited_at)),
       'YYYY-MM-DD HH24:MI:SS'
@@ -137,14 +140,16 @@ with normalized as (
   group by visitor_key
 )
 select
+  last_seen_at_paris,
+  last_seen_paris_text,
+  first_seen_at_paris,
+  first_seen_paris_text,
   latest_country,
   latest_region,
   latest_city,
   latest_guide_page,
   latest_pathname,
   visit_count,
-  first_seen_paris_text,
-  last_seen_paris_text,
   latest_user_agent,
   has_vercel_screenshot,
   visit_history,
@@ -152,4 +157,4 @@ select
   source_fingerprint,
   dedupe_key
 from aggregated
-order by last_seen_at desc;
+order by last_seen_at_paris desc;
