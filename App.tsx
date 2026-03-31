@@ -801,11 +801,11 @@ export default function App() {
               }}
               exit={{ opacity: 0 }}
               transition={{
-                duration: 3.1,
-                delay: 5.4,
+                duration: 2.9,
+                delay: 6.7,
                 ease: "easeInOut",
               }}
-              className="absolute bottom-[11%] left-[8%] w-[120px] drop-shadow-[0_14px_20px_rgba(0,0,0,0.5)] sm:left-[10%] sm:w-[142px] lg:left-[12%] lg:w-[158px]"
+              className="absolute bottom-[9%] left-[2%] w-[132px] drop-shadow-[0_14px_20px_rgba(0,0,0,0.5)] sm:left-[4%] sm:w-[150px] lg:left-[5%] lg:w-[170px]"
             />
           </motion.div>
         ))}
