@@ -58,7 +58,8 @@ select
   end as is_vercel_screenshot,
   source_fingerprint,
   dedupe_key
-from public.visit_logs_human_source;
+from public.visit_logs_human_source
+order by visited_at desc;
 
 create or replace view public.visit_logs_grouped as
 with normalized as (
@@ -98,6 +99,7 @@ with normalized as (
     max(source_fingerprint) as source_fingerprint,
     max(dedupe_key) as dedupe_key,
     count(*) as visit_count,
+    max(visited_at) as last_seen_at,
     to_char(
       timezone('Europe/Paris', min(visited_at)),
       'YYYY-MM-DD HH24:MI:SS'
@@ -149,4 +151,5 @@ select
   visitor_key,
   source_fingerprint,
   dedupe_key
-from aggregated;
+from aggregated
+order by last_seen_at desc;
