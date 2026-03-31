@@ -48,6 +48,64 @@ import {
 } from "./utils/audioControl";
 import { logVisitorPageView } from "./utils/visitLogger";
 
+const LAUNCH_THANKS = [
+  "Thank you",
+  "Merci",
+  "Gracias",
+  "Danke",
+  "Grazie",
+  "Obrigado",
+  "Arigato",
+  "Xiexie",
+  "Gamsahamnida",
+  "Shukran",
+  "Spasibo",
+  "Dhanyavad",
+  "Tesekkurler",
+  "Dank je",
+  "Tack",
+  "Tak",
+  "Kiitos",
+  "Takk",
+  "Dziekuje",
+  "Dekuji",
+  "Dakujem",
+  "Hvala",
+  "Multumesc",
+  "Koszonom",
+  "Efharisto",
+  "Aitah",
+  "Paldies",
+  "Aciu",
+  "Khop khun",
+  "Cam on",
+  "Salamat",
+  "Terima kasih",
+  "Asante",
+  "Ngiyabonga",
+  "Toda",
+  "Mahalo",
+  "Faleminderit",
+  "Go raibh maith agat",
+  "Diolch",
+  "Trugarez",
+  "Dhonnobad",
+  "Shukriya",
+  "Nandri",
+  "Dhanyabaad",
+  "Matur nuwun",
+  "Nagode",
+  "O se",
+  "Rakhmet",
+  "Mesi",
+  "Bayarlalaa",
+] as const;
+
+const LEFT_LAUNCH_THANKS = LAUNCH_THANKS.filter((_, index) => index % 2 === 0);
+const RIGHT_LAUNCH_THANKS = LAUNCH_THANKS.filter(
+  (_, index) => index % 2 !== 0
+);
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -168,7 +226,7 @@ export default function App() {
       launchFxTimeoutsRef.current = launchFxTimeoutsRef.current.filter(
         (currentTimeoutId) => currentTimeoutId !== timeoutId
       );
-    }, 1180);
+    }, 4200);
 
     launchFxTimeoutsRef.current.push(timeoutId);
   }, []);
@@ -585,72 +643,80 @@ export default function App() {
           >
             <motion.div
               initial={{ opacity: 0, x: -120 }}
-              animate={{ opacity: [0, 0.95, 0], x: [-120, 0, 54] }}
+              animate={{ opacity: [0, 0.6, 0], x: [-120, 0, 40] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.05, ease: [0.2, 0.8, 0.2, 1] }}
-              className="absolute inset-y-[10%] left-0 w-24 bg-gradient-to-r from-red-500/0 via-red-500/32 to-transparent blur-2xl md:w-36"
+              transition={{ duration: 1.4, ease: [0.2, 0.8, 0.2, 1] }}
+              className="absolute inset-y-[8%] left-0 w-20 bg-gradient-to-r from-red-500/0 via-red-500/24 to-transparent blur-2xl md:w-28"
             />
             <motion.div
               initial={{ opacity: 0, x: 120 }}
-              animate={{ opacity: [0, 0.95, 0], x: [120, 0, -54] }}
+              animate={{ opacity: [0, 0.6, 0], x: [120, 0, -40] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.05, ease: [0.2, 0.8, 0.2, 1] }}
-              className="absolute inset-y-[10%] right-0 w-24 bg-gradient-to-l from-red-500/0 via-red-500/32 to-transparent blur-2xl md:w-36"
+              transition={{ duration: 1.4, ease: [0.2, 0.8, 0.2, 1] }}
+              className="absolute inset-y-[8%] right-0 w-20 bg-gradient-to-l from-red-500/0 via-red-500/24 to-transparent blur-2xl md:w-28"
             />
 
-            {[0, 1, 2].map((index) => (
+            {LEFT_LAUNCH_THANKS.map((label, index) => (
               <motion.div
-                key={`left-streak-${burstId}-${index}`}
-                initial={{ opacity: 0, x: -170, scaleX: 0.7 }}
+                key={`left-thanks-${burstId}-${label}`}
+                initial={{ opacity: 0, x: -46, scale: 0.92 }}
                 animate={{
-                  opacity: [0, 0.95, 0],
-                  x: [-170, 4, 36],
-                  scaleX: [0.7, 1, 1.04],
+                  opacity: [0, 1, 0],
+                  x: [-46, 0, 18],
+                  scale: [0.92, 1, 0.98],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 0.92,
-                  delay: index * 0.08,
-                  ease: "easeOut",
+                  duration: 0.78,
+                  delay: index * 0.12,
+                  ease: "easeInOut",
                 }}
-                style={{ top: `${22 + index * 16}%` }}
-                className="absolute left-0 h-14 w-52 -skew-x-[28deg] rounded-r-full bg-gradient-to-r from-red-400/0 via-red-300/42 to-white/14 blur-[1px] md:h-16 md:w-72"
-              />
+                style={{ top: `${4 + index * 3.7}%` }}
+                className="absolute left-4 whitespace-nowrap text-right font-black uppercase tracking-[0.16em] text-red-50/95 drop-shadow-[0_0_14px_rgba(255,45,45,0.48)] md:left-7"
+              >
+                <span className="block text-[0.78rem] md:text-[0.94rem]">
+                  {label}
+                </span>
+              </motion.div>
             ))}
 
-            {[0, 1, 2].map((index) => (
+            {RIGHT_LAUNCH_THANKS.map((label, index) => (
               <motion.div
-                key={`right-streak-${burstId}-${index}`}
-                initial={{ opacity: 0, x: 170, scaleX: 0.7 }}
+                key={`right-thanks-${burstId}-${label}`}
+                initial={{ opacity: 0, x: 46, scale: 0.92 }}
                 animate={{
-                  opacity: [0, 0.95, 0],
-                  x: [170, -4, -36],
-                  scaleX: [0.7, 1, 1.04],
+                  opacity: [0, 1, 0],
+                  x: [46, 0, -18],
+                  scale: [0.92, 1, 0.98],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 0.92,
-                  delay: index * 0.08,
-                  ease: "easeOut",
+                  duration: 0.78,
+                  delay: index * 0.12 + 0.06,
+                  ease: "easeInOut",
                 }}
-                style={{ top: `${30 + index * 16}%` }}
-                className="absolute right-0 h-14 w-52 skew-x-[28deg] rounded-l-full bg-gradient-to-l from-red-400/0 via-red-300/42 to-white/14 blur-[1px] md:h-16 md:w-72"
-              />
+                style={{ top: `${4 + index * 3.7}%` }}
+                className="absolute right-4 whitespace-nowrap text-left font-black uppercase tracking-[0.16em] text-red-50/95 drop-shadow-[0_0_14px_rgba(255,45,45,0.48)] md:right-7"
+              >
+                <span className="block text-[0.78rem] md:text-[0.94rem]">
+                  {label}
+                </span>
+              </motion.div>
             ))}
 
             <motion.div
               initial={{ opacity: 0, scaleY: 0.55 }}
-              animate={{ opacity: [0, 0.85, 0], scaleY: [0.55, 1.1, 0.75] }}
+              animate={{ opacity: [0, 0.35, 0], scaleY: [0.55, 1.1, 0.75] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.82, ease: "easeOut" }}
-              className="absolute inset-y-[14%] left-4 w-[2px] rounded-full bg-red-200/65 blur-[1px] md:left-8"
+              transition={{ duration: 2.8, ease: "easeOut" }}
+              className="absolute inset-y-[10%] left-3 w-[2px] rounded-full bg-red-200/45 blur-[1px] md:left-6"
             />
             <motion.div
               initial={{ opacity: 0, scaleY: 0.55 }}
-              animate={{ opacity: [0, 0.85, 0], scaleY: [0.55, 1.1, 0.75] }}
+              animate={{ opacity: [0, 0.35, 0], scaleY: [0.55, 1.1, 0.75] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.82, ease: "easeOut" }}
-              className="absolute inset-y-[14%] right-4 w-[2px] rounded-full bg-red-200/65 blur-[1px] md:right-8"
+              transition={{ duration: 2.8, ease: "easeOut" }}
+              className="absolute inset-y-[10%] right-3 w-[2px] rounded-full bg-red-200/45 blur-[1px] md:right-6"
             />
           </motion.div>
         ))}
