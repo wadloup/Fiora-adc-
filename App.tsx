@@ -110,6 +110,9 @@ const RIGHT_LAUNCH_THANKS = LAUNCH_THANKS.filter(
   (_, index) => index % 2 !== 0
 );
 const LAUNCH_WALKER_SRC = "/launch-walker.webp";
+const LAUNCH_SPAM_LIMIT = 5;
+const LAUNCH_SPAM_COOLDOWN_MS = 1800;
+const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -125,11 +128,15 @@ export default function App() {
   const [musicBlocked, setMusicBlocked] = useState(false);
   const [musicVolume, setMusicVolume] = useState(0.06);
   const [launchFxBursts, setLaunchFxBursts] = useState<number[]>([]);
+  const [launchCooldown, setLaunchCooldown] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
   const musicVolumeRef = useRef(0.06);
   const launchFxCounterRef = useRef(0);
   const launchFxTimeoutsRef = useRef<number[]>([]);
+  const launchSpamCountRef = useRef(0);
+  const launchSpamCooldownTimeoutRef = useRef<number | null>(null);
+  const launchSpamIdleResetTimeoutRef = useRef<number | null>(null);
 
   const currentTrack = musicThemeMap[selectedTrackId];
   const currentTrackIndex = musicThemes.findIndex(
@@ -222,7 +229,7 @@ export default function App() {
     launchFxCounterRef.current += 1;
     const burstId = launchFxCounterRef.current;
 
-    setLaunchFxBursts((current) => [...current, burstId]);
+    setLaunchFxBursts((current) => [...current.slice(-4), burstId]);
 
     const timeoutId = window.setTimeout(() => {
       setLaunchFxBursts((current) =>
@@ -237,10 +244,39 @@ export default function App() {
   }, []);
 
   const launchSiteAudio = useCallback(async () => {
+    if (launchCooldown) {
+      return;
+    }
+
+    launchSpamCountRef.current += 1;
+
+    if (launchSpamIdleResetTimeoutRef.current) {
+      window.clearTimeout(launchSpamIdleResetTimeoutRef.current);
+    }
+
+    launchSpamIdleResetTimeoutRef.current = window.setTimeout(() => {
+      launchSpamCountRef.current = 0;
+      launchSpamIdleResetTimeoutRef.current = null;
+    }, LAUNCH_SPAM_IDLE_RESET_MS);
+
+    if (launchSpamCountRef.current >= LAUNCH_SPAM_LIMIT) {
+      setLaunchCooldown(true);
+
+      if (launchSpamCooldownTimeoutRef.current) {
+        window.clearTimeout(launchSpamCooldownTimeoutRef.current);
+      }
+
+      launchSpamCooldownTimeoutRef.current = window.setTimeout(() => {
+        launchSpamCountRef.current = 0;
+        setLaunchCooldown(false);
+        launchSpamCooldownTimeoutRef.current = null;
+      }, LAUNCH_SPAM_COOLDOWN_MS);
+    }
+
     triggerLaunchFx();
     await playBackgroundMusic();
     requestNarrationStart();
-  }, [playBackgroundMusic, triggerLaunchFx]);
+  }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
     const unlock = () => {
@@ -262,6 +298,14 @@ export default function App() {
         window.clearTimeout(timeoutId)
       );
       launchFxTimeoutsRef.current = [];
+
+      if (launchSpamCooldownTimeoutRef.current) {
+        window.clearTimeout(launchSpamCooldownTimeoutRef.current);
+      }
+
+      if (launchSpamIdleResetTimeoutRef.current) {
+        window.clearTimeout(launchSpamIdleResetTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -490,9 +534,15 @@ export default function App() {
                     <motion.button
                       type="button"
                       onClick={() => void launchSiteAudio()}
+                      disabled={launchCooldown}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.94 }}
-                      className="group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]"
+                      className={cn(
+                        "group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]",
+                        launchCooldown
+                          ? "cursor-not-allowed opacity-70 saturate-75"
+                          : "cursor-pointer"
+                      )}
                       aria-label="Start music and narration"
                     >
                       <span className="absolute inset-[6px] rounded-full border border-slate-900/30 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.62)_0%,rgba(223,234,245,0.58)_14%,rgba(149,165,181,0.62)_36%,rgba(75,86,97,0.9)_66%,rgba(18,22,28,1)_100%)] shadow-[inset_0_6px_10px_rgba(255,255,255,0.38),inset_0_-8px_10px_rgba(0,0,0,0.5)]" />
