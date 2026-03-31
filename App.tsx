@@ -117,6 +117,7 @@ const LAUNCH_SIDE_STICKERS = [
     className:
       "absolute left-[3%] top-[14%] w-[118px] sm:left-[5%] sm:w-[132px] lg:left-[6%] lg:w-[148px]",
     delay: 6.15,
+    scale: [0.68, 0.88, 1, 0.92, 0.58],
     x: [0, -8, 6, -4],
     y: [18, 0, -6, -18],
     rotate: [-4, 0, 3, -2],
@@ -124,8 +125,9 @@ const LAUNCH_SIDE_STICKERS = [
   {
     src: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Y2szZmFrZTYycHo4ejFxemphaXo1NDVreW9xYzdpaW40cTlhNXIzeiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/5HsASczHW6A3nTQjdh/giphy.gif",
     className:
-      "absolute right-[4%] top-[18%] w-[78px] sm:right-[6%] sm:w-[94px] lg:right-[7%] lg:w-[108px]",
+      "absolute right-[3%] top-[7%] w-[102px] sm:right-[5%] sm:w-[118px] lg:right-[6%] lg:w-[132px]",
     delay: 6.45,
+    scale: [0.82, 0.98, 1.08, 1, 0.62],
     x: [10, 0, -8, 4],
     y: [12, 0, -12, -20],
     rotate: [8, 0, -6, 4],
@@ -135,6 +137,7 @@ const LAUNCH_SIDE_STICKERS = [
     className:
       "absolute right-[6%] bottom-[16%] w-[82px] sm:right-[8%] sm:w-[96px] lg:right-[10%] lg:w-[112px]",
     delay: 6.85,
+    scale: [0.68, 0.88, 1, 0.92, 0.58],
     x: [14, 0, -10, 3],
     y: [20, 0, -8, -24],
     rotate: [10, 0, -5, 2],
@@ -846,7 +849,7 @@ export default function App() {
                 initial={{ opacity: 0, scale: 0.68 }}
                 animate={{
                   opacity: [0, 0, 1, 1, 0],
-                  scale: [0.68, 0.88, 1, 0.92, 0.58],
+                  scale: sticker.scale ? [...sticker.scale] : [0.68, 0.88, 1, 0.92, 0.58],
                   x: [...sticker.x],
                   y: [...sticker.y],
                   rotate: [...sticker.rotate],
