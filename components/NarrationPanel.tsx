@@ -9,9 +9,11 @@ import {
   voiceText,
 } from "../data/siteData";
 import {
+  areVoicesMuted,
   requestSpeakableStop,
   START_NARRATION_EVENT,
   STOP_NARRATION_EVENT,
+  VOICE_MUTE_STATE_EVENT,
 } from "../utils/audioControl";
 import { cn } from "../utils/cn";
 import { DEFAULT_CHAMPION_IMAGE, recoverImage } from "../utils/imageFallback";
@@ -23,6 +25,7 @@ type NarrationPanelProps = {
 export default function NarrationPanel({ page }: NarrationPanelProps) {
   const config = pageMeta[page];
   const [auto, setAuto] = useState(true);
+  const [voicesMuted, setVoicesMuted] = useState(() => areVoicesMuted());
   const [speaking, setSpeaking] = useState(false);
   const [awaitingInteraction, setAwaitingInteraction] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -55,11 +58,18 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
     setDisplayText(voiceText[page]);
   }, [page]);
 
-  const speak = useCallback(async () => {
+  const speak = useCallback(async (options?: { manual?: boolean }) => {
+    const manual = options?.manual ?? false;
     stop();
     requestSpeakableStop();
 
     const text = voiceText[page];
+    if (voicesMuted && !manual) {
+      setDisplayText(text);
+      setAwaitingInteraction(false);
+      return;
+    }
+
     if (recordedAudioSrc) {
       const audio = audioRef.current;
       if (!audio) {
@@ -137,7 +147,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
     };
 
     window.speechSynthesis.speak(utterance);
-  }, [auto, page, pitch, rate, recordedAudioSrc, selectedVoice, stop]);
+  }, [auto, page, pitch, rate, recordedAudioSrc, selectedVoice, stop, voicesMuted]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -190,16 +200,30 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
       stop();
     };
 
-    const startRequested = () => {
-      void speak();
+    const startRequested = (event: Event) => {
+      const customEvent = event as CustomEvent<{ manual?: boolean }>;
+      void speak({ manual: customEvent.detail?.manual ?? false });
+    };
+
+    const muteStateChanged = (event: Event) => {
+      const customEvent = event as CustomEvent<{ muted?: boolean }>;
+      setVoicesMuted(Boolean(customEvent.detail?.muted));
     };
 
     window.addEventListener(STOP_NARRATION_EVENT, stopRequested);
-    window.addEventListener(START_NARRATION_EVENT, startRequested);
+    window.addEventListener(START_NARRATION_EVENT, startRequested as EventListener);
+    window.addEventListener(VOICE_MUTE_STATE_EVENT, muteStateChanged as EventListener);
 
     return () => {
       window.removeEventListener(STOP_NARRATION_EVENT, stopRequested);
-      window.removeEventListener(START_NARRATION_EVENT, startRequested);
+      window.removeEventListener(
+        START_NARRATION_EVENT,
+        startRequested as EventListener
+      );
+      window.removeEventListener(
+        VOICE_MUTE_STATE_EVENT,
+        muteStateChanged as EventListener
+      );
     };
   }, [speak, stop]);
 
@@ -292,7 +316,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
             </div>
 
             <button
-              onClick={() => void speak()}
+              onClick={() => void speak({ manual: true })}
               className="rounded-full border border-red-500/30 bg-black/40 px-3 py-1.5 text-xs text-white hover:bg-red-500/10"
             >
               <span className="inline-flex items-center gap-2">

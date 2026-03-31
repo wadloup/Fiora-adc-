@@ -2,6 +2,9 @@ export const ACTIVE_SPEAKABLE_EVENT = "fiora-speakable-change";
 export const STOP_NARRATION_EVENT = "fiora-stop-narration";
 export const STOP_SPEAKABLE_EVENT = "fiora-stop-speakable";
 export const START_NARRATION_EVENT = "fiora-start-narration";
+export const VOICE_MUTE_STATE_EVENT = "fiora-voice-mute-state";
+
+let voicesMuted = false;
 
 function dispatchAudioEvent(name: string, detail?: Record<string, unknown>) {
   if (typeof window === "undefined") {
@@ -24,7 +27,16 @@ export function requestSpeakableStop() {
 }
 
 export function requestNarrationStart() {
-  dispatchAudioEvent(START_NARRATION_EVENT);
+  dispatchAudioEvent(START_NARRATION_EVENT, { manual: true });
+}
+
+export function areVoicesMuted() {
+  return voicesMuted;
+}
+
+export function setVoicesMuted(muted: boolean) {
+  voicesMuted = muted;
+  dispatchAudioEvent(VOICE_MUTE_STATE_EVENT, { muted });
 }
 
 export function requestAllVoiceStop() {
@@ -32,6 +44,7 @@ export function requestAllVoiceStop() {
     window.speechSynthesis.cancel();
   }
 
+  setVoicesMuted(true);
   requestNarrationStop();
   requestSpeakableStop();
 }
