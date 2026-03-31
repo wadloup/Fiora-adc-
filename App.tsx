@@ -226,7 +226,7 @@ export default function App() {
       launchFxTimeoutsRef.current = launchFxTimeoutsRef.current.filter(
         (currentTimeoutId) => currentTimeoutId !== timeoutId
       );
-    }, 4200);
+    }, 5200);
 
     launchFxTimeoutsRef.current.push(timeoutId);
   }, []);
@@ -487,10 +487,10 @@ export default function App() {
                       onClick={() => void launchSiteAudio()}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.94 }}
-                      className="group relative flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]"
+                      className="group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]"
                       aria-label="Start music and narration"
                     >
-                      <span className="absolute inset-[5px] rounded-full border border-slate-900/30 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.62)_0%,rgba(223,234,245,0.58)_14%,rgba(149,165,181,0.62)_36%,rgba(75,86,97,0.9)_66%,rgba(18,22,28,1)_100%)] shadow-[inset_0_6px_10px_rgba(255,255,255,0.38),inset_0_-8px_10px_rgba(0,0,0,0.5)]" />
+                      <span className="absolute inset-[6px] rounded-full border border-slate-900/30 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.62)_0%,rgba(223,234,245,0.58)_14%,rgba(149,165,181,0.62)_36%,rgba(75,86,97,0.9)_66%,rgba(18,22,28,1)_100%)] shadow-[inset_0_6px_10px_rgba(255,255,255,0.38),inset_0_-8px_10px_rgba(0,0,0,0.5)]" />
                       <motion.span
                         animate={{
                           scale: [1, 1.03, 1],
@@ -505,11 +505,11 @@ export default function App() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                        className="absolute inset-[12px] flex items-center justify-center rounded-full border border-red-100/15 bg-[radial-gradient(circle_at_34%_25%,rgba(255,255,255,0.9)_0%,rgba(255,210,210,0.82)_12%,rgba(255,84,84,0.96)_28%,rgba(219,10,10,1)_56%,rgba(103,0,0,1)_100%)] px-3 text-center shadow-[inset_0_8px_14px_rgba(255,255,255,0.18),inset_0_-12px_14px_rgba(0,0,0,0.4)]"
+                        className="absolute inset-[13px] flex items-center justify-center rounded-full border border-red-100/15 bg-[radial-gradient(circle_at_34%_25%,rgba(255,255,255,0.9)_0%,rgba(255,210,210,0.82)_12%,rgba(255,84,84,0.96)_28%,rgba(219,10,10,1)_56%,rgba(103,0,0,1)_100%)] px-3 text-center shadow-[inset_0_8px_14px_rgba(255,255,255,0.18),inset_0_-12px_14px_rgba(0,0,0,0.4)]"
                       >
                         <span className="absolute left-1/2 top-2 h-3 w-11 -translate-x-1/2 rounded-full bg-white/50 blur-[1px]" />
                         <span className="absolute inset-0 rounded-full border border-white/10" />
-                        <span className="relative z-10 text-[0.64rem] font-black uppercase leading-[0.9] tracking-[0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">
+                        <span className="relative z-10 text-[0.68rem] font-black uppercase leading-[0.9] tracking-[0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">
                           PUSH THE
                           <br />
                           BUTTON
@@ -667,8 +667,8 @@ export default function App() {
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 0.78,
-                  delay: index * 0.12,
+                  duration: 1.02,
+                  delay: index * 0.16,
                   ease: "easeInOut",
                 }}
                 style={{ top: `${4 + index * 3.7}%` }}
@@ -691,8 +691,8 @@ export default function App() {
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 0.78,
-                  delay: index * 0.12 + 0.06,
+                  duration: 1.02,
+                  delay: index * 0.16 + 0.08,
                   ease: "easeInOut",
                 }}
                 style={{ top: `${4 + index * 3.7}%` }}
