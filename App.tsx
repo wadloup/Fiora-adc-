@@ -318,6 +318,14 @@ export default function App() {
   }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void playBackgroundMusic();
+    }, 140);
+
+    return () => window.clearTimeout(timer);
+  }, [playBackgroundMusic]);
+
+  useEffect(() => {
     if (!musicBlocked || musicPlaying) {
       return;
     }
