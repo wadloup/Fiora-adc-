@@ -109,7 +109,8 @@ const LEFT_LAUNCH_THANKS = LAUNCH_THANKS.filter((_, index) => index % 2 === 0);
 const RIGHT_LAUNCH_THANKS = LAUNCH_THANKS.filter(
   (_, index) => index % 2 !== 0
 );
-const LAUNCH_WALKER_SRC = "/launch-walker.webp";
+const LAUNCH_WALKER_SRC =
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3aGxlbTF6ZWxvOTlodGZ5N2J4OHBncmEzdW43bm91aHdrM2xsaWF3aCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/B5dF2f7snrGZaVXELO/giphy.gif";
 const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
