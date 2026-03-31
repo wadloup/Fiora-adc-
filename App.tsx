@@ -372,7 +372,7 @@ export default function App() {
 
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                   <div className="relative mx-auto flex items-center gap-1 lg:mx-0">
-                    <div className="pointer-events-none flex items-center gap-0.5">
+                    <div className="pointer-events-none flex items-center -space-x-1">
                       {[0, 1].map((index) => (
                         <motion.span
                           key={index}
@@ -388,7 +388,7 @@ export default function App() {
                           }}
                           className="text-red-200 drop-shadow-[0_0_12px_rgba(255,70,70,0.45)]"
                         >
-                          <ArrowRight className="h-7 w-7" />
+                          <ArrowRight className="h-20 w-20" />
                         </motion.span>
                       ))}
                     </div>
