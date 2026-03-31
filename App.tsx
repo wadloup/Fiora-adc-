@@ -111,6 +111,35 @@ const RIGHT_LAUNCH_THANKS = LAUNCH_THANKS.filter(
 );
 const LAUNCH_WALKER_SRC =
   "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3aGxlbTF6ZWxvOTlodGZ5N2J4OHBncmEzdW43bm91aHdrM2xsaWF3aCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/B5dF2f7snrGZaVXELO/giphy.gif";
+const LAUNCH_SIDE_STICKERS = [
+  {
+    src: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXN4enpsd3NodjZtMDE2OTBtNHc3OGFrdHdtenJ3NWh2MThlMGg0cCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/bnYSkdkryeRDLvW3az/giphy.gif",
+    className:
+      "absolute left-[3%] top-[14%] w-[118px] sm:left-[5%] sm:w-[132px] lg:left-[6%] lg:w-[148px]",
+    delay: 6.15,
+    x: [0, -8, 6, -4],
+    y: [18, 0, -6, -18],
+    rotate: [-4, 0, 3, -2],
+  },
+  {
+    src: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Y2szZmFrZTYycHo4ejFxemphaXo1NDVreW9xYzdpaW40cTlhNXIzeiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/5HsASczHW6A3nTQjdh/giphy.gif",
+    className:
+      "absolute right-[4%] top-[18%] w-[78px] sm:right-[6%] sm:w-[94px] lg:right-[7%] lg:w-[108px]",
+    delay: 6.45,
+    x: [10, 0, -8, 4],
+    y: [12, 0, -12, -20],
+    rotate: [8, 0, -6, 4],
+  },
+  {
+    src: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NjJranJ5ZnkxYnljc2RqanB4amFraDIzdTExa3lhMWc0ZTRmMTJ1NCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/6EXCUbLxgqlEDysMc5/giphy.gif",
+    className:
+      "absolute right-[6%] bottom-[16%] w-[82px] sm:right-[8%] sm:w-[96px] lg:right-[10%] lg:w-[112px]",
+    delay: 6.85,
+    x: [14, 0, -10, 3],
+    y: [20, 0, -8, -24],
+    rotate: [10, 0, -5, 2],
+  },
+] as const;
 const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
@@ -808,6 +837,32 @@ export default function App() {
               }}
               className="absolute bottom-[9%] left-[2%] w-[132px] drop-shadow-[0_14px_20px_rgba(0,0,0,0.5)] sm:left-[4%] sm:w-[150px] lg:left-[5%] lg:w-[170px]"
             />
+
+            {LAUNCH_SIDE_STICKERS.map((sticker) => (
+              <motion.img
+                key={`${burstId}-${sticker.src}`}
+                src={sticker.src}
+                alt=""
+                initial={{ opacity: 0, scale: 0.68 }}
+                animate={{
+                  opacity: [0, 0, 1, 1, 0],
+                  scale: [0.68, 0.88, 1, 0.92, 0.58],
+                  x: [...sticker.x],
+                  y: [...sticker.y],
+                  rotate: [...sticker.rotate],
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 2.45,
+                  delay: sticker.delay,
+                  ease: "easeInOut",
+                }}
+                className={cn(
+                  "drop-shadow-[0_12px_18px_rgba(0,0,0,0.45)]",
+                  sticker.className
+                )}
+              />
+            ))}
           </motion.div>
         ))}
       </AnimatePresence>
