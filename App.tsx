@@ -262,7 +262,12 @@ export default function App() {
     launchFxCounterRef.current += 1;
     const burstId = launchFxCounterRef.current;
 
-    setLaunchFxBursts((current) => [...current.slice(-4), burstId]);
+    launchFxTimeoutsRef.current.forEach((timeoutId) =>
+      window.clearTimeout(timeoutId)
+    );
+    launchFxTimeoutsRef.current = [];
+
+    setLaunchFxBursts([burstId]);
 
     const timeoutId = window.setTimeout(() => {
       setLaunchFxBursts((current) =>
@@ -310,20 +315,6 @@ export default function App() {
     await playBackgroundMusic();
     requestNarrationStart();
   }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
-
-  useEffect(() => {
-    const unlock = () => {
-      void playBackgroundMusic();
-    };
-
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
-
-    return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-  }, [playBackgroundMusic]);
 
   useEffect(() => {
     return () => {
@@ -509,7 +500,6 @@ export default function App() {
                 <p className="text-sm text-white/65">
                   Autoplay was blocked by the browser. Current track:
                   <span className="ml-1 text-red-300">{currentTrack.label}</span>
-                  <span className="ml-2 text-white/40">{currentTrack.src}</span>
                 </p>
               </div>
               <button

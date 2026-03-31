@@ -355,7 +355,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               className="h-full w-full"
               initial={{ opacity: 0.62 }}
               animate={{ opacity: artwork.opacity ?? 0.7 }}
