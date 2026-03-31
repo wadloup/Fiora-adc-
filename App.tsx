@@ -49,57 +49,61 @@ import {
 import { logVisitorPageView } from "./utils/visitLogger";
 
 const LAUNCH_THANKS = [
-  { flag: "🇺🇸", label: "Thank you" },
-  { flag: "🇫🇷", label: "Merci" },
-  { flag: "🇪🇸", label: "Gracias" },
-  { flag: "🇩🇪", label: "Danke" },
-  { flag: "🇮🇹", label: "Grazie" },
-  { flag: "🇵🇹", label: "Obrigado" },
-  { flag: "🇯🇵", label: "Arigato" },
-  { flag: "🇨🇳", label: "Xiexie" },
-  { flag: "🇰🇷", label: "Gamsahamnida" },
-  { flag: "🇸🇦", label: "Shukran" },
-  { flag: "🇷🇺", label: "Spasibo" },
-  { flag: "🇮🇳", label: "Dhanyavad" },
-  { flag: "🇹🇷", label: "Tesekkurler" },
-  { flag: "🇳🇱", label: "Dank je" },
-  { flag: "🇸🇪", label: "Tack" },
-  { flag: "🇩🇰", label: "Tak" },
-  { flag: "🇫🇮", label: "Kiitos" },
-  { flag: "🇳🇴", label: "Takk" },
-  { flag: "🇵🇱", label: "Dziekuje" },
-  { flag: "🇨🇿", label: "Dekuji" },
-  { flag: "🇸🇰", label: "Dakujem" },
-  { flag: "🇭🇷", label: "Hvala" },
-  { flag: "🇷🇴", label: "Multumesc" },
-  { flag: "🇭🇺", label: "Koszonom" },
-  { flag: "🇬🇷", label: "Efharisto" },
-  { flag: "🇪🇪", label: "Aitah" },
-  { flag: "🇱🇻", label: "Paldies" },
-  { flag: "🇱🇹", label: "Aciu" },
-  { flag: "🇹🇭", label: "Khop khun" },
-  { flag: "🇻🇳", label: "Cam on" },
-  { flag: "🇵🇭", label: "Salamat" },
-  { flag: "🇮🇩", label: "Terima kasih" },
-  { flag: "🇰🇪", label: "Asante" },
-  { flag: "🇿🇦", label: "Ngiyabonga" },
-  { flag: "🇮🇱", label: "Toda" },
-  { flag: "🇺🇸", label: "Mahalo" },
-  { flag: "🇦🇱", label: "Faleminderit" },
-  { flag: "🇮🇪", label: "Go raibh maith agat" },
-  { flag: "🏴", label: "Diolch" },
-  { flag: "🏴", label: "Trugarez" },
-  { flag: "🇧🇩", label: "Dhonnobad" },
-  { flag: "🇵🇰", label: "Shukriya" },
-  { flag: "🇮🇳", label: "Nandri" },
-  { flag: "🇳🇵", label: "Dhanyabaad" },
-  { flag: "🇮🇩", label: "Matur nuwun" },
-  { flag: "🇳🇬", label: "Nagode" },
-  { flag: "🇼🇸", label: "O se" },
-  { flag: "🇰🇿", label: "Rakhmet" },
-  { flag: "🇭🇹", label: "Mesi" },
-  { flag: "🇲🇳", label: "Bayarlalaa" },
+  { flagCode: "us", label: "Thank you" },
+  { flagCode: "fr", label: "Merci" },
+  { flagCode: "es", label: "Gracias" },
+  { flagCode: "de", label: "Danke" },
+  { flagCode: "it", label: "Grazie" },
+  { flagCode: "pt", label: "Obrigado" },
+  { flagCode: "jp", label: "Arigato" },
+  { flagCode: "cn", label: "Xiexie" },
+  { flagCode: "kr", label: "Gamsahamnida" },
+  { flagCode: "sa", label: "Shukran" },
+  { flagCode: "ru", label: "Spasibo" },
+  { flagCode: "in", label: "Dhanyavad" },
+  { flagCode: "tr", label: "Tesekkurler" },
+  { flagCode: "nl", label: "Dank je" },
+  { flagCode: "se", label: "Tack" },
+  { flagCode: "dk", label: "Tak" },
+  { flagCode: "fi", label: "Kiitos" },
+  { flagCode: "no", label: "Takk" },
+  { flagCode: "pl", label: "Dziekuje" },
+  { flagCode: "cz", label: "Dekuji" },
+  { flagCode: "sk", label: "Dakujem" },
+  { flagCode: "hr", label: "Hvala" },
+  { flagCode: "ro", label: "Multumesc" },
+  { flagCode: "hu", label: "Koszonom" },
+  { flagCode: "gr", label: "Efharisto" },
+  { flagCode: "ee", label: "Aitah" },
+  { flagCode: "lv", label: "Paldies" },
+  { flagCode: "lt", label: "Aciu" },
+  { flagCode: "th", label: "Khop khun" },
+  { flagCode: "vn", label: "Cam on" },
+  { flagCode: "ph", label: "Salamat" },
+  { flagCode: "id", label: "Terima kasih" },
+  { flagCode: "ke", label: "Asante" },
+  { flagCode: "za", label: "Ngiyabonga" },
+  { flagCode: "il", label: "Toda" },
+  { flagCode: "us", label: "Mahalo" },
+  { flagCode: "al", label: "Faleminderit" },
+  { flagCode: "ie", label: "Go raibh maith agat" },
+  { flagCode: "gb", label: "Diolch" },
+  { flagCode: "fr", label: "Trugarez" },
+  { flagCode: "bd", label: "Dhonnobad" },
+  { flagCode: "pk", label: "Shukriya" },
+  { flagCode: "in", label: "Nandri" },
+  { flagCode: "np", label: "Dhanyabaad" },
+  { flagCode: "id", label: "Matur nuwun" },
+  { flagCode: "ng", label: "Nagode" },
+  { flagCode: "ws", label: "O se" },
+  { flagCode: "kz", label: "Rakhmet" },
+  { flagCode: "ht", label: "Mesi" },
+  { flagCode: "mn", label: "Bayarlalaa" },
 ] as const;
+
+function getLaunchFlagSrc(flagCode: string) {
+  return `https://flagcdn.com/24x18/${flagCode}.png`;
+}
 
 const LEFT_LAUNCH_THANKS = LAUNCH_THANKS.filter((_, index) => index % 2 === 0);
 const RIGHT_LAUNCH_THANKS = LAUNCH_THANKS.filter(
@@ -674,11 +678,15 @@ export default function App() {
                 style={{ top: `${4 + index * 3.7}%` }}
                 className="absolute left-4 whitespace-nowrap text-right font-black uppercase tracking-[0.16em] text-red-50/95 drop-shadow-[0_0_14px_rgba(255,45,45,0.48)] md:left-7"
               >
-                <span className="inline-flex items-center justify-end gap-2 text-[0.78rem] md:text-[0.94rem]">
-                  <span>{entry.label}</span>
-                  <span className="text-[1rem] md:text-[1.15rem]">
-                    {entry.flag}
-                  </span>
+                  <span className="inline-flex items-center justify-end gap-2 text-[0.78rem] md:text-[0.94rem]">
+                    <span>{entry.label}</span>
+                    <img
+                      src={getLaunchFlagSrc(entry.flagCode)}
+                      alt=""
+                      className="h-[0.95rem] w-[1.28rem] rounded-[2px] object-cover shadow-[0_0_8px_rgba(255,255,255,0.12)] md:h-[1.05rem] md:w-[1.42rem]"
+                      loading="lazy"
+                      decoding="async"
+                    />
                 </span>
               </motion.div>
             ))}
@@ -702,9 +710,13 @@ export default function App() {
                 className="absolute right-4 whitespace-nowrap text-left font-black uppercase tracking-[0.16em] text-red-50/95 drop-shadow-[0_0_14px_rgba(255,45,45,0.48)] md:right-7"
               >
                 <span className="inline-flex items-center gap-2 text-[0.78rem] md:text-[0.94rem]">
-                  <span className="text-[1rem] md:text-[1.15rem]">
-                    {entry.flag}
-                  </span>
+                  <img
+                    src={getLaunchFlagSrc(entry.flagCode)}
+                    alt=""
+                    className="h-[0.95rem] w-[1.28rem] rounded-[2px] object-cover shadow-[0_0_8px_rgba(255,255,255,0.12)] md:h-[1.05rem] md:w-[1.42rem]"
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <span>{entry.label}</span>
                 </span>
               </motion.div>
