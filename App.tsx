@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowDown,
+  ArrowRight,
   ArrowUp,
   Menu,
   Pause,
@@ -370,17 +371,40 @@ export default function App() {
                 </div>
 
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                  <motion.button
-                    type="button"
-                    onClick={() => void launchSiteAudio()}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.94 }}
-                    className="group relative mx-auto flex h-[74px] w-[74px] shrink-0 items-center justify-center rounded-full border border-red-100/20 bg-[radial-gradient(circle_at_34%_28%,rgba(255,255,255,0.92)_0%,rgba(255,196,196,0.82)_12%,rgba(255,70,70,0.96)_28%,rgba(214,0,0,1)_63%,rgba(108,0,0,1)_100%)] shadow-[inset_0_10px_18px_rgba(255,255,255,0.28),inset_0_-14px_22px_rgba(0,0,0,0.36),0_18px_32px_rgba(255,0,0,0.28)] lg:mx-0"
-                    aria-label="Start music and narration"
-                  >
-                    <span className="absolute inset-x-[16px] top-[10px] h-[10px] rounded-full bg-white/45 blur-[1px]" />
-                    <span className="absolute inset-0 rounded-full border border-white/10" />
-                  </motion.button>
+                  <div className="relative mx-auto flex items-center gap-1 lg:mx-0">
+                    <div className="pointer-events-none flex items-center gap-0.5">
+                      {[0, 1].map((index) => (
+                        <motion.span
+                          key={index}
+                          animate={{
+                            x: [0, 7, 0],
+                            opacity: [0.35, 1, 0.35],
+                          }}
+                          transition={{
+                            duration: 1.1,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: index * 0.16,
+                          }}
+                          className="text-red-200 drop-shadow-[0_0_12px_rgba(255,70,70,0.45)]"
+                        >
+                          <ArrowRight className="h-7 w-7" />
+                        </motion.span>
+                      ))}
+                    </div>
+
+                    <motion.button
+                      type="button"
+                      onClick={() => void launchSiteAudio()}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.94 }}
+                      className="group relative flex h-[74px] w-[74px] shrink-0 items-center justify-center rounded-full border border-red-100/20 bg-[radial-gradient(circle_at_34%_28%,rgba(255,255,255,0.92)_0%,rgba(255,196,196,0.82)_12%,rgba(255,70,70,0.96)_28%,rgba(214,0,0,1)_63%,rgba(108,0,0,1)_100%)] shadow-[inset_0_10px_18px_rgba(255,255,255,0.28),inset_0_-14px_22px_rgba(0,0,0,0.36),0_18px_32px_rgba(255,0,0,0.28)]"
+                      aria-label="Start music and narration"
+                    >
+                      <span className="absolute inset-x-[16px] top-[10px] h-[10px] rounded-full bg-white/45 blur-[1px]" />
+                      <span className="absolute inset-0 rounded-full border border-white/10" />
+                    </motion.button>
+                  </div>
                   {searchBlock}
                 </div>
               </div>
