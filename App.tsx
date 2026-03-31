@@ -109,6 +109,7 @@ const LEFT_LAUNCH_THANKS = LAUNCH_THANKS.filter((_, index) => index % 2 === 0);
 const RIGHT_LAUNCH_THANKS = LAUNCH_THANKS.filter(
   (_, index) => index % 2 !== 0
 );
+const LAUNCH_WALKER_SRC = "/launch-walker.webp";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -230,7 +231,7 @@ export default function App() {
       launchFxTimeoutsRef.current = launchFxTimeoutsRef.current.filter(
         (currentTimeoutId) => currentTimeoutId !== timeoutId
       );
-    }, 7000);
+    }, 9200);
 
     launchFxTimeoutsRef.current.push(timeoutId);
   }, []);
@@ -735,6 +736,26 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 2.8, ease: "easeOut" }}
               className="absolute inset-y-[10%] right-3 w-[2px] rounded-full bg-red-200/45 blur-[1px] md:right-6"
+            />
+
+            <motion.img
+              src={LAUNCH_WALKER_SRC}
+              alt=""
+              initial={{ opacity: 0, x: "-50%", y: 0, scale: 1 }}
+              animate={{
+                opacity: [0, 0, 1, 1, 0],
+                x: ["-50%", "-50%", "calc(-50% + 8px)", "calc(-50% - 6px)", "-50%"],
+                y: [0, 0, -10, -96, -178],
+                scale: [1, 1, 0.98, 0.6, 0.22],
+                rotate: [0, 0, -1.5, 1.5, 0],
+              }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 3.1,
+                delay: 5.4,
+                ease: "easeInOut",
+              }}
+              className="absolute bottom-5 left-1/2 w-[92px] drop-shadow-[0_14px_20px_rgba(0,0,0,0.5)] sm:w-[120px]"
             />
           </motion.div>
         ))}
