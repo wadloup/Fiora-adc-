@@ -791,12 +791,12 @@ export default function App() {
             <motion.img
               src={LAUNCH_WALKER_SRC}
               alt=""
-              initial={{ opacity: 0, x: "-50%", y: 0, scale: 1 }}
+              initial={{ opacity: 0, x: 0, y: 0, scale: 1 }}
               animate={{
                 opacity: [0, 0, 1, 1, 0],
-                x: ["-50%", "-50%", "calc(-50% + 8px)", "calc(-50% - 6px)", "-50%"],
-                y: [0, 0, -10, -96, -178],
-                scale: [1, 1, 0.98, 0.6, 0.22],
+                x: [0, 0, 10, -8, 0],
+                y: [0, 0, -12, -112, -210],
+                scale: [1, 1, 0.98, 0.62, 0.24],
                 rotate: [0, 0, -1.5, 1.5, 0],
               }}
               exit={{ opacity: 0 }}
@@ -805,7 +805,7 @@ export default function App() {
                 delay: 5.4,
                 ease: "easeInOut",
               }}
-              className="absolute bottom-5 left-1/2 w-[92px] drop-shadow-[0_14px_20px_rgba(0,0,0,0.5)] sm:w-[120px]"
+              className="absolute bottom-[11%] left-[8%] w-[120px] drop-shadow-[0_14px_20px_rgba(0,0,0,0.5)] sm:left-[10%] sm:w-[142px] lg:left-[12%] lg:w-[158px]"
             />
           </motion.div>
         ))}
