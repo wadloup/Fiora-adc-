@@ -49,56 +49,56 @@ import {
 import { logVisitorPageView } from "./utils/visitLogger";
 
 const LAUNCH_THANKS = [
-  "Thank you",
-  "Merci",
-  "Gracias",
-  "Danke",
-  "Grazie",
-  "Obrigado",
-  "Arigato",
-  "Xiexie",
-  "Gamsahamnida",
-  "Shukran",
-  "Spasibo",
-  "Dhanyavad",
-  "Tesekkurler",
-  "Dank je",
-  "Tack",
-  "Tak",
-  "Kiitos",
-  "Takk",
-  "Dziekuje",
-  "Dekuji",
-  "Dakujem",
-  "Hvala",
-  "Multumesc",
-  "Koszonom",
-  "Efharisto",
-  "Aitah",
-  "Paldies",
-  "Aciu",
-  "Khop khun",
-  "Cam on",
-  "Salamat",
-  "Terima kasih",
-  "Asante",
-  "Ngiyabonga",
-  "Toda",
-  "Mahalo",
-  "Faleminderit",
-  "Go raibh maith agat",
-  "Diolch",
-  "Trugarez",
-  "Dhonnobad",
-  "Shukriya",
-  "Nandri",
-  "Dhanyabaad",
-  "Matur nuwun",
-  "Nagode",
-  "O se",
-  "Rakhmet",
-  "Mesi",
-  "Bayarlalaa",
+  { flag: "🇺🇸", label: "Thank you" },
+  { flag: "🇫🇷", label: "Merci" },
+  { flag: "🇪🇸", label: "Gracias" },
+  { flag: "🇩🇪", label: "Danke" },
+  { flag: "🇮🇹", label: "Grazie" },
+  { flag: "🇵🇹", label: "Obrigado" },
+  { flag: "🇯🇵", label: "Arigato" },
+  { flag: "🇨🇳", label: "Xiexie" },
+  { flag: "🇰🇷", label: "Gamsahamnida" },
+  { flag: "🇸🇦", label: "Shukran" },
+  { flag: "🇷🇺", label: "Spasibo" },
+  { flag: "🇮🇳", label: "Dhanyavad" },
+  { flag: "🇹🇷", label: "Tesekkurler" },
+  { flag: "🇳🇱", label: "Dank je" },
+  { flag: "🇸🇪", label: "Tack" },
+  { flag: "🇩🇰", label: "Tak" },
+  { flag: "🇫🇮", label: "Kiitos" },
+  { flag: "🇳🇴", label: "Takk" },
+  { flag: "🇵🇱", label: "Dziekuje" },
+  { flag: "🇨🇿", label: "Dekuji" },
+  { flag: "🇸🇰", label: "Dakujem" },
+  { flag: "🇭🇷", label: "Hvala" },
+  { flag: "🇷🇴", label: "Multumesc" },
+  { flag: "🇭🇺", label: "Koszonom" },
+  { flag: "🇬🇷", label: "Efharisto" },
+  { flag: "🇪🇪", label: "Aitah" },
+  { flag: "🇱🇻", label: "Paldies" },
+  { flag: "🇱🇹", label: "Aciu" },
+  { flag: "🇹🇭", label: "Khop khun" },
+  { flag: "🇻🇳", label: "Cam on" },
+  { flag: "🇵🇭", label: "Salamat" },
+  { flag: "🇮🇩", label: "Terima kasih" },
+  { flag: "🇰🇪", label: "Asante" },
+  { flag: "🇿🇦", label: "Ngiyabonga" },
+  { flag: "🇮🇱", label: "Toda" },
+  { flag: "🇺🇸", label: "Mahalo" },
+  { flag: "🇦🇱", label: "Faleminderit" },
+  { flag: "🇮🇪", label: "Go raibh maith agat" },
+  { flag: "🏴", label: "Diolch" },
+  { flag: "🏴", label: "Trugarez" },
+  { flag: "🇧🇩", label: "Dhonnobad" },
+  { flag: "🇵🇰", label: "Shukriya" },
+  { flag: "🇮🇳", label: "Nandri" },
+  { flag: "🇳🇵", label: "Dhanyabaad" },
+  { flag: "🇮🇩", label: "Matur nuwun" },
+  { flag: "🇳🇬", label: "Nagode" },
+  { flag: "🇼🇸", label: "O se" },
+  { flag: "🇰🇿", label: "Rakhmet" },
+  { flag: "🇭🇹", label: "Mesi" },
+  { flag: "🇲🇳", label: "Bayarlalaa" },
 ] as const;
 
 const LEFT_LAUNCH_THANKS = LAUNCH_THANKS.filter((_, index) => index % 2 === 0);
@@ -226,7 +226,7 @@ export default function App() {
       launchFxTimeoutsRef.current = launchFxTimeoutsRef.current.filter(
         (currentTimeoutId) => currentTimeoutId !== timeoutId
       );
-    }, 5200);
+    }, 7000);
 
     launchFxTimeoutsRef.current.push(timeoutId);
   }, []);
@@ -656,50 +656,56 @@ export default function App() {
               className="absolute inset-y-[8%] right-0 w-20 bg-gradient-to-l from-red-500/0 via-red-500/24 to-transparent blur-2xl md:w-28"
             />
 
-            {LEFT_LAUNCH_THANKS.map((label, index) => (
+            {LEFT_LAUNCH_THANKS.map((entry, index) => (
               <motion.div
-                key={`left-thanks-${burstId}-${label}`}
+                key={`left-thanks-${burstId}-${entry.label}`}
                 initial={{ opacity: 0, x: -46, scale: 0.92 }}
                 animate={{
-                  opacity: [0, 1, 0],
+                  opacity: [0, 1, 1, 0],
                   x: [-46, 0, 18],
                   scale: [0.92, 1, 0.98],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 1.02,
-                  delay: index * 0.16,
+                  duration: 1.34,
+                  delay: index * 0.22,
                   ease: "easeInOut",
                 }}
                 style={{ top: `${4 + index * 3.7}%` }}
                 className="absolute left-4 whitespace-nowrap text-right font-black uppercase tracking-[0.16em] text-red-50/95 drop-shadow-[0_0_14px_rgba(255,45,45,0.48)] md:left-7"
               >
-                <span className="block text-[0.78rem] md:text-[0.94rem]">
-                  {label}
+                <span className="inline-flex items-center justify-end gap-2 text-[0.78rem] md:text-[0.94rem]">
+                  <span>{entry.label}</span>
+                  <span className="text-[1rem] md:text-[1.15rem]">
+                    {entry.flag}
+                  </span>
                 </span>
               </motion.div>
             ))}
 
-            {RIGHT_LAUNCH_THANKS.map((label, index) => (
+            {RIGHT_LAUNCH_THANKS.map((entry, index) => (
               <motion.div
-                key={`right-thanks-${burstId}-${label}`}
+                key={`right-thanks-${burstId}-${entry.label}`}
                 initial={{ opacity: 0, x: 46, scale: 0.92 }}
                 animate={{
-                  opacity: [0, 1, 0],
+                  opacity: [0, 1, 1, 0],
                   x: [46, 0, -18],
                   scale: [0.92, 1, 0.98],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 1.02,
-                  delay: index * 0.16 + 0.08,
+                  duration: 1.34,
+                  delay: index * 0.22 + 0.11,
                   ease: "easeInOut",
                 }}
                 style={{ top: `${4 + index * 3.7}%` }}
                 className="absolute right-4 whitespace-nowrap text-left font-black uppercase tracking-[0.16em] text-red-50/95 drop-shadow-[0_0_14px_rgba(255,45,45,0.48)] md:right-7"
               >
-                <span className="block text-[0.78rem] md:text-[0.94rem]">
-                  {label}
+                <span className="inline-flex items-center gap-2 text-[0.78rem] md:text-[0.94rem]">
+                  <span className="text-[1rem] md:text-[1.15rem]">
+                    {entry.flag}
+                  </span>
+                  <span>{entry.label}</span>
                 </span>
               </motion.div>
             ))}
