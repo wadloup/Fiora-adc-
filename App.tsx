@@ -61,9 +61,12 @@ export default function App() {
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [musicBlocked, setMusicBlocked] = useState(false);
   const [musicVolume, setMusicVolume] = useState(0.06);
+  const [launchFxBursts, setLaunchFxBursts] = useState<number[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
   const musicVolumeRef = useRef(0.06);
+  const launchFxCounterRef = useRef(0);
+  const launchFxTimeoutsRef = useRef<number[]>([]);
 
   const currentTrack = musicThemeMap[selectedTrackId];
   const currentTrackIndex = musicThemes.findIndex(
@@ -152,10 +155,29 @@ export default function App() {
     audio.volume = value;
   }, []);
 
+  const triggerLaunchFx = useCallback(() => {
+    launchFxCounterRef.current += 1;
+    const burstId = launchFxCounterRef.current;
+
+    setLaunchFxBursts((current) => [...current, burstId]);
+
+    const timeoutId = window.setTimeout(() => {
+      setLaunchFxBursts((current) =>
+        current.filter((currentBurstId) => currentBurstId !== burstId)
+      );
+      launchFxTimeoutsRef.current = launchFxTimeoutsRef.current.filter(
+        (currentTimeoutId) => currentTimeoutId !== timeoutId
+      );
+    }, 1180);
+
+    launchFxTimeoutsRef.current.push(timeoutId);
+  }, []);
+
   const launchSiteAudio = useCallback(async () => {
+    triggerLaunchFx();
     await playBackgroundMusic();
     requestNarrationStart();
-  }, [playBackgroundMusic]);
+  }, [playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
     const unlock = () => {
@@ -170,6 +192,15 @@ export default function App() {
       window.removeEventListener("keydown", unlock);
     };
   }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    return () => {
+      launchFxTimeoutsRef.current.forEach((timeoutId) =>
+        window.clearTimeout(timeoutId)
+      );
+      launchFxTimeoutsRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -518,6 +549,89 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <AnimatePresence>
+        {launchFxBursts.map((burstId) => (
+          <motion.div
+            key={burstId}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="pointer-events-none fixed inset-0 z-[45] overflow-hidden"
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -120 }}
+              animate={{ opacity: [0, 0.95, 0], x: [-120, 0, 54] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.05, ease: [0.2, 0.8, 0.2, 1] }}
+              className="absolute inset-y-[10%] left-0 w-24 bg-gradient-to-r from-red-500/0 via-red-500/32 to-transparent blur-2xl md:w-36"
+            />
+            <motion.div
+              initial={{ opacity: 0, x: 120 }}
+              animate={{ opacity: [0, 0.95, 0], x: [120, 0, -54] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.05, ease: [0.2, 0.8, 0.2, 1] }}
+              className="absolute inset-y-[10%] right-0 w-24 bg-gradient-to-l from-red-500/0 via-red-500/32 to-transparent blur-2xl md:w-36"
+            />
+
+            {[0, 1, 2].map((index) => (
+              <motion.div
+                key={`left-streak-${burstId}-${index}`}
+                initial={{ opacity: 0, x: -170, scaleX: 0.7 }}
+                animate={{
+                  opacity: [0, 0.95, 0],
+                  x: [-170, 4, 36],
+                  scaleX: [0.7, 1, 1.04],
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.92,
+                  delay: index * 0.08,
+                  ease: "easeOut",
+                }}
+                style={{ top: `${22 + index * 16}%` }}
+                className="absolute left-0 h-14 w-52 -skew-x-[28deg] rounded-r-full bg-gradient-to-r from-red-400/0 via-red-300/42 to-white/14 blur-[1px] md:h-16 md:w-72"
+              />
+            ))}
+
+            {[0, 1, 2].map((index) => (
+              <motion.div
+                key={`right-streak-${burstId}-${index}`}
+                initial={{ opacity: 0, x: 170, scaleX: 0.7 }}
+                animate={{
+                  opacity: [0, 0.95, 0],
+                  x: [170, -4, -36],
+                  scaleX: [0.7, 1, 1.04],
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.92,
+                  delay: index * 0.08,
+                  ease: "easeOut",
+                }}
+                style={{ top: `${30 + index * 16}%` }}
+                className="absolute right-0 h-14 w-52 skew-x-[28deg] rounded-l-full bg-gradient-to-l from-red-400/0 via-red-300/42 to-white/14 blur-[1px] md:h-16 md:w-72"
+              />
+            ))}
+
+            <motion.div
+              initial={{ opacity: 0, scaleY: 0.55 }}
+              animate={{ opacity: [0, 0.85, 0], scaleY: [0.55, 1.1, 0.75] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.82, ease: "easeOut" }}
+              className="absolute inset-y-[14%] left-4 w-[2px] rounded-full bg-red-200/65 blur-[1px] md:left-8"
+            />
+            <motion.div
+              initial={{ opacity: 0, scaleY: 0.55 }}
+              animate={{ opacity: [0, 0.85, 0], scaleY: [0.55, 1.1, 0.75] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.82, ease: "easeOut" }}
+              className="absolute inset-y-[14%] right-4 w-[2px] rounded-full bg-red-200/65 blur-[1px] md:right-8"
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
       <button
         onClick={requestAllVoiceStop}
