@@ -186,7 +186,8 @@ export default function App() {
     );
   }, [query]);
 
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollTopSmooth = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollTopInstant = () => window.scrollTo({ top: 0, behavior: "auto" });
 
   const playBackgroundMusic = useCallback(async () => {
     const audio = audioRef.current;
@@ -355,7 +356,7 @@ export default function App() {
   const goPage = (page: PageName) => {
     setCurrentPage(page);
     setMobileOpen(false);
-    scrollTop();
+    scrollTopInstant();
   };
 
   const goLaneSection = (id: LaneSectionId) => {
@@ -691,13 +692,13 @@ export default function App() {
 
         <NarrationPanel page={currentPage} />
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           <motion.div
             key={currentPage}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.14 }}
             className="space-y-6"
           >
             <PageContent
@@ -956,7 +957,7 @@ export default function App() {
       />
 
       <button
-        onClick={scrollTop}
+        onClick={scrollTopSmooth}
         className="fixed bottom-5 right-5 z-50 rounded-full border border-red-500/40 bg-black/70 p-3 text-red-300 shadow-[0_0_18px_rgba(255,0,60,0.25)]"
         aria-label="Back to top"
       >

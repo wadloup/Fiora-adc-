@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useMotionValue } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MusicTheme } from "../data/musicThemes";
 
 type AnimatedBackgroundProps = {
@@ -159,10 +159,11 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
-  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
+  const [cursorVisible, setCursorVisible] = useState(false);
   const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
+  const cursorVisibleRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -182,21 +183,28 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
 
   useEffect(() => {
     if (!cursorFxEnabled || typeof window === "undefined") {
-      setCursor((current) => ({ ...current, visible: false }));
+      cursorVisibleRef.current = false;
+      setCursorVisible(false);
       return;
     }
 
     const onPointerMove = (event: PointerEvent) => {
-      const nextX = event.clientX;
-      const nextY = event.clientY;
+      cursorX.set(event.clientX);
+      cursorY.set(event.clientY);
 
-      setCursor({ x: nextX, y: nextY, visible: true });
-      cursorX.set(nextX);
-      cursorY.set(nextY);
+      if (!cursorVisibleRef.current) {
+        cursorVisibleRef.current = true;
+        setCursorVisible(true);
+      }
     };
 
     const onPointerLeave = () => {
-      setCursor((current) => ({ ...current, visible: false }));
+      if (!cursorVisibleRef.current) {
+        return;
+      }
+
+      cursorVisibleRef.current = false;
+      setCursorVisible(false);
     };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
@@ -229,7 +237,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   }, [cursorFxEnabled]);
 
   const cursorLens =
-    cursorFxEnabled && cursor.visible ? (
+    cursorFxEnabled && cursorVisible ? (
       <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
         <motion.div
           className="absolute h-[7.5rem] w-[7.5rem] rounded-full"
@@ -242,6 +250,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               "repeating-radial-gradient(circle, rgba(255,255,255,0.24) 0 1px, rgba(255,255,255,0.09) 2px 3px, transparent 6px 14px)",
             filter: "blur(1.4px)",
             mixBlendMode: "screen",
+            willChange: "transform, opacity",
           }}
           animate={{
             scale: [0.24, 1.34],
@@ -261,6 +270,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               "repeating-radial-gradient(circle, rgba(255,255,255,0.18) 0 1px, rgba(255,255,255,0.06) 2px 3px, transparent 6px 14px)",
             filter: "blur(1.8px)",
             mixBlendMode: "screen",
+            willChange: "transform, opacity",
           }}
           animate={{
             scale: [0.18, 1.62],
@@ -285,6 +295,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               "radial-gradient(circle, transparent 34%, rgba(255,255,255,0.82) 48%, rgba(255,255,255,0.22) 58%, rgba(255,255,255,0.06) 67%, transparent 76%)",
             filter: "blur(8px)",
             opacity: 0.88,
+            willChange: "transform, opacity",
           }}
         />
 
@@ -301,6 +312,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             border: "2px solid rgba(12,12,12,0.92)",
             boxShadow:
               "0 0 0 1px rgba(255,255,255,0.34), 0 0 14px rgba(255,255,255,0.14)",
+            willChange: "transform, opacity",
           }}
         />
 
@@ -314,6 +326,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             background:
               "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 42%, transparent 72%)",
             opacity: 0.42,
+            willChange: "transform, opacity",
           }}
         />
       </div>

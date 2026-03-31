@@ -30,6 +30,8 @@ export default function HomeSupportShowcase() {
               src={heroCertifiedImage}
               alt="Certified badge"
               className="h-[9.25rem] w-[9.25rem] shrink-0 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)] xl:h-[10rem] xl:w-[10rem]"
+              loading="lazy"
+              decoding="async"
               onError={recoverImage}
             />
             <div className="min-w-0">
@@ -56,6 +58,8 @@ export default function HomeSupportShowcase() {
                 src={support.image}
                 alt={support.name}
                 className="h-20 w-20 rounded-2xl border border-red-500/25 object-cover"
+                loading="lazy"
+                decoding="async"
                 onError={recoverImage}
                 style={{ objectPosition: support.position }}
               />

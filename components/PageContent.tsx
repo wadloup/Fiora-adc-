@@ -126,13 +126,15 @@ export default function PageContent({
             </SpeakableCard>
 
             <NeonCard className="overflow-hidden p-3">
-              <img
-                src={whyWorksVisualImage}
-                alt="Fiora visual"
-                className="h-[260px] w-full rounded-2xl border border-red-500/25 object-cover"
-                onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
-                style={{ objectPosition: "center 26%" }}
-              />
+                <img
+                  src={whyWorksVisualImage}
+                  alt="Fiora visual"
+                  className="h-[260px] w-full rounded-2xl border border-red-500/25 object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
+                  style={{ objectPosition: "center 26%" }}
+                />
             </NeonCard>
           </div>
 
@@ -179,6 +181,8 @@ export default function PageContent({
                   src={runePage.image}
                   alt={runePage.title}
                   className="w-full rounded-3xl border border-red-500/20 object-contain"
+                  loading="lazy"
+                  decoding="async"
                   onError={(event) =>
                     recoverAssetImage(
                       event,
@@ -294,6 +298,8 @@ export default function PageContent({
                   src={matchup.image}
                   alt={matchup.name}
                   className="h-44 w-full rounded-2xl border border-red-500/25 object-cover"
+                  loading="lazy"
+                  decoding="async"
                   onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
                   style={{ objectPosition: matchup.position }}
                 />
@@ -449,6 +455,8 @@ export default function PageContent({
                   src={support.image}
                   alt={support.name}
                   className={`w-full ${support.size} rounded-3xl border border-red-500/25 object-cover`}
+                  loading="lazy"
+                  decoding="async"
                   onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
                   style={{ objectPosition: support.position }}
                 />
@@ -486,6 +494,7 @@ export default function PageContent({
                     src={clip.embed}
                     title={clip.title}
                     className="h-60 w-full md:h-72"
+                    loading="lazy"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
@@ -590,6 +599,8 @@ export default function PageContent({
                     src={videoCard.image}
                     alt={videoCard.title}
                     className="h-56 w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                     onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
                     style={{ objectPosition: videoCard.position }}
                   />
