@@ -41,7 +41,10 @@ import {
 import { recoverImage } from "./utils/imageFallback";
 import { cn } from "./utils/cn";
 import { trackGuidePageViewed } from "./utils/analytics";
-import { requestAllVoiceStop } from "./utils/audioControl";
+import {
+  requestAllVoiceStop,
+  requestNarrationStart,
+} from "./utils/audioControl";
 import { logVisitorPageView } from "./utils/visitLogger";
 
 export default function App() {
@@ -147,6 +150,11 @@ export default function App() {
 
     audio.volume = value;
   }, []);
+
+  const launchSiteAudio = useCallback(async () => {
+    await playBackgroundMusic();
+    requestNarrationStart();
+  }, [playBackgroundMusic]);
 
   useEffect(() => {
     const unlock = () => {
@@ -368,18 +376,45 @@ export default function App() {
                 <div className="min-w-0">
                   <ReportVoteBlock compact />
                 </div>
-                <MusicPlayer
-                  className="hidden lg:flex lg:w-full lg:max-w-none"
-                  tracks={musicThemes}
-                  currentTrackId={selectedTrackId}
-                  musicPlaying={musicPlaying}
-                  musicVolume={musicVolume}
-                  onToggle={() => void toggleBackgroundMusic()}
-                  onTrackChange={changeTrack}
-                  onVolumeChange={handleMusicVolumeChange}
-                  onPrevious={goToPreviousTrack}
-                  onNext={goToNextTrack}
-                />
+                <div className="space-y-3">
+                  <motion.button
+                    type="button"
+                    onClick={() => void launchSiteAudio()}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="group relative flex min-h-[148px] w-full flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-red-300/30 bg-black/45 px-5 py-5 text-center shadow-[0_0_32px_rgba(255,0,60,0.2)] backdrop-blur-md"
+                  >
+                    <div className="absolute inset-x-8 top-3 h-8 rounded-full bg-white/8 blur-xl transition group-hover:bg-white/12" />
+                    <div className="relative flex h-24 w-24 items-center justify-center rounded-full border border-red-100/20 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.92)_0%,rgba(255,186,186,0.82)_10%,rgba(255,64,64,0.96)_28%,rgba(212,0,0,1)_64%,rgba(107,0,0,1)_100%)] shadow-[inset_0_10px_18px_rgba(255,255,255,0.26),inset_0_-14px_20px_rgba(0,0,0,0.35),0_18px_36px_rgba(255,0,0,0.28)]">
+                      <span className="absolute left-1/2 top-3 h-4 w-14 -translate-x-1/2 rounded-full bg-white/45 blur-[1px]" />
+                      <Play className="relative z-10 ml-1 h-9 w-9 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.35)]" />
+                    </div>
+                    <div className="relative mt-4 space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300/85">
+                        Big red button
+                      </p>
+                      <p className="text-lg font-black uppercase tracking-[0.08em] text-white">
+                        Press to start
+                      </p>
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/65">
+                        Launches music + narration
+                      </p>
+                    </div>
+                  </motion.button>
+
+                  <MusicPlayer
+                    className="hidden lg:flex lg:w-full lg:max-w-none"
+                    tracks={musicThemes}
+                    currentTrackId={selectedTrackId}
+                    musicPlaying={musicPlaying}
+                    musicVolume={musicVolume}
+                    onToggle={() => void toggleBackgroundMusic()}
+                    onTrackChange={changeTrack}
+                    onVolumeChange={handleMusicVolumeChange}
+                    onPrevious={goToPreviousTrack}
+                    onNext={goToNextTrack}
+                  />
+                </div>
               </div>
             </div>
           ) : (

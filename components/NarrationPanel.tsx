@@ -10,6 +10,7 @@ import {
 } from "../data/siteData";
 import {
   requestSpeakableStop,
+  START_NARRATION_EVENT,
   STOP_NARRATION_EVENT,
 } from "../utils/audioControl";
 import { cn } from "../utils/cn";
@@ -189,12 +190,18 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
       stop();
     };
 
+    const startRequested = () => {
+      void speak();
+    };
+
     window.addEventListener(STOP_NARRATION_EVENT, stopRequested);
+    window.addEventListener(START_NARRATION_EVENT, startRequested);
 
     return () => {
       window.removeEventListener(STOP_NARRATION_EVENT, stopRequested);
+      window.removeEventListener(START_NARRATION_EVENT, startRequested);
     };
-  }, [stop]);
+  }, [speak, stop]);
 
   useEffect(() => {
     setDisplayText(voiceText[page]);

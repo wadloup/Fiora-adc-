@@ -1,6 +1,7 @@
 export const ACTIVE_SPEAKABLE_EVENT = "fiora-speakable-change";
 export const STOP_NARRATION_EVENT = "fiora-stop-narration";
 export const STOP_SPEAKABLE_EVENT = "fiora-stop-speakable";
+export const START_NARRATION_EVENT = "fiora-start-narration";
 
 function dispatchAudioEvent(name: string, detail?: Record<string, unknown>) {
   if (typeof window === "undefined") {
@@ -20,6 +21,10 @@ export function requestNarrationStop() {
 
 export function requestSpeakableStop() {
   dispatchAudioEvent(STOP_SPEAKABLE_EVENT);
+}
+
+export function requestNarrationStart() {
+  dispatchAudioEvent(START_NARRATION_EVENT);
 }
 
 export function requestAllVoiceStop() {
