@@ -162,7 +162,6 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const [cursorVisible, setCursorVisible] = useState(false);
   const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
   const [liteMode, setLiteMode] = useState(false);
-  const useReducedAmbientMotion = liteMode || artworkIsVideo;
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
   const cursorVisibleRef = useRef(false);
@@ -478,13 +477,13 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             className="absolute inset-0 opacity-55"
             initial={{ opacity: 0 }}
             animate={
-              useReducedAmbientMotion
+              liteMode
                 ? { opacity: 0.38 }
                 : { opacity: 0.55, backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }
             }
             exit={{ opacity: 0 }}
             transition={
-              useReducedAmbientMotion
+              liteMode
                 ? backgroundLayerTransition
                 : {
                     opacity: backgroundLayerTransition,
@@ -508,7 +507,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             style={{ background: theme.background.overlay }}
             initial={{ opacity: 0 }}
             animate={
-              useReducedAmbientMotion
+              liteMode
                 ? { opacity: artworkIsVideo ? 0.18 : 0.4 }
                 : {
                     opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5],
@@ -516,7 +515,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             }
             exit={{ opacity: 0 }}
             transition={
-              useReducedAmbientMotion
+              liteMode
                 ? backgroundLayerTransition
                 : {
                     opacity: {
@@ -535,7 +534,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             style={{ background: theme.background.veil }}
             initial={{ opacity: 0 }}
             animate={
-              useReducedAmbientMotion
+              liteMode
                 ? { opacity: artworkIsVideo ? 0.14 : 0.28 }
                 : {
                     opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35],
@@ -543,7 +542,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             }
             exit={{ opacity: 0 }}
             transition={
-              useReducedAmbientMotion
+              liteMode
                 ? backgroundLayerTransition
                 : {
                     opacity: {
@@ -556,7 +555,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           />
         ) : null}
 
-        {!useReducedAmbientMotion ? renderThemeScene(theme.id) : null}
+        {!liteMode ? renderThemeScene(theme.id) : null}
 
         {theme.background.glows.map((glow, index) => (
           <motion.div
@@ -571,7 +570,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               opacity: glow.opacity,
             }}
             animate={
-              useReducedAmbientMotion
+              liteMode
                 ? undefined
                 : {
                     x: glow.x,
@@ -585,7 +584,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
                   }
             }
             transition={
-              useReducedAmbientMotion
+              liteMode
                 ? undefined
                 : {
                     duration: glow.duration,
@@ -600,14 +599,10 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0 }}
-            animate={
-              useReducedAmbientMotion
-                ? { opacity: 0.14 }
-                : { opacity: [0.18, 0.34, 0.18] }
-            }
+            animate={liteMode ? { opacity: 0.14 } : { opacity: [0.18, 0.34, 0.18] }}
             exit={{ opacity: 0 }}
             transition={
-              useReducedAmbientMotion
+              liteMode
                 ? backgroundLayerTransition
                 : {
                     opacity: { duration: 7, repeat: Infinity, ease: "easeInOut" },
