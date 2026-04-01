@@ -711,6 +711,7 @@ export default function App() {
                   alt="Aggressive Fiora"
                   className="absolute inset-0 h-full w-full object-cover"
                   fetchPriority="high"
+                  loading="eager"
                   decoding="async"
                   onError={recoverImage}
                   style={{ objectPosition: "center 26%" }}
