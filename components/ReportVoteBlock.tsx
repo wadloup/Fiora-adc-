@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import NeonCard from "./ui/NeonCard";
@@ -62,19 +62,39 @@ export default function ReportVoteBlock({
   const [counts, setCounts] = useState<VoteCounts>(INITIAL_COUNTS);
   const [selected, setSelected] = useState<VoteChoice | null>(null);
   const [loading, setLoading] = useState(false);
+  const [countsLoaded, setCountsLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const hasStartedBootstrapRef = useRef(false);
 
   useEffect(() => {
     const savedVote = localStorage.getItem(VOTE_STORAGE_KEY);
     if (savedVote === "up" || savedVote === "down" || savedVote === "poop") {
       setSelected(savedVote);
     }
+  }, []);
+
+  useEffect(() => {
+    if (countsLoaded) {
+      return;
+    }
+
+    let cancelled = false;
+    let timeoutId: number | null = null;
+    let observer: IntersectionObserver | null = null;
+    let idleId: number | null = null;
 
     const loadVotes = async () => {
+      if (cancelled || hasStartedBootstrapRef.current) {
+        return;
+      }
+
+      hasStartedBootstrapRef.current = true;
+
       try {
         const response = await fetch("/api/report-vote", {
           method: "GET",
           credentials: "same-origin",
-          cache: "no-store",
+          cache: "default",
         });
 
         const payload = await response.json();
@@ -83,19 +103,82 @@ export default function ReportVoteBlock({
           throw new Error("vote_counts_unavailable");
         }
 
+        if (cancelled) {
+          return;
+        }
+
         setCounts({
           up: Number(payload.counts.up) || 0,
           down: Number(payload.counts.down) || 0,
           poop: Number(payload.counts.poop) || 0,
         });
+        setCountsLoaded(true);
       } catch (error) {
         console.error(error);
-        return;
+        hasStartedBootstrapRef.current = false;
       }
     };
 
-    void loadVotes();
-  }, []);
+    const scheduleBootstrap = () => {
+      if (cancelled || hasStartedBootstrapRef.current) {
+        return;
+      }
+
+      const runtimeWindow = window as Window & {
+        requestIdleCallback?: (
+          callback: () => void,
+          options?: { timeout: number }
+        ) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+
+      if (runtimeWindow.requestIdleCallback) {
+        idleId = runtimeWindow.requestIdleCallback(() => {
+          void loadVotes();
+        }, { timeout: 2500 });
+      } else {
+        timeoutId = window.setTimeout(() => {
+          void loadVotes();
+        }, 1800);
+      }
+    };
+
+    if ("IntersectionObserver" in window && containerRef.current) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            observer?.disconnect();
+            scheduleBootstrap();
+          }
+        },
+        {
+          rootMargin: "200px 0px",
+          threshold: 0.01,
+        }
+      );
+
+      observer.observe(containerRef.current);
+    } else {
+      scheduleBootstrap();
+    }
+
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+
+      const runtimeWindow = window as Window & {
+        cancelIdleCallback?: (id: number) => void;
+      };
+
+      if (idleId !== null && runtimeWindow.cancelIdleCallback) {
+        runtimeWindow.cancelIdleCallback(idleId);
+      }
+    };
+  }, [countsLoaded]);
 
   const handleVote = async (choice: VoteChoice) => {
     if (loading || selected) {
@@ -144,7 +227,10 @@ export default function ReportVoteBlock({
   const total = counts.up + counts.down + counts.poop;
 
   return (
-    <NeonCard className={compact ? "p-4 md:p-[1.125rem]" : "p-4 md:p-5"}>
+    <NeonCard
+      className={compact ? "p-4 md:p-[1.125rem]" : "p-4 md:p-5"}
+      ref={containerRef}
+    >
       <div className={compact ? "space-y-3" : "space-y-3.5"}>
         <div
           className={

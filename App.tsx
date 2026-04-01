@@ -693,6 +693,8 @@ export default function App() {
                   src={homeHeroImage}
                   alt="Aggressive Fiora"
                   className="absolute inset-0 h-full w-full object-cover"
+                  fetchPriority="high"
+                  decoding="async"
                   onError={recoverImage}
                   style={{ objectPosition: "center 26%" }}
                 />
