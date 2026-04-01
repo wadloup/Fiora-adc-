@@ -10,6 +10,7 @@ import {
 const MAX_NICKNAME_LENGTH = 24;
 const MAX_MESSAGE_LENGTH = 280;
 const MESSAGE_COOLDOWN_SECONDS = 45;
+const MESSAGE_ADMIN_LIMIT = 60;
 
 function buildSupabaseHeaders(serviceRoleKey, extraHeaders = {}) {
   return {
@@ -81,9 +82,64 @@ async function insertMessage(supabaseUrl, serviceRoleKey, payload) {
   return rows?.[0] || null;
 }
 
+async function fetchMessages(supabaseUrl, serviceRoleKey) {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/guest_messages?select=id,created_at,nickname,message,country,region,city,user_agent&order=created_at.desc&limit=${MESSAGE_ADMIN_LIMIT}`,
+    {
+      headers: buildSupabaseHeaders(serviceRoleKey),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return response.json();
+}
+
 export default async function handler(request, response) {
   setApiSecurityHeaders(response);
-  response.setHeader("Allow", "POST");
+  response.setHeader("Allow", "GET, POST");
+  response.setHeader("Cache-Control", "no-store");
+
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const fingerprintSalt =
+    process.env.VISIT_LOG_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const messageAdminKey = process.env.MESSAGE_ADMIN_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return response.status(500).json({
+      ok: false,
+      reason: "missing_message_env",
+    });
+  }
+
+  if (request.method === "GET") {
+    const providedAdminKey =
+      request.headers["x-admin-key"] || request.headers["X-Admin-Key"];
+
+    if (!messageAdminKey || providedAdminKey !== messageAdminKey) {
+      return response.status(403).json({
+        ok: false,
+        reason: "invalid_admin_key",
+      });
+    }
+
+    try {
+      const messages = await fetchMessages(supabaseUrl, serviceRoleKey);
+      return response.status(200).json({
+        ok: true,
+        count: Array.isArray(messages) ? messages.length : 0,
+        messages,
+      });
+    } catch {
+      return response.status(500).json({
+        ok: false,
+        reason: "messages_unavailable",
+      });
+    }
+  }
 
   if (request.method !== "POST") {
     return response.status(405).json({ ok: false });
@@ -107,18 +163,6 @@ export default async function handler(request, response) {
     return response.status(413).json({
       ok: false,
       reason: "payload_too_large",
-    });
-  }
-
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const fingerprintSalt =
-    process.env.VISIT_LOG_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return response.status(500).json({
-      ok: false,
-      reason: "missing_message_env",
     });
   }
 
