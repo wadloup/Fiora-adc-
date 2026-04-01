@@ -124,11 +124,27 @@ export default function MessagesAdminPanel({
 
         if (!response.ok || !payload?.ok || !Array.isArray(payload.messages)) {
           setLoadState("error");
-          setStatusMessage(
-            response.status === 403
-              ? "Invalid admin key."
-              : "Messages unavailable right now."
-          );
+          if (response.status === 403) {
+            setStatusMessage("Invalid admin key.");
+            return;
+          }
+
+          if (
+            response.status === 500 &&
+            payload?.reason === "missing_admin_key_env"
+          ) {
+            setStatusMessage(
+              "The server has not picked up MESSAGE_ADMIN_KEY yet. Redeploy Vercel, then try again."
+            );
+            return;
+          }
+
+          if (response.status === 400) {
+            setStatusMessage("Missing admin key.");
+            return;
+          }
+
+          setStatusMessage("Messages unavailable right now.");
           return;
         }
 

@@ -12,6 +12,16 @@ const MAX_MESSAGE_LENGTH = 280;
 const MESSAGE_COOLDOWN_SECONDS = 45;
 const MESSAGE_ADMIN_LIMIT = 60;
 
+function normalizeSecret(value) {
+  const raw = Array.isArray(value) ? value[0] : value;
+
+  if (typeof raw !== "string") {
+    return "";
+  }
+
+  return raw.trim().replace(/^["']+|["']+$/g, "");
+}
+
 function buildSupabaseHeaders(serviceRoleKey, extraHeaders = {}) {
   return {
     "Content-Type": "application/json",
@@ -116,10 +126,26 @@ export default async function handler(request, response) {
   }
 
   if (request.method === "GET") {
-    const providedAdminKey =
-      request.headers["x-admin-key"] || request.headers["X-Admin-Key"];
+    const normalizedAdminKey = normalizeSecret(messageAdminKey);
+    const providedAdminKey = normalizeSecret(
+      request.headers["x-admin-key"] || request.headers["X-Admin-Key"]
+    );
 
-    if (!messageAdminKey || providedAdminKey !== messageAdminKey) {
+    if (!normalizedAdminKey) {
+      return response.status(500).json({
+        ok: false,
+        reason: "missing_admin_key_env",
+      });
+    }
+
+    if (!providedAdminKey) {
+      return response.status(400).json({
+        ok: false,
+        reason: "missing_admin_key",
+      });
+    }
+
+    if (providedAdminKey !== normalizedAdminKey) {
       return response.status(403).json({
         ok: false,
         reason: "invalid_admin_key",
