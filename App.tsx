@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
+import MessageDock from "./components/MessageDock";
 import MusicPlayer from "./components/MusicPlayer";
 import NarrationPanel from "./components/NarrationPanel";
 import NeonCard from "./components/ui/NeonCard";
@@ -958,6 +959,8 @@ export default function App() {
           </span>
         </span>
       </button>
+
+      <MessageDock />
 
       <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] lg:block sm:right-5 md:right-6">
         <div className="flex items-start justify-between gap-3">
