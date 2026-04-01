@@ -1,6 +1,14 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -22,8 +30,6 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
 import MusicPlayer from "./components/MusicPlayer";
 import NarrationPanel from "./components/NarrationPanel";
-import PageContent from "./components/PageContent";
-import ReportVoteBlock from "./components/ReportVoteBlock";
 import NeonCard from "./components/ui/NeonCard";
 import PageButton from "./components/ui/PageButton";
 import {
@@ -47,6 +53,9 @@ import {
   requestNarrationStart,
 } from "./utils/audioControl";
 import { logVisitorPageView } from "./utils/visitLogger";
+
+const LazyPageContent = lazy(() => import("./components/PageContent"));
+const LazyReportVoteBlock = lazy(() => import("./components/ReportVoteBlock"));
 
 const LAUNCH_THANKS = [
   { flagCode: "us", label: "Thank you" },
@@ -646,7 +655,15 @@ export default function App() {
 
               <div className="grid gap-3 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] lg:items-start">
                 <div className="min-w-0">
-                  <ReportVoteBlock compact />
+                  <Suspense
+                    fallback={
+                      <NeonCard className="p-4 md:p-[1.125rem]">
+                        <div className="min-h-[244px] animate-pulse rounded-2xl border border-white/8 bg-white/[0.03]" />
+                      </NeonCard>
+                    }
+                  >
+                    <LazyReportVoteBlock compact />
+                  </Suspense>
                 </div>
                 <MusicPlayer
                   className="hidden lg:flex lg:w-full lg:max-w-none"
@@ -747,11 +764,27 @@ export default function App() {
             transition={{ duration: 0.14 }}
             className="space-y-6"
           >
-            <PageContent
-              currentPage={currentPage}
-              laneRefs={laneRefs}
-              goLaneSection={goLaneSection}
-            />
+            <Suspense
+              fallback={
+                <NeonCard className="p-6 md:p-8">
+                  <div className="space-y-4">
+                    <div className="h-6 w-40 animate-pulse rounded-full bg-white/8" />
+                    <div className="h-28 animate-pulse rounded-3xl bg-white/[0.03]" />
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="h-28 animate-pulse rounded-3xl bg-white/[0.03]" />
+                      <div className="h-28 animate-pulse rounded-3xl bg-white/[0.03]" />
+                      <div className="h-28 animate-pulse rounded-3xl bg-white/[0.03]" />
+                    </div>
+                  </div>
+                </NeonCard>
+              }
+            >
+              <LazyPageContent
+                currentPage={currentPage}
+                laneRefs={laneRefs}
+                goLaneSection={goLaneSection}
+              />
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>

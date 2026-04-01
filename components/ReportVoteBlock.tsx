@@ -80,8 +80,8 @@ export default function ReportVoteBlock({
 
     let cancelled = false;
     let timeoutId: number | null = null;
-    let observer: IntersectionObserver | null = null;
     let idleId: number | null = null;
+    let loadListenerAttached = false;
 
     const loadVotes = async () => {
       if (cancelled || hasStartedBootstrapRef.current) {
@@ -135,20 +135,30 @@ export default function ReportVoteBlock({
       if (runtimeWindow.requestIdleCallback) {
         idleId = runtimeWindow.requestIdleCallback(() => {
           void loadVotes();
-        }, { timeout: 2500 });
+        }, { timeout: 4000 });
       } else {
         timeoutId = window.setTimeout(() => {
           void loadVotes();
-        }, 1800);
+        }, 3200);
       }
     };
 
+    const scheduleAfterLoad = () => {
+      if (document.readyState === "complete") {
+        scheduleBootstrap();
+        return;
+      }
+
+      loadListenerAttached = true;
+      window.addEventListener("load", scheduleBootstrap, { once: true });
+    };
+
     if ("IntersectionObserver" in window && containerRef.current) {
-      observer = new IntersectionObserver(
+      const observer = new IntersectionObserver(
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting)) {
-            observer?.disconnect();
-            scheduleBootstrap();
+            observer.disconnect();
+            scheduleAfterLoad();
           }
         },
         {
@@ -158,16 +168,40 @@ export default function ReportVoteBlock({
       );
 
       observer.observe(containerRef.current);
+
+      return () => {
+        cancelled = true;
+        observer.disconnect();
+
+        if (timeoutId !== null) {
+          window.clearTimeout(timeoutId);
+        }
+
+        if (loadListenerAttached) {
+          window.removeEventListener("load", scheduleBootstrap);
+        }
+
+        const runtimeWindow = window as Window & {
+          cancelIdleCallback?: (id: number) => void;
+        };
+
+        if (idleId !== null && runtimeWindow.cancelIdleCallback) {
+          runtimeWindow.cancelIdleCallback(idleId);
+        }
+      };
     } else {
-      scheduleBootstrap();
+      scheduleAfterLoad();
     }
 
     return () => {
       cancelled = true;
-      observer?.disconnect();
 
       if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
+      }
+
+      if (loadListenerAttached) {
+        window.removeEventListener("load", scheduleBootstrap);
       }
 
       const runtimeWindow = window as Window & {
