@@ -315,7 +315,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     cursorFxEnabled && cursorVisible ? (
       <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
         <motion.div
-          className="absolute h-[5.4rem] w-[5.4rem] rounded-full"
+          className="absolute h-[5rem] w-[5rem] rounded-full"
           style={{
             x: cursorX,
             y: cursorY,
@@ -331,7 +331,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         />
 
         <motion.div
-          className="absolute h-[3.2rem] w-[3.2rem] rounded-full"
+          className="absolute h-[2.95rem] w-[2.95rem] rounded-full"
           style={{
             x: cursorX,
             y: cursorY,
@@ -346,7 +346,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         />
 
         <motion.div
-          className="absolute h-[2.35rem] w-[2.35rem] rounded-full"
+          className="absolute h-[2.15rem] w-[2.15rem] rounded-full"
           style={{
             x: cursorX,
             y: cursorY,
