@@ -9,7 +9,9 @@ create table if not exists public.visit_logs (
   referrer text,
   user_agent text,
   source_fingerprint text,
-  dedupe_key text
+  dedupe_key text,
+  visit_token text,
+  duration_seconds integer not null default 0
 );
 
 alter table public.visit_logs
@@ -17,6 +19,12 @@ alter table public.visit_logs
 
 alter table public.visit_logs
   add column if not exists dedupe_key text;
+
+alter table public.visit_logs
+  add column if not exists visit_token text;
+
+alter table public.visit_logs
+  add column if not exists duration_seconds integer not null default 0;
 
 create index if not exists visit_logs_visited_at_idx
   on public.visit_logs (visited_at desc);
@@ -30,8 +38,16 @@ create index if not exists visit_logs_source_fingerprint_idx
 create index if not exists visit_logs_dedupe_key_idx
   on public.visit_logs (dedupe_key);
 
+create index if not exists visit_logs_visit_token_idx
+  on public.visit_logs (visit_token);
+
+create unique index if not exists visit_logs_visit_token_uidx
+  on public.visit_logs (visit_token)
+  where visit_token is not null;
+
 drop view if exists public.visit_logs_grouped;
 drop view if exists public.visit_logs_readable;
+drop view if exists public.visit_logs_human_source;
 
 create or replace view public.visit_logs_human_source as
 select *
@@ -45,6 +61,17 @@ select
     timezone('Europe/Paris', visited_at),
     'YYYY-MM-DD HH24:MI:SS'
   ) as visited_at_paris_text,
+  coalesce(duration_seconds, 0) as duration_seconds,
+  case
+    when coalesce(duration_seconds, 0) >= 3600 then
+      floor(coalesce(duration_seconds, 0) / 3600.0)::int::text || 'h ' ||
+      lpad(((coalesce(duration_seconds, 0) % 3600) / 60)::int::text, 2, '0') || 'm'
+    when coalesce(duration_seconds, 0) >= 60 then
+      floor(coalesce(duration_seconds, 0) / 60.0)::int::text || 'm ' ||
+      lpad((coalesce(duration_seconds, 0) % 60)::int::text, 2, '0') || 's'
+    else
+      coalesce(duration_seconds, 0)::text || 's'
+  end as duration_text,
   id,
   country,
   region,
@@ -58,7 +85,8 @@ select
     else false
   end as is_vercel_screenshot,
   source_fingerprint,
-  dedupe_key
+  dedupe_key,
+  visit_token
 from public.visit_logs_human_source
 order by visited_at desc;
 
@@ -67,6 +95,7 @@ with normalized as (
   select
     id,
     visited_at,
+    coalesce(duration_seconds, 0) as duration_seconds,
     to_char(
       timezone('Europe/Paris', visited_at),
       'YYYY-MM-DD HH24:MI:SS'
@@ -80,6 +109,7 @@ with normalized as (
     dedupe_key,
     referrer,
     user_agent,
+    visit_token,
     case
       when user_agent ilike 'vercel-screenshot/%' then true
       else false
@@ -111,6 +141,8 @@ with normalized as (
       timezone('Europe/Paris', max(visited_at)),
       'YYYY-MM-DD HH24:MI:SS'
     ) as last_seen_paris_text,
+    coalesce(sum(duration_seconds), 0) as total_duration_seconds,
+    (array_agg(duration_seconds order by visited_at desc))[1] as latest_duration_seconds,
     (array_agg(country order by visited_at desc))[1] as latest_country,
     (array_agg(region order by visited_at desc))[1] as latest_region,
     (array_agg(city order by visited_at desc))[1] as latest_city,
@@ -121,8 +153,19 @@ with normalized as (
     jsonb_agg(
       jsonb_build_object(
         'id', id,
-        'visited_at_utc', visited_at,
         'visited_at_paris', visited_at_paris_text,
+        'duration_seconds', duration_seconds,
+        'duration_text',
+          case
+            when duration_seconds >= 3600 then
+              floor(duration_seconds / 3600.0)::int::text || 'h ' ||
+              lpad(((duration_seconds % 3600) / 60)::int::text, 2, '0') || 'm'
+            when duration_seconds >= 60 then
+              floor(duration_seconds / 60.0)::int::text || 'm ' ||
+              lpad((duration_seconds % 60)::int::text, 2, '0') || 's'
+            else
+              duration_seconds::text || 's'
+          end,
         'guide_page', guide_page,
         'pathname', pathname,
         'country', country,
@@ -132,6 +175,7 @@ with normalized as (
         'dedupe_key', dedupe_key,
         'referrer', referrer,
         'user_agent', user_agent,
+        'visit_token', visit_token,
         'is_vercel_screenshot', is_vercel_screenshot
       )
       order by visited_at desc
@@ -144,6 +188,28 @@ select
   last_seen_paris_text,
   first_seen_at_paris,
   first_seen_paris_text,
+  total_duration_seconds,
+  case
+    when total_duration_seconds >= 3600 then
+      floor(total_duration_seconds / 3600.0)::int::text || 'h ' ||
+      lpad(((total_duration_seconds % 3600) / 60)::int::text, 2, '0') || 'm'
+    when total_duration_seconds >= 60 then
+      floor(total_duration_seconds / 60.0)::int::text || 'm ' ||
+      lpad((total_duration_seconds % 60)::int::text, 2, '0') || 's'
+    else
+      total_duration_seconds::text || 's'
+  end as total_duration_text,
+  latest_duration_seconds,
+  case
+    when latest_duration_seconds >= 3600 then
+      floor(latest_duration_seconds / 3600.0)::int::text || 'h ' ||
+      lpad(((latest_duration_seconds % 3600) / 60)::int::text, 2, '0') || 'm'
+    when latest_duration_seconds >= 60 then
+      floor(latest_duration_seconds / 60.0)::int::text || 'm ' ||
+      lpad((latest_duration_seconds % 60)::int::text, 2, '0') || 's'
+    else
+      latest_duration_seconds::text || 's'
+  end as latest_duration_text,
   latest_country,
   latest_region,
   latest_city,

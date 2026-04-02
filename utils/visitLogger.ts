@@ -1,9 +1,17 @@
-const CLIENT_DEDUPE_WINDOW_MS = 15_000;
-const RESUME_LOG_WINDOW_MS = 90_000;
+const MIN_DURATION_FLUSH_MS = 1_000;
 
-const lastLoggedAtByVisitKey = new Map<string, number>();
+type ActiveVisit = {
+  page: string;
+  path: string;
+  visitToken: string;
+  referrer: string;
+  visibleSince: number | null;
+  accumulatedVisibleMs: number;
+  lastSentDurationSeconds: number;
+};
 
 let activePage: string | null = null;
+let activeVisit: ActiveVisit | null = null;
 let listenersAttached = false;
 
 function getCurrentPath() {
@@ -23,31 +31,22 @@ function getSanitizedReferrer() {
   }
 }
 
-function sendVisit(page: string, minWindowMs: number) {
-  if (typeof window === "undefined" || import.meta.env.DEV) {
-    return;
+function createVisitToken() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
   }
 
-  const path = getCurrentPath();
-  const visitKey = `${page}::${path}`;
-  const now = Date.now();
-  const lastLoggedAt = lastLoggedAtByVisitKey.get(visitKey) ?? 0;
+  return `visit_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
 
-  if (now - lastLoggedAt < minWindowMs) {
-    return;
-  }
+function sendVisitPayload(
+  payload: Record<string, unknown>,
+  useBeacon = false
+) {
+  const body = JSON.stringify(payload);
 
-  lastLoggedAtByVisitKey.set(visitKey, now);
-  activePage = page;
-
-  const payload = JSON.stringify({
-    page,
-    path,
-    referrer: getSanitizedReferrer(),
-  });
-
-  if (navigator.sendBeacon) {
-    const blob = new Blob([payload], { type: "application/json" });
+  if (useBeacon && navigator.sendBeacon) {
+    const blob = new Blob([body], { type: "application/json" });
     navigator.sendBeacon("/api/visit", blob);
     return;
   }
@@ -57,35 +56,137 @@ function sendVisit(page: string, minWindowMs: number) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: payload,
+    body,
     keepalive: true,
   });
 }
 
-function logResumedVisit() {
-  if (!activePage) {
+function pauseActiveVisit() {
+  if (!activeVisit || activeVisit.visibleSince === null) {
     return;
   }
 
-  sendVisit(activePage, RESUME_LOG_WINDOW_MS);
+  activeVisit.accumulatedVisibleMs += Date.now() - activeVisit.visibleSince;
+  activeVisit.visibleSince = null;
 }
 
-function attachResumeListeners() {
+function resumeActiveVisit() {
+  if (!activeVisit || activeVisit.visibleSince !== null) {
+    return;
+  }
+
+  activeVisit.visibleSince = Date.now();
+}
+
+function flushActiveVisitDuration({
+  clear = false,
+  force = false,
+}: {
+  clear?: boolean;
+  force?: boolean;
+} = {}) {
+  if (!activeVisit) {
+    return;
+  }
+
+  pauseActiveVisit();
+
+  if (!force && activeVisit.accumulatedVisibleMs < MIN_DURATION_FLUSH_MS) {
+    if (clear) {
+      activeVisit = null;
+    }
+    return;
+  }
+
+  const durationSeconds = Math.max(
+    1,
+    Math.round(activeVisit.accumulatedVisibleMs / 1000)
+  );
+
+  if (durationSeconds > activeVisit.lastSentDurationSeconds) {
+    activeVisit.lastSentDurationSeconds = durationSeconds;
+
+    sendVisitPayload(
+      {
+        eventType: "duration",
+        visitToken: activeVisit.visitToken,
+        page: activeVisit.page,
+        path: activeVisit.path,
+        durationSeconds,
+      },
+      true
+    );
+  }
+
+  if (clear) {
+    activeVisit = null;
+  }
+}
+
+function startVisit(page: string) {
+  if (typeof window === "undefined" || import.meta.env.DEV) {
+    return;
+  }
+
+  const path = getCurrentPath();
+
+  if (activeVisit?.page === page && activeVisit.path === path) {
+    activePage = page;
+    resumeActiveVisit();
+    return;
+  }
+
+  flushActiveVisitDuration({ clear: true });
+
+  const visitToken = createVisitToken();
+  const referrer = getSanitizedReferrer();
+  const visibleSince =
+    document.visibilityState === "visible" ? Date.now() : null;
+
+  activeVisit = {
+    page,
+    path,
+    visitToken,
+    referrer,
+    visibleSince,
+    accumulatedVisibleMs: 0,
+    lastSentDurationSeconds: 0,
+  };
+  activePage = page;
+
+  sendVisitPayload({
+    eventType: "view",
+    visitToken,
+    page,
+    path,
+    referrer,
+  });
+}
+
+function attachLifecycleListeners() {
   if (listenersAttached || typeof window === "undefined") {
     return;
   }
 
   listenersAttached = true;
 
-  window.addEventListener("focus", logResumedVisit);
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      logResumedVisit();
+    if (document.visibilityState === "hidden") {
+      flushActiveVisitDuration();
+      return;
     }
+
+    if (activePage) {
+      resumeActiveVisit();
+    }
+  });
+
+  window.addEventListener("pagehide", () => {
+    flushActiveVisitDuration({ clear: true, force: true });
   });
 }
 
 export function logVisitorPageView(page: string) {
-  attachResumeListeners();
-  sendVisit(page, CLIENT_DEDUPE_WINDOW_MS);
+  attachLifecycleListeners();
+  startVisit(page);
 }

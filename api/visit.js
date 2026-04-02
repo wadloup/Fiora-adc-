@@ -8,6 +8,8 @@ import {
 } from "./_shared/security.js";
 
 const RECENT_DUPLICATE_WINDOW_MS = 75 * 1000;
+const MAX_VISIT_TOKEN_LENGTH = 96;
+const MAX_EVENT_TYPE_LENGTH = 16;
 
 async function readJsonBody(request) {
   if (!request.body) {
@@ -88,12 +90,91 @@ async function insertVisitRecord(supabaseUrl, serviceRoleKey, payload) {
   return { ok: true };
 }
 
+async function fetchVisitByToken(supabaseUrl, serviceRoleKey, visitToken) {
+  const lookupUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
+  lookupUrl.searchParams.set("select", "id,duration_seconds");
+  lookupUrl.searchParams.set("visit_token", `eq.${escapeFilterValue(visitToken)}`);
+  lookupUrl.searchParams.set("limit", "1");
+
+  const response = await fetch(lookupUrl, {
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    return { ok: false, errorText };
+  }
+
+  const rows = await response.json();
+  return { ok: true, row: rows?.[0] || null };
+}
+
+async function updateVisitDuration(
+  supabaseUrl,
+  serviceRoleKey,
+  visitToken,
+  durationSeconds
+) {
+  const lookupResult = await fetchVisitByToken(
+    supabaseUrl,
+    serviceRoleKey,
+    visitToken
+  );
+
+  if (!lookupResult.ok) {
+    return lookupResult;
+  }
+
+  if (!lookupResult.row?.id) {
+    return { ok: true, skipped: "missing_visit_row" };
+  }
+
+  const currentDurationSeconds = Number(lookupResult.row.duration_seconds || 0);
+
+  if (
+    Number.isFinite(currentDurationSeconds) &&
+    currentDurationSeconds >= durationSeconds
+  ) {
+    return { ok: true, skipped: "stale_duration" };
+  }
+
+  const updateUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
+  updateUrl.searchParams.set("visit_token", `eq.${escapeFilterValue(visitToken)}`);
+
+  const response = await fetch(updateUrl, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      duration_seconds: durationSeconds,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    return { ok: false, errorText };
+  }
+
+  return { ok: true };
+}
+
 async function findRecentDuplicate(
   supabaseUrl,
   serviceRoleKey,
   payload,
   dedupeKey
 ) {
+  if (payload.visit_token) {
+    return false;
+  }
+
   const baseUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
   baseUrl.searchParams.set("select", "visited_at,id");
   baseUrl.searchParams.set("order", "visited_at.desc");
@@ -179,6 +260,13 @@ export default async function handler(request, response) {
   }
 
   const body = await readJsonBody(request);
+  const eventType = sanitize(body.eventType || "view", MAX_EVENT_TYPE_LENGTH)
+    .toLowerCase();
+  const visitToken = sanitize(body.visitToken || "", MAX_VISIT_TOKEN_LENGTH);
+  const parsedDurationSeconds = Number(body.durationSeconds);
+  const durationSeconds = Number.isFinite(parsedDurationSeconds)
+    ? Math.max(0, Math.min(60 * 60 * 12, Math.round(parsedDurationSeconds)))
+    : 0;
   const { country, region, city, userAgent, sourceFingerprint, dedupeKey } =
     buildVisitorIdentity(request, fingerprintSalt);
   const guidePage = sanitize(body.page || "Unknown", 80);
@@ -187,6 +275,62 @@ export default async function handler(request, response) {
 
   if (shouldIgnoreVisit(userAgent)) {
     return response.status(204).end();
+  }
+
+  if (eventType === "duration") {
+    if (!visitToken) {
+      return response.status(400).json({
+        ok: false,
+        reason: "missing_visit_token",
+      });
+    }
+
+    if (durationSeconds < 1) {
+      return response.status(202).json({
+        ok: true,
+        skipped: "duration_too_small",
+      });
+    }
+
+    try {
+      const result = await updateVisitDuration(
+        supabaseUrl,
+        serviceRoleKey,
+        visitToken,
+        durationSeconds
+      );
+
+      if (
+        !result.ok &&
+        (result.errorText.includes("visit_token") ||
+          result.errorText.includes("duration_seconds"))
+      ) {
+        return response.status(202).json({
+          ok: true,
+          skipped: "legacy_visit_schema",
+        });
+      }
+
+      if (!result.ok) {
+        return response.status(500).json({
+          ok: false,
+          reason: "duration_update_failed",
+          details: result.errorText.slice(0, 240),
+        });
+      }
+
+      return response.status(200).json({
+        ok: true,
+        durationSeconds,
+      });
+    } catch (error) {
+      return response.status(500).json({
+        ok: false,
+        reason: "unexpected_duration_error",
+        details:
+          error instanceof Error ? error.message.slice(0, 240) : "unknown",
+      });
+    }
   }
 
   const payload = {
@@ -199,6 +343,8 @@ export default async function handler(request, response) {
     user_agent: userAgent,
     source_fingerprint: sourceFingerprint,
     dedupe_key: dedupeKey,
+    visit_token: visitToken || null,
+    duration_seconds: 0,
   };
 
   try {
@@ -221,7 +367,9 @@ export default async function handler(request, response) {
     if (
       !result.ok &&
       (result.errorText.includes("source_fingerprint") ||
-        result.errorText.includes("dedupe_key"))
+        result.errorText.includes("dedupe_key") ||
+        result.errorText.includes("visit_token") ||
+        result.errorText.includes("duration_seconds"))
     ) {
       const legacyPayload = {
         guide_page: payload.guide_page,
