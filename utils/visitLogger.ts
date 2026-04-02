@@ -1,4 +1,5 @@
 const MIN_DURATION_FLUSH_MS = 1_000;
+const DURATION_SYNC_INTERVAL_MS = 15_000;
 
 type ActiveVisit = {
   page: string;
@@ -81,9 +82,11 @@ function resumeActiveVisit() {
 function flushActiveVisitDuration({
   clear = false,
   force = false,
+  useBeacon = false,
 }: {
   clear?: boolean;
   force?: boolean;
+  useBeacon?: boolean;
 } = {}) {
   if (!activeVisit) {
     return;
@@ -114,7 +117,7 @@ function flushActiveVisitDuration({
         path: activeVisit.path,
         durationSeconds,
       },
-      true
+      useBeacon
     );
   }
 
@@ -170,9 +173,18 @@ function attachLifecycleListeners() {
 
   listenersAttached = true;
 
+  window.setInterval(() => {
+    if (document.visibilityState !== "visible") {
+      return;
+    }
+
+    flushActiveVisitDuration();
+    resumeActiveVisit();
+  }, DURATION_SYNC_INTERVAL_MS);
+
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
-      flushActiveVisitDuration();
+      flushActiveVisitDuration({ useBeacon: true });
       return;
     }
 
@@ -182,7 +194,7 @@ function attachLifecycleListeners() {
   });
 
   window.addEventListener("pagehide", () => {
-    flushActiveVisitDuration({ clear: true, force: true });
+    flushActiveVisitDuration({ clear: true, force: true, useBeacon: true });
   });
 }
 
