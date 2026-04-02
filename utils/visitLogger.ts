@@ -1,5 +1,5 @@
 const MIN_DURATION_FLUSH_MS = 1_000;
-const DURATION_SYNC_INTERVAL_MS = 15_000;
+const DURATION_SYNC_INTERVAL_MS = 10_000;
 
 type ActiveVisit = {
   page: string;

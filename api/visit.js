@@ -8,6 +8,7 @@ import {
 } from "./_shared/security.js";
 
 const RECENT_DUPLICATE_WINDOW_MS = 75 * 1000;
+const DURATION_LOOKUP_WINDOW_MS = 30 * 60 * 1000;
 const MAX_VISIT_TOKEN_LENGTH = 96;
 const MAX_EVENT_TYPE_LENGTH = 16;
 
@@ -66,8 +67,8 @@ function shouldIgnoreVisit(userAgent) {
   );
 }
 
-function escapeFilterValue(value) {
-  return `"${value.replace(/"/g, '\\"')}"`;
+function buildEqFilterValue(value) {
+  return `eq.${value}`;
 }
 
 async function insertVisitRecord(supabaseUrl, serviceRoleKey, payload) {
@@ -93,7 +94,7 @@ async function insertVisitRecord(supabaseUrl, serviceRoleKey, payload) {
 async function fetchVisitByToken(supabaseUrl, serviceRoleKey, visitToken) {
   const lookupUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
   lookupUrl.searchParams.set("select", "id,duration_seconds");
-  lookupUrl.searchParams.set("visit_token", `eq.${escapeFilterValue(visitToken)}`);
+  lookupUrl.searchParams.set("visit_token", buildEqFilterValue(visitToken));
   lookupUrl.searchParams.set("limit", "1");
 
   const response = await fetch(lookupUrl, {
@@ -142,7 +143,7 @@ async function updateVisitDuration(
   }
 
   const updateUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
-  updateUrl.searchParams.set("visit_token", `eq.${escapeFilterValue(visitToken)}`);
+  updateUrl.searchParams.set("visit_token", buildEqFilterValue(visitToken));
 
   const response = await fetch(updateUrl, {
     method: "PATCH",
@@ -165,6 +166,128 @@ async function updateVisitDuration(
   return { ok: true };
 }
 
+async function findRecentVisitForDuration(
+  supabaseUrl,
+  serviceRoleKey,
+  payload,
+  dedupeKey
+) {
+  const baseUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
+  baseUrl.searchParams.set("select", "id,visited_at,duration_seconds");
+  baseUrl.searchParams.set("order", "visited_at.desc");
+  baseUrl.searchParams.set("limit", "1");
+  baseUrl.searchParams.set("guide_page", buildEqFilterValue(payload.guide_page));
+  baseUrl.searchParams.set("pathname", buildEqFilterValue(payload.pathname));
+
+  if (payload.source_fingerprint) {
+    baseUrl.searchParams.set(
+      "source_fingerprint",
+      buildEqFilterValue(payload.source_fingerprint)
+    );
+  } else {
+    baseUrl.searchParams.set("dedupe_key", buildEqFilterValue(dedupeKey));
+  }
+
+  const result = await fetch(baseUrl, {
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+    },
+  });
+
+  if (!result.ok) {
+    const errorText = await result.text();
+    return { ok: false, errorText };
+  }
+
+  const rows = await result.json();
+  const latest = rows?.[0];
+
+  if (!latest?.visited_at) {
+    return { ok: true, row: null };
+  }
+
+  const latestTimestamp = Date.parse(latest.visited_at);
+
+  if (
+    Number.isNaN(latestTimestamp) ||
+    Date.now() - latestTimestamp > DURATION_LOOKUP_WINDOW_MS
+  ) {
+    return { ok: true, row: null };
+  }
+
+  return { ok: true, row: latest };
+}
+
+async function patchVisitDurationById(
+  supabaseUrl,
+  serviceRoleKey,
+  visitId,
+  durationSeconds
+) {
+  const updateUrl = new URL(`${supabaseUrl}/rest/v1/visit_logs`);
+  updateUrl.searchParams.set("id", `eq.${visitId}`);
+
+  const response = await fetch(updateUrl, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      duration_seconds: durationSeconds,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    return { ok: false, errorText };
+  }
+
+  return { ok: true };
+}
+
+async function updateVisitDurationFallback(
+  supabaseUrl,
+  serviceRoleKey,
+  payload,
+  dedupeKey,
+  durationSeconds
+) {
+  const lookupResult = await findRecentVisitForDuration(
+    supabaseUrl,
+    serviceRoleKey,
+    payload,
+    dedupeKey
+  );
+
+  if (!lookupResult.ok) {
+    return lookupResult;
+  }
+
+  if (!lookupResult.row?.id) {
+    return { ok: true, skipped: "missing_recent_visit_row" };
+  }
+
+  const currentDurationSeconds = Number(lookupResult.row.duration_seconds || 0);
+
+  if (
+    Number.isFinite(currentDurationSeconds) &&
+    currentDurationSeconds >= durationSeconds
+  ) {
+    return { ok: true, skipped: "stale_fallback_duration" };
+  }
+
+  return patchVisitDurationById(
+    supabaseUrl,
+    serviceRoleKey,
+    lookupResult.row.id,
+    durationSeconds
+  );
+}
+
 async function findRecentDuplicate(
   supabaseUrl,
   serviceRoleKey,
@@ -179,16 +302,16 @@ async function findRecentDuplicate(
   baseUrl.searchParams.set("select", "visited_at,id");
   baseUrl.searchParams.set("order", "visited_at.desc");
   baseUrl.searchParams.set("limit", "1");
-  baseUrl.searchParams.set("guide_page", `eq.${escapeFilterValue(payload.guide_page)}`);
-  baseUrl.searchParams.set("pathname", `eq.${escapeFilterValue(payload.pathname)}`);
+  baseUrl.searchParams.set("guide_page", buildEqFilterValue(payload.guide_page));
+  baseUrl.searchParams.set("pathname", buildEqFilterValue(payload.pathname));
 
   if (payload.source_fingerprint) {
     baseUrl.searchParams.set(
       "source_fingerprint",
-      `eq.${escapeFilterValue(payload.source_fingerprint)}`
+      buildEqFilterValue(payload.source_fingerprint)
     );
   } else {
-    baseUrl.searchParams.set("dedupe_key", `eq.${escapeFilterValue(dedupeKey)}`);
+    baseUrl.searchParams.set("dedupe_key", buildEqFilterValue(dedupeKey));
   }
 
   const result = await fetch(baseUrl, {
@@ -293,12 +416,26 @@ export default async function handler(request, response) {
     }
 
     try {
-      const result = await updateVisitDuration(
+      let result = await updateVisitDuration(
         supabaseUrl,
         serviceRoleKey,
         visitToken,
         durationSeconds
       );
+
+      if (result.ok && result.skipped === "missing_visit_row") {
+        result = await updateVisitDurationFallback(
+          supabaseUrl,
+          serviceRoleKey,
+          {
+            guide_page: guidePage,
+            pathname,
+            source_fingerprint: sourceFingerprint,
+          },
+          dedupeKey,
+          durationSeconds
+        );
+      }
 
       if (
         !result.ok &&
