@@ -603,10 +603,37 @@ export default function App() {
                   <h1 className="mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
                     <>
                       Fiora ADC. No autopilot, no free lane.
-                      <span className="flex items-center gap-2 text-red-400">
-                        SUPPORT CHECK BELOW
-                        <ArrowDown className="h-7 w-7 text-white/80" />
-                      </span>
+                      <motion.span
+                        animate={{
+                          y: [0, -2, 0],
+                          textShadow: [
+                            "0 0 12px rgba(255, 90, 90, 0.18)",
+                            "0 0 30px rgba(255, 90, 90, 0.38)",
+                            "0 0 12px rgba(255, 90, 90, 0.18)",
+                          ],
+                        }}
+                        transition={{
+                          duration: 1.9,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="mt-1 flex items-center gap-2 text-[clamp(2.2rem,5vw,3.25rem)] font-black uppercase leading-[0.92] tracking-[-0.035em] text-red-300 md:gap-3"
+                      >
+                        <span className="bg-gradient-to-b from-[#ffb6b6] via-[#ff7a7a] to-[#ff5858] bg-clip-text text-transparent">
+                          SUPPORT CHECK BELOW
+                        </span>
+                        <motion.span
+                          animate={{ y: [0, 7, 0], opacity: [0.7, 1, 0.7] }}
+                          transition={{
+                            duration: 0.95,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                          className="shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)]"
+                        >
+                          <ArrowDown className="h-9 w-9 md:h-11 md:w-11" />
+                        </motion.span>
+                      </motion.span>
                     </>
                   </h1>
                 </div>
