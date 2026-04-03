@@ -132,35 +132,43 @@ $entries = @(
   },
   @{
     File = "skill-order-level-2.wav"
-    Text = "Level 2. E for burst timing, especially when P T A trade windows already look possible."
+    Text = "Level 2. W first for safety. Many lanes are double range or engage, and if they hit level 2 first they will force the classic spike off one wave plus three melee minions. Once you match level 2, Riposte gives you far more freedom to stand in front and protect an enchanter from hook lanes."
   },
   @{
     File = "skill-order-level-3.wav"
-    Text = "Level 3. W for Riposte control, crowd control answer, and far safer commitment."
+    Text = "Level 3. E turns short trades nasty. With P T A, Q in, auto, E reset, auto, then second E crit can chunk absurdly hard. If support gives move speed and cover, you get first contact and Riposte stops the answer back."
   },
   @{
     File = "matchup-jhin.wav"
-    Text = "Jhin. Favorable. Danger medium. Punish him the second his spacing gets lazy. If your support touches him first, the lane can snap fast."
+    Text = "Jhin. Favorable. Danger medium. He does not D P S check you early and many Jhin players waste their crowd control at close range. Hold Riposte for the spell that matters, then stun him and the kill is often almost guaranteed if support is awake."
   },
   @{
     File = "matchup-jinx.wav"
-    Text = "Jinx. Favorable. Danger medium. No dash means one clean catch can flip the whole lane if wave and brush are already yours."
-  },
-  @{
-    File = "matchup-kaisa.wav"
-    Text = "Kai'Sa. Playable. Danger medium. Volatile lane. The label matters less than who gets the first real all in cleanly."
-  },
-  @{
-    File = "matchup-ashe.wav"
-    Text = "Ashe. Difficult. Danger high. Her slow ruins your rhythm. Stay healthier than you want to, then pick one hard commit instead of bleeding out in small trades."
+    Text = "Jinx. Favorable. Danger medium. Her W is usually easy to sidestep with Q or just clean movement. The real key is traps. If she drops them directly on you, you have about half a second to parry and stun her back. Until traps are gone, do not waste Riposte."
   },
   @{
     File = "matchup-draven.wav"
-    Text = "Draven. Difficult. Danger high. If he gets tempo first, every lane step feels expensive. Do not trade for ego."
+    Text = "Draven. Difficult. Danger high. He can harass you far too easily with autos, so early levels are mostly about not donating health for ego. From level 3 onward, one solid engage can still surprise him, especially when he walks up under your tower like he owns the lane."
+  },
+  @{
+    File = "matchup-twitch.wav"
+    Text = "Twitch. Difficult. Danger high. His stealth makes tower pressure dangerous. If he vanishes while you are hitting tower and you Q, tagging him by accident can draw tower aggro and get you killed. Later his ultimate gives him extra kite space, so Q into Riposte slow is often the cleanest way to keep contact."
+  },
+  @{
+    File = "matchup-braum.wav"
+    Text = "Braum. Difficult. Danger high. He is tanky enough that brute forcing him is usually a waste, and he will try to body block you away from his A D C. The window is when he commits his passive or stun. Parry it, then angle Riposte through him if possible so the enemy A D C gets caught too."
+  },
+  @{
+    File = "matchup-lulu.wav"
+    Text = "Lulu. Difficult. Danger high. Polymorph can completely cancel your entry and is awkward to parry on reaction. Respect the spell, stay patient, and do not start a trade you cannot finish before she turns you into decoration."
   },
   @{
     File = "matchup-caitlyn.wav"
-    Text = "Caitlyn. Difficult. Danger high. Range, traps, and shove punish lazy movement. Respect the setup, then hit the moment she gets arrogant."
+    Text = "Caitlyn. Difficult. Danger high. Her range makes lane annoying enough that Doran's Shield is often the clean start just to keep health honest. Play around her traps so you can turn them against her with Riposte, and remember she is still squishy enough that one all in can force everything, even Flash."
+  },
+  @{
+    File = "matchup-ezreal.wav"
+    Text = "Ezreal. Difficult. Danger medium. His dash makes the lane slippery and annoying because he can outspace lazy entries for free. Ask support for move speed when possible, then use Riposte slow to stay on him. If he dashes at close range, Q first and W right after often keeps the chase simple."
   },
   @{
     File = "lane-primary-goal.wav"
@@ -176,7 +184,7 @@ $entries = @(
   },
   @{
     File = "lane-early-lane.wav"
-    Text = "Early lane. Keep your health, track the spike, then cash in on the first real mistake. Fiora A D C is short range, so free damage is how you lose lane before the matchup even starts. Level 2 with Q then E creates real kill pressure if support is already in range to finish the idea. At level 3, Riposte changes how confidently you can stand your ground once enemy crowd control has been identified."
+    Text = "Early lane. Keep your health, track the spike, then cash in on the first real mistake. Fiora A D C is short range, so free damage is how you lose lane before the matchup even starts. Level 2 is usually W for safety because double range lanes and engage lanes will gladly abuse the first spike if you cannot answer it. Level 3 brings E, which means the short burst window becomes real the second support gives access or movement speed."
   },
   @{
     File = "lane-wave-bush-control.wav"

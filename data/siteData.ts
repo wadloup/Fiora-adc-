@@ -144,7 +144,7 @@ export const voiceText: Record<PageName, string> = {
   Build:
     "The build is not random. Start with Tiamat and Ravenous Hydra, then ask whether the game wants burst, balance, or a less greedy answer to enemy damage.",
   "Skill Order":
-    "Your early levels decide whether lane is fake pressure or real pressure. Q gives access, E gives the burst window, and W lets you stop pretending the enemy controls the trade.",
+    "Your early levels decide whether lane is fake pressure or real pressure. Q gives access, W gives the safety to survive the real spike, and E arrives at level 3 to turn short trades into something much meaner.",
   Matchups:
     "Treat matchups as trends, not prison sentences. A bad lane becomes playable the second Fiora gets first lead, better tempo, or one engage that actually lands cleanly.",
   "Lane Phase":
@@ -192,7 +192,7 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jhin_0.jpg",
     position: "center 24%",
     explanation:
-      "Punish him the second his spacing gets lazy. If your support touches him first, the lane can snap fast.",
+      "He does not DPS-check you early and many Jhin players waste their crowd control at close range. Hold Riposte for the spell that matters, then stun him and the kill is often almost guaranteed if your support is awake.",
     audio: "/voices/blocks/matchup-jhin.wav",
   },
   {
@@ -203,30 +203,8 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Jinx_0.jpg",
     position: "center 24%",
     explanation:
-      "No dash means one clean catch can flip the whole lane if wave and brush are already yours.",
+      "Her W is usually easy to sidestep with Q or just clean movement. The real key is traps: if she drops them directly on you, you have about half a second to parry and stun her back. Until traps are gone, do not waste Riposte.",
     audio: "/voices/blocks/matchup-jinx.wav",
-  },
-  {
-    name: "Kai'Sa",
-    level: "Playable",
-    danger: "Medium",
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Kaisa_0.jpg",
-    position: "center 22%",
-    explanation:
-      "Volatile lane. The label matters less than who gets the first real all-in cleanly.",
-    audio: "/voices/blocks/matchup-kaisa.wav",
-  },
-  {
-    name: "Ashe",
-    level: "Difficult",
-    danger: "High",
-    image:
-      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ashe_0.jpg",
-    position: "center 22%",
-    explanation:
-      "Her slow ruins your rhythm. Stay healthier than you want to, then pick one hard commit instead of bleeding out in small trades.",
-    audio: "/voices/blocks/matchup-ashe.wav",
   },
   {
     name: "Draven",
@@ -236,8 +214,41 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Draven_0.jpg",
     position: "center 20%",
     explanation:
-      "If he gets tempo first, every lane step feels expensive. Do not trade for ego.",
+      "He can harass you far too easily with autos, so early levels are mostly about not donating health for ego. From level 3 onward, one solid engage can still surprise him, especially when he walks up under your tower like he owns the lane.",
     audio: "/voices/blocks/matchup-draven.wav",
+  },
+  {
+    name: "Twitch",
+    level: "Difficult",
+    danger: "High",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Twitch_0.jpg",
+    position: "center 24%",
+    explanation:
+      "His stealth makes tower pressure dangerous: if he vanishes while you are hitting tower and you Q, tagging him by accident can draw tower aggro and get you killed. Later his ultimate gives him extra kite space, so Q into Riposte slow is often the cleanest way to keep contact.",
+    audio: "/voices/blocks/matchup-twitch.wav",
+  },
+  {
+    name: "Braum",
+    level: "Difficult",
+    danger: "High",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Braum_0.jpg",
+    position: "center 20%",
+    explanation:
+      "He is tanky enough that brute-forcing him is usually a waste, and he will try to body-block you away from his ADC. The window is when he commits his passive or stun: parry it, then angle Riposte through him if possible so the enemy ADC gets caught too.",
+    audio: "/voices/blocks/matchup-braum.wav",
+  },
+  {
+    name: "Lulu",
+    level: "Difficult",
+    danger: "High",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Lulu_0.jpg",
+    position: "center 24%",
+    explanation:
+      "Polymorph can completely cancel your entry and is awkward to parry on reaction. Respect the spell, stay patient, and do not start a trade you cannot finish before she turns you into decoration.",
+    audio: "/voices/blocks/matchup-lulu.wav",
   },
   {
     name: "Caitlyn",
@@ -247,8 +258,19 @@ export const matchups: Matchup[] = [
       "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Caitlyn_0.jpg",
     position: "center 20%",
     explanation:
-      "Range, traps, and shove punish lazy movement. Respect the setup, then hit the moment she gets arrogant.",
+      "Her range makes lane annoying enough that Doran's Shield is often the clean start just to keep health honest. Play around her traps so you can turn them against her with Riposte, and remember she is still squishy enough that one all-in can force everything, even Flash.",
     audio: "/voices/blocks/matchup-caitlyn.wav",
+  },
+  {
+    name: "Ezreal",
+    level: "Difficult",
+    danger: "Medium",
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ezreal_0.jpg",
+    position: "center 24%",
+    explanation:
+      "His dash makes the lane slippery and annoying because he can outspace lazy entries for free. Ask support for move speed when possible, then use Riposte slow to stay on him. If he dashes at close range, Q first and W right after often keeps the chase simple.",
+    audio: "/voices/blocks/matchup-ezreal.wav",
   },
 ];
 
@@ -383,8 +405,8 @@ export const laneSections: LaneSection[] = [
     audio: "/voices/blocks/lane-early-lane.wav",
     points: [
       "Fiora ADC is short range, so free damage is how you lose lane before the matchup even starts.",
-      "Level 2 with Q then E creates real kill pressure if support is already in range to finish the idea.",
-      "At level 3, Riposte changes how confidently you can stand your ground once enemy CC has been identified.",
+      "Level 2 is usually W for safety because double-range lanes and engage lanes will gladly abuse the first level spike if you cannot answer it.",
+      "Level 3 brings E, which means the short burst window becomes real the second support gives access or movement speed.",
     ],
   },
   {
@@ -541,12 +563,12 @@ export const skillOrderCards: SimpleCard[] = [
   },
   {
     title: "Level 2",
-    text: "E for burst timing, especially when PTA trade windows already look possible.",
+    text: "W first for safety. Many lanes are double range or engage, and if they hit level 2 first they will force the classic spike off one wave plus three melee minions. Once you match level 2, Riposte gives you far more freedom to stand in front and protect an enchanter from hook lanes.",
     audio: "/voices/blocks/skill-order-level-2.wav",
   },
   {
     title: "Level 3",
-    text: "W for Riposte control, CC answer, and far safer commitment.",
+    text: "E at level 3 turns short trades nasty. With PTA, Q in, auto, E reset, auto, then second E crit can hit absurdly hard. If support gives move speed and cover, you reach first contact and Riposte stops the answer back.",
     audio: "/voices/blocks/skill-order-level-3.wav",
   },
 ];

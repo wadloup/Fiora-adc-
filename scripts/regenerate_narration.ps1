@@ -35,7 +35,7 @@ $entries = @(
   },
   @{
     File = "skill-order.wav"
-    Text = "Your early levels decide whether lane is fake pressure or real pressure. Q gives access, E gives the burst window, and W lets you stop pretending the enemy controls the trade."
+    Text = "Your early levels decide whether lane is fake pressure or real pressure. Q gives access, W gives the safety to survive the real spike, and E arrives at level 3 to turn short trades into something much meaner."
   },
   @{
     File = "matchups.wav"
