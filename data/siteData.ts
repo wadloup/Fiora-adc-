@@ -508,7 +508,7 @@ export const homeStatCards: SimpleCard[] = [
 ];
 
 export const homeStatValues = [
-  "Jewish Friendly ???",
+  "Extermination, stomp, smoke enemy team",
   "Carry mindset",
   "Technical pocket pick",
   "Champ select read",
