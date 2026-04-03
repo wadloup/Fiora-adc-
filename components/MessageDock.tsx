@@ -92,22 +92,25 @@ export default function MessageDock() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -18 }}
             transition={{ duration: 0.18 }}
-            className="w-[280px] rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.2)]"
+            className="w-[296px] rounded-3xl border border-red-500/45 bg-[linear-gradient(180deg,rgba(20,10,14,0.98)_0%,rgba(10,8,12,0.98)_100%)] p-4 shadow-[0_0_34px_rgba(255,0,60,0.24)]"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-red-300">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-200">
                   Message box
                 </p>
-                <p className="mt-1 text-sm font-bold text-white">
+                <p className="mt-1 text-base font-black text-white">
                   Leave a note
+                </p>
+                <p className="mt-1 text-xs text-white/55">
+                  Bugs, feedback, or whatever you want.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-xl border border-white/12 bg-white/5 p-2 text-white/70 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
+                className="rounded-xl border border-white/20 bg-white/8 p-2 text-white/80 transition hover:border-red-500/40 hover:bg-red-500/12 hover:text-red-200"
                 aria-label="Collapse message box"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -121,7 +124,7 @@ export default function MessageDock() {
                   setNickname(event.target.value.slice(0, MAX_NAME_LENGTH))
                 }
                 placeholder="Name (optional)"
-                className="w-full rounded-2xl border border-white/12 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-red-500/35 focus:bg-red-500/5"
+                className="w-full rounded-2xl border border-white/24 bg-white/[0.08] px-3 py-2.5 text-sm text-white placeholder:text-white/55 outline-none transition focus:border-red-500/45 focus:bg-red-500/[0.08]"
               />
 
               <textarea
@@ -131,13 +134,13 @@ export default function MessageDock() {
                 }
                 placeholder="Leave a message..."
                 rows={5}
-                className="w-full resize-none rounded-2xl border border-white/12 bg-white/5 px-3 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-red-500/35 focus:bg-red-500/5"
+                className="w-full resize-none rounded-2xl border border-white/24 bg-white/[0.08] px-3 py-3 text-sm text-white placeholder:text-white/55 outline-none transition focus:border-red-500/45 focus:bg-red-500/[0.08]"
               />
 
               <div className="flex items-center justify-between gap-3">
                 <p
                   className={cn(
-                    "text-[11px] leading-relaxed",
+                    "text-xs leading-relaxed",
                     submitState === "error"
                       ? "text-red-200"
                       : submitState === "sent"
@@ -159,8 +162,8 @@ export default function MessageDock() {
                 className={cn(
                   "inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] transition",
                   canSubmit
-                    ? "border-red-500/35 bg-red-500/12 text-red-200 hover:bg-red-500/18"
-                    : "cursor-not-allowed border-white/10 bg-white/[0.04] text-white/35"
+                    ? "border-red-400/55 bg-red-500/18 text-red-100 shadow-[0_0_18px_rgba(255,0,60,0.16)] hover:bg-red-500/24"
+                    : "cursor-not-allowed border-red-500/20 bg-red-500/[0.07] text-white/45"
                 )}
               >
                 <SendHorizontal className="h-4 w-4" />
