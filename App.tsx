@@ -177,6 +177,7 @@ export default function App() {
   const [launchCooldown, setLaunchCooldown] = useState(false);
   const [messagesAdminOpen, setMessagesAdminOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
   const musicVolumeRef = useRef(0.06);
   const initialMusicAutoplayAttemptedRef = useRef(false);
@@ -339,6 +340,10 @@ export default function App() {
     triggerLaunchFx();
     await playBackgroundMusic();
     requestNarrationStart();
+    homeSupportSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
@@ -757,6 +762,7 @@ export default function App() {
 
         {currentPage === "Home" ? (
           <NeonCard className="overflow-hidden">
+            <div ref={homeSupportSectionRef} />
             <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
               <div className="relative min-h-[360px] overflow-hidden">
                 <img
