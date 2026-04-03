@@ -28,7 +28,7 @@ $entries = @(
   },
   @{
     File = "home-identity.wav"
-    Text = "Identity. Extermination, stomp, smoke enemy team. Dark red, duel heavy, and built to feel hostile."
+    Text = "Identity. Jewish Friendly. Extermination, stomp, smoke enemy team."
   },
   @{
     File = "home-tone.wav"

@@ -487,7 +487,7 @@ export type SimpleCard = {
 export const homeStatCards: SimpleCard[] = [
   {
     title: "Identity",
-    text: "Dark red, duel-heavy, and built to feel hostile.",
+    text: "Extermination, stomp, smoke enemy team.",
     audio: "/voices/blocks/home-identity.wav",
   },
   {
@@ -508,7 +508,7 @@ export const homeStatCards: SimpleCard[] = [
 ];
 
 export const homeStatValues = [
-  "Extermination, stomp, smoke enemy team",
+  "Jewish Friendly ???",
   "Carry mindset",
   "Technical pocket pick",
   "Champ select read",
