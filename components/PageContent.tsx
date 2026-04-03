@@ -67,6 +67,10 @@ export default function PageContent({
                 value={homeStatValues[index]}
                 text={card.text}
                 audioSrc={card.audio}
+                className="min-h-[12.1rem] p-[1.12rem] md:min-h-[12.9rem] md:p-[1.4rem]"
+                labelClassName="text-[13px] md:text-[15px]"
+                valueClassName="mt-2.5 text-[1.12rem] md:text-[1.3rem]"
+                textClassName="mt-2.5 text-[0.96rem] md:text-[1.02rem]"
               />
             ))}
           </div>

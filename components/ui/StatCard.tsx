@@ -1,10 +1,15 @@
 import SpeakableCard from "./SpeakableCard";
+import { cn } from "../../utils/cn";
 
 type StatCardProps = {
   label: string;
   value: string;
   text: string;
   audioSrc?: string;
+  className?: string;
+  labelClassName?: string;
+  valueClassName?: string;
+  textClassName?: string;
 };
 
 export default function StatCard({
@@ -12,20 +17,41 @@ export default function StatCard({
   value,
   text,
   audioSrc,
+  className,
+  labelClassName,
+  valueClassName,
+  textClassName,
 }: StatCardProps) {
   return (
     <SpeakableCard
       text={`${label}. ${value}. ${text}`}
       audioSrc={audioSrc}
-      className="p-4 md:p-5"
+      className={cn("p-4 md:p-5", className)}
     >
-      <p className="text-xs uppercase tracking-[0.18em] text-red-300 md:text-sm">
+      <p
+        className={cn(
+          "text-xs uppercase tracking-[0.18em] text-red-300 md:text-sm",
+          labelClassName
+        )}
+      >
         {label}
       </p>
-      <p className="mt-2 text-base font-bold leading-tight text-white md:text-lg">
+      <p
+        className={cn(
+          "mt-2 text-base font-bold leading-tight text-white md:text-lg",
+          valueClassName
+        )}
+      >
         {value}
       </p>
-      <p className="mt-2 text-sm leading-relaxed text-white/65">{text}</p>
+      <p
+        className={cn(
+          "mt-2 text-sm leading-relaxed text-white/65",
+          textClassName
+        )}
+      >
+        {text}
+      </p>
     </SpeakableCard>
   );
 }
