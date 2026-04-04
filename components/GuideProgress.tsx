@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Compass, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass } from "lucide-react";
 import { cn } from "../utils/cn";
 
 type GuideProgressProps = {
@@ -59,8 +59,7 @@ export default function GuideProgress({
 
         <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto] xl:min-w-[420px]">
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5">
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300">
-              <Sparkles className="h-3.5 w-3.5" />
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300">
               Focus now
             </div>
             <p className="mt-1.5 text-[0.92rem] text-white/82">{currentFocus}</p>

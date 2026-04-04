@@ -185,35 +185,6 @@ const GUIDE_MODE_META: Record<GuideMode, { label: string; summary: string }> = {
       "Take the guide in a natural order without locking yourself into one role-first path.",
   },
 };
-const GUIDE_FLOWS: Record<GuideMode, PageName[]> = {
-  support: [
-    "Home",
-    "Fiora's Support",
-    "Lane Phase",
-    "Skill Order",
-    "Runes",
-    "Build",
-    "Matchups",
-    "Mechanical Tips",
-    "Mid/Late Game",
-    "Videos / Clips",
-    "Why Fiora ADC Works",
-  ],
-  adc: [
-    "Home",
-    "Runes",
-    "Skill Order",
-    "Lane Phase",
-    "Matchups",
-    "Build",
-    "Mechanical Tips",
-    "Mid/Late Game",
-    "Fiora's Support",
-    "Videos / Clips",
-    "Why Fiora ADC Works",
-  ],
-  browse: [...pages],
-};
 const PAGE_FOCUS_TEXT: Record<PageName, string> = {
   Home: "Pick the right route before you start wandering through the guide.",
   "Why Fiora ADC Works":
@@ -323,7 +294,11 @@ export default function App() {
   const adminOnlyMode = messagesAdminOpen;
   const activeGuideMode = guideMode ?? "browse";
   const activeGuideMeta = GUIDE_MODE_META[activeGuideMode];
-  const activeGuideFlow = GUIDE_FLOWS[activeGuideMode];
+  const activeGuideFlow = pages;
+  const activeGuideSummary =
+    guideMode === null
+      ? GUIDE_MODE_META.browse.summary
+      : "Page order follows the guide tabs. Your saved route changes quick jumps, not the reading order.";
   const currentGuideStep = Math.max(
     0,
     activeGuideFlow.findIndex((page) => page === currentPage)
@@ -1237,13 +1212,13 @@ export default function App() {
           )}
         </NeonCard>
 
-          {currentPage !== "Home" ? (
-            <GuideProgress
-              routeLabel={activeGuideMeta.label}
-              routeSummary={activeGuideMeta.summary}
-              currentPage={currentPage}
-              currentFocus={PAGE_FOCUS_TEXT[currentPage]}
-              currentStep={currentGuideStep + 1}
+            {currentPage !== "Home" ? (
+              <GuideProgress
+                routeLabel={activeGuideMeta.label}
+                routeSummary={activeGuideSummary}
+                currentPage={currentPage}
+                currentFocus={PAGE_FOCUS_TEXT[currentPage]}
+                currentStep={currentGuideStep + 1}
               totalSteps={activeGuideFlow.length}
               previousPage={previousGuidePage}
               nextPage={nextGuidePage}
