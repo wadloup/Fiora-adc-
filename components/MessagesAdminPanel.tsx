@@ -173,6 +173,28 @@ type MessagesAdminPanelProps = {
   standalone?: boolean;
 };
 
+function getRequestedAdminTab(): AdminTab | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const adminView = new URLSearchParams(window.location.search).get("admin");
+
+  if (adminView === "messages") {
+    return "inbox";
+  }
+
+  if (adminView === "visitors") {
+    return "visitors";
+  }
+
+  if (adminView === "dashboard") {
+    return "overview";
+  }
+
+  return null;
+}
+
 function formatParisTime(value: string | null) {
   if (!value) {
     return "Unknown time";
@@ -546,6 +568,7 @@ export default function MessagesAdminPanel({
   initialTab = "overview",
   standalone = false,
 }: MessagesAdminPanelProps) {
+  const requestedTab = getRequestedAdminTab();
   const [filters, setFilters] = useState<DashboardFilters>({
     country: "",
     page: "",
@@ -554,7 +577,9 @@ export default function MessagesAdminPanel({
   });
   const [inboxStatusFilter, setInboxStatusFilter] =
     useState<ThreadStatusFilter>("all");
-  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+  const [activeTab, setActiveTab] = useState<AdminTab>(
+    requestedTab ?? initialTab
+  );
   const [adminKey, setAdminKey] = useState("");
   const [draftKey, setDraftKey] = useState("");
   const [dashboardState, setDashboardState] = useState<LoadState>("idle");
@@ -583,8 +608,8 @@ export default function MessagesAdminPanel({
     replyState !== "loading";
 
   useEffect(() => {
-    setActiveTab(initialTab);
-  }, [initialTab]);
+    setActiveTab(requestedTab ?? initialTab);
+  }, [initialTab, requestedTab]);
 
   const loadDashboard = useCallback(
     async (keyOverride?: string) => {
@@ -795,14 +820,14 @@ export default function MessagesAdminPanel({
 
     setDraftKey(savedKey);
 
-    if (initialTab === "inbox") {
+    if ((requestedTab ?? initialTab) === "inbox") {
       void loadThreads(savedKey);
       return;
     }
 
     void loadDashboard(savedKey);
     void loadThreads(savedKey);
-  }, [initialTab, loadDashboard, loadThreads]);
+  }, [initialTab, loadDashboard, loadThreads, requestedTab]);
 
   useEffect(() => {
     if (!selectedThreadId || !adminKey.trim()) {
@@ -859,7 +884,7 @@ export default function MessagesAdminPanel({
   const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (activeTab === "inbox") {
+    if ((requestedTab ?? activeTab) === "inbox") {
       await loadThreads(draftKey);
       return;
     }
