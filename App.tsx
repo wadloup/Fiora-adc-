@@ -161,7 +161,30 @@ const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
 type AdminPanelTab = "overview" | "visitors" | "inbox";
 
+function getAdminPanelTabFromLocation(): AdminPanelTab | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const adminView = new URLSearchParams(window.location.search).get("admin");
+
+  if (adminView === "messages") {
+    return "inbox";
+  }
+
+  if (adminView === "visitors") {
+    return "visitors";
+  }
+
+  if (adminView === "dashboard") {
+    return "overview";
+  }
+
+  return null;
+}
+
 export default function App() {
+  const initialAdminTab = getAdminPanelTabFromLocation();
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -176,9 +199,11 @@ export default function App() {
   const [musicVolume, setMusicVolume] = useState(0.06);
   const [launchFxBursts, setLaunchFxBursts] = useState<number[]>([]);
   const [launchCooldown, setLaunchCooldown] = useState(false);
-  const [messagesAdminOpen, setMessagesAdminOpen] = useState(false);
+  const [messagesAdminOpen, setMessagesAdminOpen] = useState(
+    initialAdminTab !== null
+  );
   const [messagesAdminInitialTab, setMessagesAdminInitialTab] =
-    useState<AdminPanelTab>("overview");
+    useState<AdminPanelTab>(initialAdminTab ?? "overview");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
@@ -194,6 +219,7 @@ export default function App() {
   const currentTrackIndex = musicThemes.findIndex(
     (track) => track.id === selectedTrackId
   );
+  const adminOnlyMode = messagesAdminOpen;
 
   const filteredPages = useMemo(() => {
     if (!query.trim()) {
@@ -435,9 +461,13 @@ export default function App() {
   }, [selectedTrackId, playBackgroundMusic]);
 
   useEffect(() => {
+    if (adminOnlyMode) {
+      return;
+    }
+
     trackGuidePageViewed(currentPage);
     logVisitorPageView(currentPage);
-  }, [currentPage]);
+  }, [adminOnlyMode, currentPage]);
 
   useEffect(() => {
     const syncMessagesAdminState = () => {
@@ -529,6 +559,40 @@ export default function App() {
       ) : null}
     </div>
   );
+
+  if (adminOnlyMode) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,rgba(145,10,36,0.18),transparent_34%),linear-gradient(180deg,#09090b_0%,#050507_100%)] text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,70,110,0.08),transparent_24%),radial-gradient(circle_at_80%_16%,rgba(255,120,160,0.05),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_26%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-400/45 to-transparent" />
+
+        <div className="relative z-10">
+          <Suspense
+            fallback={
+              <div className="flex min-h-screen items-center justify-center px-6">
+                <div className="rounded-3xl border border-red-500/25 bg-black/55 px-6 py-5 text-center shadow-[0_0_30px_rgba(255,0,60,0.18)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-red-300">
+                    Admin mode
+                  </p>
+                  <p className="mt-3 text-lg font-black text-white">
+                    Loading dashboard...
+                  </p>
+                </div>
+              </div>
+            }
+          >
+            <LazyMessagesAdminPanel
+              onClose={closeMessagesAdmin}
+              initialTab={messagesAdminInitialTab}
+              standalone
+            />
+          </Suspense>
+        </div>
+
+        <Analytics />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">

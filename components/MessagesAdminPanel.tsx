@@ -170,6 +170,7 @@ type LoadState = "idle" | "loading" | "ready" | "error";
 type MessagesAdminPanelProps = {
   onClose: () => void;
   initialTab?: AdminTab;
+  standalone?: boolean;
 };
 
 function formatParisTime(value: string | null) {
@@ -538,6 +539,7 @@ function MiniTrendChart({
 export default function MessagesAdminPanel({
   onClose,
   initialTab = "overview",
+  standalone = false,
 }: MessagesAdminPanelProps) {
   const [filters, setFilters] = useState<DashboardFilters>({
     country: "",
@@ -1151,7 +1153,14 @@ export default function MessagesAdminPanel({
   };
 
   return (
-    <div className="fixed inset-x-4 top-[7.25rem] bottom-5 z-[70] hidden lg:block xl:left-6 xl:right-6">
+    <div
+      className={cn(
+        "fixed z-[70]",
+        standalone
+          ? "inset-3 block sm:inset-4"
+          : "inset-x-4 top-[7.25rem] bottom-5 hidden lg:block xl:left-6 xl:right-6"
+      )}
+    >
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
