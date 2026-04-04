@@ -27,12 +27,40 @@ import { cn } from "../utils/cn";
 const ADMIN_KEY_STORAGE_KEY = "fiora-message-admin-key";
 const THREADS_REFRESH_MS = 12_000;
 const MAX_ADMIN_REPLY_LENGTH = 280;
+const DATE_RANGE_OPTIONS: Array<{ value: DateRangeFilter; label: string }> = [
+  { value: "all", label: "All time" },
+  { value: "24h", label: "Last 24h" },
+  { value: "7d", label: "Last 7d" },
+  { value: "30d", label: "Last 30d" },
+];
 
 type AdminTab = "overview" | "visitors" | "inbox";
+type DateRangeFilter = "all" | "24h" | "7d" | "30d";
+type ThreadStatusFilter = "all" | "open" | "handled" | "needs_reply";
 
 type DashboardMetric = {
   label: string;
   count: number;
+};
+
+type DashboardFilterOptions = {
+  countries: string[];
+  pages: string[];
+  referrers: string[];
+};
+
+type DashboardFilters = {
+  country: string;
+  page: string;
+  referrer: string;
+  dateRange: DateRangeFilter;
+};
+
+type DashboardTrendPoint = {
+  key: string;
+  label: string;
+  visits: number;
+  conversations: number;
 };
 
 type DashboardVisitor = {
@@ -69,10 +97,13 @@ type DashboardOverview = {
 type DashboardPayload = {
   ok?: boolean;
   generatedAt?: string;
+  filtersApplied?: DashboardFilters;
+  filterOptions?: DashboardFilterOptions;
   overview?: DashboardOverview;
   topCountries?: DashboardMetric[];
   topPages?: DashboardMetric[];
   topReferrers?: DashboardMetric[];
+  activityByDay?: DashboardTrendPoint[];
   recentVisitors?: DashboardVisitor[];
   recentThreads?: ChatThread[];
   issues?: {
@@ -173,6 +204,10 @@ function formatDuration(seconds: number | null | undefined) {
 }
 
 function threadNeedsReply(thread: ChatThread) {
+  if (thread.status === "handled") {
+    return false;
+  }
+
   if (!thread.last_visitor_message_at) {
     return false;
   }
@@ -204,6 +239,31 @@ function reasonToMessage(reason?: string | null) {
     default:
       return "Admin data is unavailable right now.";
   }
+}
+
+function isWithinDateRange(
+  value: string | null,
+  dateRange: DateRangeFilter
+) {
+  if (dateRange === "all") {
+    return true;
+  }
+
+  const timestamp = Date.parse(value || "");
+
+  if (!Number.isFinite(timestamp)) {
+    return false;
+  }
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  const threshold =
+    dateRange === "24h"
+      ? Date.now() - dayMs
+      : dateRange === "7d"
+        ? Date.now() - dayMs * 7
+        : Date.now() - dayMs * 30;
+
+  return timestamp >= threshold;
 }
 
 function MetricCard({
@@ -239,6 +299,8 @@ function BreakdownPanel({
   title: string;
   items: DashboardMetric[];
 }) {
+  const maxCount = Math.max(...items.map((item) => item.count), 1);
+
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
@@ -249,12 +311,27 @@ function BreakdownPanel({
           items.map((item) => (
             <div
               key={`${title}-${item.label}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2"
+              className="rounded-xl border border-white/8 bg-black/20 px-3 py-2"
             >
-              <span className="truncate text-sm text-white/85">{item.label}</span>
-              <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-white/75">
-                {item.count}
-              </span>
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate text-sm text-white/85">
+                  {item.label}
+                </span>
+                <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-white/75">
+                  {item.count}
+                </span>
+              </div>
+              <div className="mt-2 h-1.5 rounded-full bg-white/5">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,110,135,0.8),rgba(255,40,90,0.95))]"
+                  style={{
+                    width: `${Math.max(
+                      12,
+                      Math.round((item.count / maxCount) * 100)
+                    )}%`,
+                  }}
+                />
+              </div>
             </div>
           ))
         ) : (
@@ -267,10 +344,102 @@ function BreakdownPanel({
   );
 }
 
+function DashboardFilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+        {label}
+      </span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-2xl border border-white/12 bg-white/[0.05] px-3 py-2.5 text-sm text-white outline-none transition focus:border-red-500/35 focus:bg-red-500/[0.05]"
+      >
+        {options.map((option) => (
+          <option key={`${label}-${option.value}`} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function MiniTrendChart({
+  title,
+  data,
+  metric,
+  tone = "red",
+}: {
+  title: string;
+  data: DashboardTrendPoint[];
+  metric: "visits" | "conversations";
+  tone?: "red" | "amber";
+}) {
+  const maxValue = Math.max(...data.map((item) => item[metric]), 1);
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
+        {title}
+      </p>
+      <div className="mt-4 flex h-36 items-end gap-2">
+        {data.map((item) => (
+          <div
+            key={`${title}-${item.key}`}
+            className="flex min-w-0 flex-1 flex-col items-center gap-2"
+          >
+            <span className="text-[10px] font-semibold text-white/52">
+              {item[metric]}
+            </span>
+            <div className="flex h-24 w-full items-end rounded-t-xl bg-white/[0.03] px-1 pb-1">
+              <div
+                className={cn(
+                  "w-full rounded-lg",
+                  tone === "amber"
+                    ? "bg-[linear-gradient(180deg,rgba(255,210,110,0.95),rgba(255,150,40,0.82))]"
+                    : "bg-[linear-gradient(180deg,rgba(255,120,145,0.95),rgba(255,40,90,0.88))]"
+                )}
+                style={{
+                  height: `${Math.max(
+                    item[metric] ? 12 : 4,
+                    Math.round((item[metric] / maxValue) * 100)
+                  )}%`,
+                }}
+              />
+            </div>
+            <span className="text-[10px] uppercase tracking-[0.08em] text-white/40">
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function MessagesAdminPanel({
   onClose,
   initialTab = "overview",
 }: MessagesAdminPanelProps) {
+  const [filters, setFilters] = useState<DashboardFilters>({
+    country: "",
+    page: "",
+    referrer: "",
+    dateRange: "all",
+  });
+  const [inboxStatusFilter, setInboxStatusFilter] =
+    useState<ThreadStatusFilter>("all");
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
   const [adminKey, setAdminKey] = useState("");
   const [draftKey, setDraftKey] = useState("");
@@ -314,13 +483,36 @@ export default function MessagesAdminPanel({
       setDashboardState("loading");
 
       try {
-        const response = await fetch("/api/admin-dashboard", {
+        const query = new URLSearchParams();
+
+        if (filters.country) {
+          query.set("country", filters.country);
+        }
+
+        if (filters.page) {
+          query.set("page", filters.page);
+        }
+
+        if (filters.referrer) {
+          query.set("referrer", filters.referrer);
+        }
+
+        if (filters.dateRange !== "all") {
+          query.set("dateRange", filters.dateRange);
+        }
+
+        const response = await fetch(
+          query.toString()
+            ? `/api/admin-dashboard?${query.toString()}`
+            : "/api/admin-dashboard",
+          {
           method: "GET",
           headers: {
             "x-admin-key": keyToUse,
           },
           cache: "no-store",
-        });
+          }
+        );
 
         const payload = (await response.json().catch(() => null)) as
           | DashboardPayload
@@ -342,7 +534,7 @@ export default function MessagesAdminPanel({
         setStatusMessage("Dashboard unavailable right now.");
       }
     },
-    [adminKey]
+    [adminKey, filters]
   );
 
   const loadThreads = useCallback(
@@ -359,13 +551,22 @@ export default function MessagesAdminPanel({
       setStatusMessage("Loading inbox...");
 
       try {
-        const response = await fetch("/api/messages", {
+        const query = new URLSearchParams();
+
+        if (inboxStatusFilter === "open" || inboxStatusFilter === "handled") {
+          query.set("status", inboxStatusFilter);
+        }
+
+        const response = await fetch(
+          query.toString() ? `/api/messages?${query.toString()}` : "/api/messages",
+          {
           method: "GET",
           headers: {
             "x-admin-key": keyToUse,
           },
           cache: "no-store",
-        });
+          }
+        );
 
         const payload = (await response.json().catch(() => null)) as
           | ThreadsPayload
@@ -426,7 +627,7 @@ export default function MessagesAdminPanel({
         setStatusMessage("Inbox unavailable right now.");
       }
     },
-    [adminKey]
+    [adminKey, inboxStatusFilter]
   );
 
   const loadConversation = useCallback(async () => {
@@ -484,6 +685,22 @@ export default function MessagesAdminPanel({
 
     void loadConversation();
   }, [adminKey, loadConversation, selectedThreadId]);
+
+  useEffect(() => {
+    if (!hasKey) {
+      return;
+    }
+
+    void loadDashboard();
+  }, [filters, hasKey, loadDashboard]);
+
+  useEffect(() => {
+    if (!hasKey) {
+      return;
+    }
+
+    void loadThreads();
+  }, [hasKey, inboxStatusFilter, loadThreads]);
 
   useEffect(() => {
     if (!hasKey) {
@@ -576,6 +793,54 @@ export default function MessagesAdminPanel({
     }
   };
 
+  const handleThreadStatusUpdate = useCallback(
+    async (status: "open" | "handled") => {
+      if (!selectedThreadId || !adminKey.trim()) {
+        return;
+      }
+
+      setReplyState("loading");
+
+      try {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-key": adminKey.trim(),
+          },
+          body: JSON.stringify({
+            action: "admin_set_status",
+            threadId: selectedThreadId,
+            status,
+          }),
+        });
+
+        const payload = (await response.json().catch(() => null)) as
+          | ConversationPayload
+          | null;
+
+        if (!response.ok || !payload?.ok || !payload.thread || !payload.messages) {
+          setReplyState("error");
+          setStatusMessage("Status update failed.");
+          return;
+        }
+
+        setSelectedThread(payload.thread);
+        setMessages(payload.messages);
+        setReplyState("ready");
+        setStatusMessage(
+          status === "handled" ? "Conversation marked handled." : "Conversation reopened."
+        );
+        void loadDashboard();
+        void loadThreads();
+      } catch {
+        setReplyState("error");
+        setStatusMessage("Status update failed.");
+      }
+    },
+    [adminKey, loadDashboard, loadThreads, selectedThreadId]
+  );
+
   const selectedThreadMeta = useMemo(() => {
     if (!selectedThread) {
       return null;
@@ -590,12 +855,66 @@ export default function MessagesAdminPanel({
 
   const dashboardOverview = dashboardData?.overview;
   const dashboardIssues = dashboardData?.issues;
+  const dashboardFilterOptions = dashboardData?.filterOptions ?? {
+    countries: [],
+    pages: [],
+    referrers: [],
+  };
+  const activityByDay = dashboardData?.activityByDay ?? [];
   const recentVisitors = dashboardData?.recentVisitors ?? [];
   const recentThreads = dashboardData?.recentThreads ?? [];
+  const filteredThreads = useMemo(
+    () =>
+      threads.filter((thread) => {
+        if (
+          filters.country &&
+          (thread.country || "Unknown") !== filters.country
+        ) {
+          return false;
+        }
+
+        if (!isWithinDateRange(thread.updated_at, filters.dateRange)) {
+          return false;
+        }
+
+        if (inboxStatusFilter === "open" && thread.status === "handled") {
+          return false;
+        }
+
+        if (inboxStatusFilter === "handled" && thread.status !== "handled") {
+          return false;
+        }
+
+        if (inboxStatusFilter === "needs_reply" && !threadNeedsReply(thread)) {
+          return false;
+        }
+
+        return true;
+      }),
+    [filters.country, filters.dateRange, inboxStatusFilter, threads]
+  );
   const priorityThreads = useMemo(
     () => threads.filter(threadNeedsReply).slice(0, 6),
     [threads]
   );
+  useEffect(() => {
+    if (activeTab !== "inbox") {
+      return;
+    }
+
+    if (!filteredThreads.length) {
+      setSelectedThreadId(null);
+      setSelectedThread(null);
+      setMessages([]);
+      return;
+    }
+
+    setSelectedThreadId((current) =>
+      current && filteredThreads.some((thread) => thread.id === current)
+        ? current
+        : filteredThreads[0].id
+    );
+  }, [activeTab, filteredThreads]);
   const isUnlocking =
     loadState === "loading" || dashboardState === "loading";
   const activeTabMeta = {
@@ -622,10 +941,33 @@ export default function MessagesAdminPanel({
     },
   }[activeTab];
   const ActiveTabIcon = activeTabMeta.icon;
+  const filterSelectOptions = {
+    countries: [
+      { value: "", label: "All countries" },
+      ...dashboardFilterOptions.countries.map((country) => ({
+        value: country,
+        label: country,
+      })),
+    ],
+    pages: [
+      { value: "", label: "All pages" },
+      ...dashboardFilterOptions.pages.map((page) => ({
+        value: page,
+        label: page,
+      })),
+    ],
+    referrers: [
+      { value: "", label: "All referrers" },
+      ...dashboardFilterOptions.referrers.map((referrer) => ({
+        value: referrer,
+        label: referrer,
+      })),
+    ],
+  };
   const tabCounts = {
     overview: dashboardOverview?.unique_visitors ?? 0,
     visitors: dashboardData?.recentVisitors?.length ?? 0,
-    inbox: dashboardOverview?.waiting_replies ?? threads.length,
+    inbox: dashboardOverview?.waiting_replies ?? filteredThreads.length,
   };
 
   return (
@@ -770,9 +1112,9 @@ export default function MessagesAdminPanel({
             </div>
             <AnimatePresence mode="popLayout">
               {activeTab === "inbox" ? (
-                threads.length ? (
+                filteredThreads.length ? (
                   <div className="space-y-2">
-                    {threads.map((thread) => {
+                    {filteredThreads.map((thread) => {
                       const active = thread.id === selectedThreadId;
                       const needsReply = threadNeedsReply(thread);
 
@@ -803,6 +1145,10 @@ export default function MessagesAdminPanel({
                             {needsReply ? (
                               <span className="shrink-0 rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
                                 Reply
+                              </span>
+                            ) : thread.status === "handled" ? (
+                              <span className="shrink-0 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100">
+                                Handled
                               </span>
                             ) : null}
                           </div>
@@ -998,6 +1344,99 @@ export default function MessagesAdminPanel({
             </div>
           </div>
 
+          {activeTab !== "inbox" ? (
+            <div className="border-b border-white/8 px-6 py-4">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <DashboardFilterSelect
+                  label="Country"
+                  value={filters.country}
+                  options={filterSelectOptions.countries}
+                  onChange={(value) =>
+                    setFilters((current) => ({ ...current, country: value }))
+                  }
+                />
+                <DashboardFilterSelect
+                  label="Page"
+                  value={filters.page}
+                  options={filterSelectOptions.pages}
+                  onChange={(value) =>
+                    setFilters((current) => ({ ...current, page: value }))
+                  }
+                />
+                <DashboardFilterSelect
+                  label="Referrer"
+                  value={filters.referrer}
+                  options={filterSelectOptions.referrers}
+                  onChange={(value) =>
+                    setFilters((current) => ({ ...current, referrer: value }))
+                  }
+                />
+                <DashboardFilterSelect
+                  label="Date"
+                  value={filters.dateRange}
+                  options={DATE_RANGE_OPTIONS}
+                  onChange={(value) =>
+                    setFilters((current) => ({
+                      ...current,
+                      dateRange: value as DateRangeFilter,
+                    }))
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilters({
+                      country: "",
+                      page: "",
+                      referrer: "",
+                      dateRange: "all",
+                    })
+                  }
+                  className="self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                >
+                  Reset filters
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="border-b border-white/8 px-6 py-4">
+              <div className="grid gap-3 md:grid-cols-3">
+                <DashboardFilterSelect
+                  label="Country"
+                  value={filters.country}
+                  options={filterSelectOptions.countries}
+                  onChange={(value) =>
+                    setFilters((current) => ({ ...current, country: value }))
+                  }
+                />
+                <DashboardFilterSelect
+                  label="Date"
+                  value={filters.dateRange}
+                  options={DATE_RANGE_OPTIONS}
+                  onChange={(value) =>
+                    setFilters((current) => ({
+                      ...current,
+                      dateRange: value as DateRangeFilter,
+                    }))
+                  }
+                />
+                <DashboardFilterSelect
+                  label="Thread state"
+                  value={inboxStatusFilter}
+                  options={[
+                    { value: "all", label: "All threads" },
+                    { value: "open", label: "Open only" },
+                    { value: "handled", label: "Handled only" },
+                    { value: "needs_reply", label: "Needs reply" },
+                  ]}
+                  onChange={(value) =>
+                    setInboxStatusFilter(value as ThreadStatusFilter)
+                  }
+                />
+              </div>
+            </div>
+          )}
+
           {activeTab === "overview" ? (
             <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
               <div className="space-y-5">
@@ -1039,6 +1478,20 @@ export default function MessagesAdminPanel({
                     label="Waiting replies"
                     value={dashboardOverview?.waiting_replies ?? 0}
                     tone="alert"
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <MiniTrendChart
+                    title="Visits trend"
+                    data={activityByDay}
+                    metric="visits"
+                  />
+                  <MiniTrendChart
+                    title="Conversation trend"
+                    data={activityByDay}
+                    metric="conversations"
+                    tone="amber"
                   />
                 </div>
 
@@ -1309,15 +1762,42 @@ export default function MessagesAdminPanel({
                       </div>
                     </div>
 
-                    {selectedThreadMeta?.needsReply ? (
-                      <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-                        Waiting for your reply
-                      </span>
-                    ) : (
-                      <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
-                        Up to date
-                      </span>
-                    )}
+                    <div className="flex shrink-0 items-center gap-2">
+                      {selectedThreadMeta?.needsReply ? (
+                        <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+                          Waiting for your reply
+                        </span>
+                      ) : selectedThread.status === "handled" ? (
+                        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
+                          Handled
+                        </span>
+                      ) : (
+                        <span className="rounded-full border border-white/12 bg-white/[0.05] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+                          Open
+                        </span>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void handleThreadStatusUpdate(
+                            selectedThread.status === "handled"
+                              ? "open"
+                              : "handled"
+                          )
+                        }
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] transition",
+                          selectedThread.status === "handled"
+                            ? "border-white/12 bg-white/[0.05] text-white/72 hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                            : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/15"
+                        )}
+                      >
+                        {selectedThread.status === "handled"
+                          ? "Reopen"
+                          : "Mark handled"}
+                      </button>
+                    </div>
                   </div>
                 </div>
 

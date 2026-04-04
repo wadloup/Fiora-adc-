@@ -10,6 +10,7 @@ const TOP_LIST_LIMIT = 6;
 const RECENT_VISITOR_LIMIT = 60;
 const RECENT_THREAD_LIMIT = 10;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DASHBOARD_TREND_DAYS = 7;
 
 function normalizeSecret(value) {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -73,6 +74,82 @@ function inferReason(errorText) {
   return "dashboard_fetch_failed";
 }
 
+function normalizeDateRange(value) {
+  const normalized = sanitize(value || "", 12).toLowerCase();
+
+  if (normalized === "24h" || normalized === "7d" || normalized === "30d") {
+    return normalized;
+  }
+
+  return "all";
+}
+
+function getDateThreshold(dateRange) {
+  if (dateRange === "24h") {
+    return Date.now() - DAY_MS;
+  }
+
+  if (dateRange === "7d") {
+    return Date.now() - DAY_MS * 7;
+  }
+
+  if (dateRange === "30d") {
+    return Date.now() - DAY_MS * 30;
+  }
+
+  return null;
+}
+
+function normalizeCountryLabel(value) {
+  return sanitize(value || "", 40) || "Unknown";
+}
+
+function normalizePageLabel(value) {
+  return sanitize(value || "", 80) || "Unknown";
+}
+
+function getParisDayKey(value) {
+  const date = new Date(value || 0);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleDateString("en-CA", {
+    timeZone: "Europe/Paris",
+  });
+}
+
+function getParisDayLabel(value) {
+  const date = new Date(value || 0);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Europe/Paris",
+  });
+}
+
+function buildDashboardFilters(request) {
+  const requestUrl = new URL(request.url, "https://local.invalid");
+
+  return {
+    country: sanitize(requestUrl.searchParams.get("country") || "", 40),
+    page: sanitize(requestUrl.searchParams.get("page") || "", 80),
+    referrer: sanitize(requestUrl.searchParams.get("referrer") || "", 120),
+    dateRange: normalizeDateRange(
+      requestUrl.searchParams.get("date") ||
+        requestUrl.searchParams.get("dateRange") ||
+        ""
+    ),
+  };
+}
+
 function getReferrerLabel(referrer) {
   const cleaned = sanitize(referrer || "", 240);
 
@@ -100,6 +177,10 @@ function buildVisitorKey(row) {
 }
 
 function threadNeedsReply(thread) {
+  if (thread?.status === "handled") {
+    return false;
+  }
+
   if (!thread?.last_visitor_message_at) {
     return false;
   }
@@ -124,6 +205,78 @@ function sortMetricMap(map) {
     .map(([label, count]) => ({ label, count }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
     .slice(0, TOP_LIST_LIMIT);
+}
+
+function buildFilterOptions(visitRows) {
+  const countries = new Set();
+  const pages = new Set();
+  const referrers = new Set();
+
+  visitRows.forEach((row) => {
+    countries.add(normalizeCountryLabel(row.country));
+    pages.add(normalizePageLabel(row.guide_page));
+    referrers.add(getReferrerLabel(row.referrer));
+  });
+
+  return {
+    countries: [...countries].sort((a, b) => a.localeCompare(b)),
+    pages: [...pages].sort((a, b) => a.localeCompare(b)),
+    referrers: [...referrers].sort((a, b) => a.localeCompare(b)),
+  };
+}
+
+function applyVisitFilters(visitRows, filters) {
+  const dateThreshold = getDateThreshold(filters.dateRange);
+
+  return visitRows.filter((row) => {
+    if (
+      filters.country &&
+      normalizeCountryLabel(row.country) !== filters.country
+    ) {
+      return false;
+    }
+
+    if (filters.page && normalizePageLabel(row.guide_page) !== filters.page) {
+      return false;
+    }
+
+    if (filters.referrer && getReferrerLabel(row.referrer) !== filters.referrer) {
+      return false;
+    }
+
+    if (dateThreshold) {
+      const timestamp = Date.parse(row.visited_at || "");
+
+      if (!Number.isFinite(timestamp) || timestamp < dateThreshold) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+function applyThreadFilters(threadRows, filters) {
+  const dateThreshold = getDateThreshold(filters.dateRange);
+
+  return threadRows.filter((thread) => {
+    if (
+      filters.country &&
+      normalizeCountryLabel(thread.country) !== filters.country
+    ) {
+      return false;
+    }
+
+    if (dateThreshold) {
+      const timestamp = Date.parse(thread.updated_at || thread.created_at || "");
+
+      if (!Number.isFinite(timestamp) || timestamp < dateThreshold) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 }
 
 function formatReferrerBreakdown(visitRows) {
@@ -154,6 +307,45 @@ function formatPageBreakdown(visitRows) {
   });
 
   return sortMetricMap(pages);
+}
+
+function buildActivityByDay(visitRows, threadRows) {
+  const now = new Date();
+  const buckets = [];
+
+  for (let index = DASHBOARD_TREND_DAYS - 1; index >= 0; index -= 1) {
+    const day = new Date(now.getTime() - DAY_MS * index);
+    const key = getParisDayKey(day.toISOString());
+
+    buckets.push({
+      key,
+      label: getParisDayLabel(day.toISOString()),
+      visits: 0,
+      conversations: 0,
+    });
+  }
+
+  const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+
+  visitRows.forEach((row) => {
+    const bucket = bucketMap.get(getParisDayKey(row.visited_at));
+
+    if (bucket) {
+      bucket.visits += 1;
+    }
+  });
+
+  threadRows.forEach((thread) => {
+    const bucket = bucketMap.get(
+      getParisDayKey(thread.updated_at || thread.created_at)
+    );
+
+    if (bucket) {
+      bucket.conversations += 1;
+    }
+  });
+
+  return buckets;
 }
 
 function aggregateVisitors(visitRows, threadRows) {
@@ -313,6 +505,7 @@ export default async function handler(request, response) {
   let threadRows = [];
   let visitIssue = null;
   let chatIssue = null;
+  const filters = buildDashboardFilters(request);
 
   try {
     visitRows = await fetchRows(supabaseUrl, serviceRoleKey, "visit_logs", {
@@ -336,20 +529,34 @@ export default async function handler(request, response) {
     chatIssue = inferReason(error instanceof Error ? error.message : "");
   }
 
-  const recentVisitors = aggregateVisitors(visitRows, threadRows);
-  const overview = buildOverview(visitRows, recentVisitors, threadRows);
+  const filterOptions = buildFilterOptions(visitRows);
+  const filteredVisitRows = applyVisitFilters(visitRows, filters);
+  const filteredThreadRows = applyThreadFilters(threadRows, filters);
+  const recentVisitors = aggregateVisitors(filteredVisitRows, filteredThreadRows);
+  const overview = buildOverview(
+    filteredVisitRows,
+    recentVisitors,
+    filteredThreadRows
+  );
   const topCountries = formatCountryBreakdown(recentVisitors);
-  const topPages = formatPageBreakdown(visitRows);
-  const topReferrers = formatReferrerBreakdown(visitRows);
-  const recentThreads = threadRows.slice(0, RECENT_THREAD_LIMIT);
+  const topPages = formatPageBreakdown(filteredVisitRows);
+  const topReferrers = formatReferrerBreakdown(filteredVisitRows);
+  const recentThreads = filteredThreadRows.slice(0, RECENT_THREAD_LIMIT);
+  const activityByDay = buildActivityByDay(
+    filteredVisitRows,
+    filteredThreadRows
+  );
 
   return response.status(200).json({
     ok: true,
     generatedAt: new Date().toISOString(),
+    filtersApplied: filters,
+    filterOptions,
     overview,
     topCountries,
     topPages,
     topReferrers,
+    activityByDay,
     recentVisitors,
     recentThreads,
     issues: {

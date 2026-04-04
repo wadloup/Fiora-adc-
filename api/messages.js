@@ -15,6 +15,20 @@ const VISITOR_MESSAGE_COOLDOWN_SECONDS = 8;
 const THREAD_LIST_LIMIT = 80;
 const THREAD_MESSAGE_LIMIT = 120;
 
+function normalizeThreadStatus(value) {
+  const normalized = sanitize(value || "", 24).toLowerCase();
+
+  if (normalized === "handled") {
+    return "handled";
+  }
+
+  if (normalized === "open") {
+    return "open";
+  }
+
+  return "all";
+}
+
 function normalizeSecret(value) {
   const raw = Array.isArray(value) ? value[0] : value;
 
@@ -170,11 +184,12 @@ async function fetchThreadMessages(supabaseUrl, serviceRoleKey, threadId) {
   return response.json();
 }
 
-async function fetchAdminThreads(supabaseUrl, serviceRoleKey) {
+async function fetchAdminThreads(supabaseUrl, serviceRoleKey, statusFilter = "all") {
   const response = await fetch(
     createQueryUrl(supabaseUrl, "chat_threads", {
       select:
         "id,thread_token,created_at,updated_at,nickname,contact,country,region,city,status,last_message_preview,last_visitor_message_at,last_admin_message_at",
+      ...(statusFilter !== "all" ? { status: `eq.${statusFilter}` } : {}),
       order: "updated_at.desc",
       limit: THREAD_LIST_LIMIT,
     }),
@@ -282,6 +297,7 @@ function buildThreadPatch({
 
   if (author === "visitor") {
     patch.last_visitor_message_at = now;
+    patch.status = "open";
 
     if (nickname) {
       patch.nickname = nickname;
@@ -356,7 +372,8 @@ async function handleAdminRead(
   response,
   supabaseUrl,
   serviceRoleKey,
-  threadId
+  threadId,
+  statusFilter = "all"
 ) {
   try {
     if (threadId) {
@@ -379,7 +396,11 @@ async function handleAdminRead(
       return response.status(200).json(payload);
     }
 
-    const threads = await fetchAdminThreads(supabaseUrl, serviceRoleKey);
+    const threads = await fetchAdminThreads(
+      supabaseUrl,
+      serviceRoleKey,
+      statusFilter
+    );
 
     return response.status(200).json({
       ok: true,
@@ -582,6 +603,61 @@ async function handleAdminReply(
   }
 }
 
+async function handleAdminStatusUpdate(
+  response,
+  supabaseUrl,
+  serviceRoleKey,
+  body
+) {
+  const threadId = Number(body.threadId);
+  const status = normalizeThreadStatus(body.status || "");
+
+  if (!Number.isFinite(threadId) || threadId <= 0) {
+    return response.status(400).json({
+      ok: false,
+      reason: "invalid_thread_id",
+    });
+  }
+
+  if (status === "all") {
+    return response.status(400).json({
+      ok: false,
+      reason: "invalid_thread_status",
+    });
+  }
+
+  try {
+    const thread = await fetchThreadById(supabaseUrl, serviceRoleKey, threadId);
+
+    if (!thread) {
+      return response.status(404).json({
+        ok: false,
+        reason: "thread_not_found",
+      });
+    }
+
+    const updatedThread =
+      (await patchThread(supabaseUrl, serviceRoleKey, thread.id, {
+        status,
+        updated_at: new Date().toISOString(),
+      })) || thread;
+
+    const payload = await fetchConversationPayload(
+      supabaseUrl,
+      serviceRoleKey,
+      updatedThread,
+      true
+    );
+
+    return response.status(200).json(payload);
+  } catch (error) {
+    return response.status(500).json({
+      ok: false,
+      reason: inferChatErrorReason(error instanceof Error ? error.message : ""),
+    });
+  }
+}
+
 export default async function handler(request, response) {
   setApiSecurityHeaders(response);
   response.setHeader("Allow", "GET, POST");
@@ -604,6 +680,9 @@ export default async function handler(request, response) {
   const threadToken = sanitize(requestUrl.searchParams.get("threadToken") || "", 96);
   const rawThreadId = requestUrl.searchParams.get("threadId") || "";
   const threadId = Number(rawThreadId);
+  const statusFilter = normalizeThreadStatus(
+    requestUrl.searchParams.get("status") || ""
+  );
 
   if (request.method === "GET") {
     if (!hasTrustedRequestSource(request)) {
@@ -633,7 +712,13 @@ export default async function handler(request, response) {
         });
       }
 
-      return handleAdminRead(response, supabaseUrl, serviceRoleKey, threadId);
+      return handleAdminRead(
+        response,
+        supabaseUrl,
+        serviceRoleKey,
+        threadId,
+        statusFilter
+      );
     }
 
     return handleVisitorThreadRead(
@@ -692,6 +777,24 @@ export default async function handler(request, response) {
     }
 
     return handleAdminReply(response, supabaseUrl, serviceRoleKey, body);
+  }
+
+  if (action === "admin_set_status") {
+    if (!normalizedAdminKey) {
+      return response.status(500).json({
+        ok: false,
+        reason: "missing_admin_key_env",
+      });
+    }
+
+    if (providedAdminKey !== normalizedAdminKey) {
+      return response.status(403).json({
+        ok: false,
+        reason: "invalid_admin_key",
+      });
+    }
+
+    return handleAdminStatusUpdate(response, supabaseUrl, serviceRoleKey, body);
   }
 
   return handleVisitorMessageCreate(
