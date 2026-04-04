@@ -464,109 +464,123 @@ export default async function handler(request, response) {
   setApiSecurityHeaders(response);
   response.setHeader("Allow", "GET");
   response.setHeader("Cache-Control", "no-store");
-
-  if (request.method !== "GET") {
-    return response.status(405).json({ ok: false });
-  }
-
-  if (!hasTrustedRequestSource(request)) {
-    return response.status(403).json({
-      ok: false,
-      reason: "untrusted_request_source",
-    });
-  }
-
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const messageAdminKey = process.env.MESSAGE_ADMIN_KEY;
-  const normalizedAdminKey = normalizeSecret(messageAdminKey);
-  const providedAdminKey = normalizeSecret(
-    request.headers["x-admin-key"] || request.headers["X-Admin-Key"]
-  );
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return response.status(500).json({
-      ok: false,
-      reason: "missing_dashboard_env",
-    });
-  }
-
-  if (!normalizedAdminKey) {
-    return response.status(500).json({
-      ok: false,
-      reason: "missing_admin_key_env",
-    });
-  }
-
-  if (providedAdminKey !== normalizedAdminKey) {
-    return response.status(403).json({
-      ok: false,
-      reason: "invalid_admin_key",
-    });
-  }
-
-  let visitRows = [];
-  let threadRows = [];
-  let visitIssue = null;
-  let chatIssue = null;
-  const filters = buildDashboardFilters(request);
-
   try {
-    visitRows = await fetchRows(supabaseUrl, serviceRoleKey, "visit_logs", {
-      select:
-        "id,visited_at,guide_page,pathname,country,region,city,referrer,user_agent,source_fingerprint,dedupe_key,duration_seconds",
-      order: "visited_at.desc",
-      limit: VISIT_LIMIT,
+    if (request.method !== "GET") {
+      return response.status(405).json({ ok: false });
+    }
+
+    if (!hasTrustedRequestSource(request)) {
+      return response.status(403).json({
+        ok: false,
+        reason: "untrusted_request_source",
+      });
+    }
+
+    const supabaseUrl =
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const messageAdminKey = process.env.MESSAGE_ADMIN_KEY;
+    const normalizedAdminKey = normalizeSecret(messageAdminKey);
+    const providedAdminKey = normalizeSecret(
+      request.headers["x-admin-key"] || request.headers["X-Admin-Key"]
+    );
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return response.status(500).json({
+        ok: false,
+        reason: "missing_dashboard_env",
+      });
+    }
+
+    if (!normalizedAdminKey) {
+      return response.status(500).json({
+        ok: false,
+        reason: "missing_admin_key_env",
+      });
+    }
+
+    if (providedAdminKey !== normalizedAdminKey) {
+      return response.status(403).json({
+        ok: false,
+        reason: "invalid_admin_key",
+      });
+    }
+
+    let visitRows = [];
+    let threadRows = [];
+    let visitIssue = null;
+    let chatIssue = null;
+    const filters = buildDashboardFilters(request);
+
+    try {
+      visitRows = await fetchRows(supabaseUrl, serviceRoleKey, "visit_logs", {
+        select:
+          "id,visited_at,guide_page,pathname,country,region,city,referrer,user_agent,source_fingerprint,dedupe_key,duration_seconds",
+        order: "visited_at.desc",
+        limit: VISIT_LIMIT,
+      });
+    } catch (error) {
+      visitIssue = inferReason(error instanceof Error ? error.message : "");
+    }
+
+    try {
+      threadRows = await fetchRows(supabaseUrl, serviceRoleKey, "chat_threads", {
+        select:
+          "id,thread_token,created_at,updated_at,nickname,contact,country,region,city,status,last_message_preview,last_visitor_message_at,last_admin_message_at,visitor_key,source_fingerprint",
+        order: "updated_at.desc",
+        limit: THREAD_LIMIT,
+      });
+    } catch (error) {
+      chatIssue = inferReason(error instanceof Error ? error.message : "");
+    }
+
+    const filterOptions = buildFilterOptions(visitRows);
+    const filteredVisitRows = applyVisitFilters(visitRows, filters);
+    const filteredThreadRows = applyThreadFilters(threadRows, filters);
+    const aggregatedVisitors = aggregateVisitors(
+      filteredVisitRows,
+      filteredThreadRows
+    );
+    const recentVisitors = aggregatedVisitors.slice(0, RECENT_VISITOR_LIMIT);
+    const overview = buildOverview(
+      filteredVisitRows,
+      aggregatedVisitors,
+      filteredThreadRows
+    );
+    const topCountries = formatCountryBreakdown(aggregatedVisitors);
+    const topPages = formatPageBreakdown(filteredVisitRows);
+    const topReferrers = formatReferrerBreakdown(filteredVisitRows);
+    const recentThreads = filteredThreadRows.slice(0, RECENT_THREAD_LIMIT);
+    const activityByDay = buildActivityByDay(
+      filteredVisitRows,
+      filteredThreadRows
+    );
+
+    return response.status(200).json({
+      ok: true,
+      generatedAt: new Date().toISOString(),
+      filtersApplied: filters,
+      filterOptions,
+      overview,
+      topCountries,
+      topPages,
+      topReferrers,
+      activityByDay,
+      recentVisitors,
+      recentThreads,
+      issues: {
+        visits: visitIssue,
+        chat: chatIssue,
+      },
     });
   } catch (error) {
-    visitIssue = inferReason(error instanceof Error ? error.message : "");
-  }
+    console.error("admin_dashboard_handler_crashed", error);
 
-  try {
-    threadRows = await fetchRows(supabaseUrl, serviceRoleKey, "chat_threads", {
-      select:
-        "id,thread_token,created_at,updated_at,nickname,contact,country,region,city,status,last_message_preview,last_visitor_message_at,last_admin_message_at,visitor_key,source_fingerprint",
-      order: "updated_at.desc",
-      limit: THREAD_LIMIT,
+    return response.status(500).json({
+      ok: false,
+      reason: "admin_dashboard_handler_crashed",
+      message:
+        error instanceof Error ? error.message : "Unknown dashboard crash",
     });
-  } catch (error) {
-    chatIssue = inferReason(error instanceof Error ? error.message : "");
   }
-
-  const filterOptions = buildFilterOptions(visitRows);
-  const filteredVisitRows = applyVisitFilters(visitRows, filters);
-  const filteredThreadRows = applyThreadFilters(threadRows, filters);
-  const aggregatedVisitors = aggregateVisitors(filteredVisitRows, filteredThreadRows);
-  const recentVisitors = aggregatedVisitors.slice(0, RECENT_VISITOR_LIMIT);
-  const overview = buildOverview(
-    filteredVisitRows,
-    aggregatedVisitors,
-    filteredThreadRows
-  );
-  const topCountries = formatCountryBreakdown(aggregatedVisitors);
-  const topPages = formatPageBreakdown(filteredVisitRows);
-  const topReferrers = formatReferrerBreakdown(filteredVisitRows);
-  const recentThreads = filteredThreadRows.slice(0, RECENT_THREAD_LIMIT);
-  const activityByDay = buildActivityByDay(
-    filteredVisitRows,
-    filteredThreadRows
-  );
-
-  return response.status(200).json({
-    ok: true,
-    generatedAt: new Date().toISOString(),
-    filtersApplied: filters,
-    filterOptions,
-    overview,
-    topCountries,
-    topPages,
-    topReferrers,
-    activityByDay,
-    recentVisitors,
-    recentThreads,
-    issues: {
-      visits: visitIssue,
-      chat: chatIssue,
-    },
-  });
 }

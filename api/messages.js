@@ -725,29 +725,81 @@ export default async function handler(request, response) {
   setApiSecurityHeaders(response);
   response.setHeader("Allow", "GET, POST");
   response.setHeader("Cache-Control", "no-store");
+  try {
+    const supabaseUrl =
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const fingerprintSalt =
+      process.env.VISIT_LOG_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const messageAdminKey = process.env.MESSAGE_ADMIN_KEY;
 
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const fingerprintSalt =
-    process.env.VISIT_LOG_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const messageAdminKey = process.env.MESSAGE_ADMIN_KEY;
+    if (!supabaseUrl || !serviceRoleKey) {
+      return response.status(500).json({
+        ok: false,
+        reason: "missing_message_env",
+      });
+    }
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    return response.status(500).json({
-      ok: false,
-      reason: "missing_message_env",
-    });
-  }
+    const requestUrl = getRequestUrl(request);
+    const threadToken = sanitize(
+      requestUrl.searchParams.get("threadToken") || "",
+      96
+    );
+    const rawThreadId = requestUrl.searchParams.get("threadId") || "";
+    const threadId = Number(rawThreadId);
+    const statusFilter = normalizeThreadStatus(
+      requestUrl.searchParams.get("status") || ""
+    );
 
-  const requestUrl = getRequestUrl(request);
-  const threadToken = sanitize(requestUrl.searchParams.get("threadToken") || "", 96);
-  const rawThreadId = requestUrl.searchParams.get("threadId") || "";
-  const threadId = Number(rawThreadId);
-  const statusFilter = normalizeThreadStatus(
-    requestUrl.searchParams.get("status") || ""
-  );
+    if (request.method === "GET") {
+      if (!hasTrustedRequestSource(request)) {
+        return response.status(403).json({
+          ok: false,
+          reason: "untrusted_request_source",
+        });
+      }
 
-  if (request.method === "GET") {
+      const normalizedAdminKey = normalizeSecret(messageAdminKey);
+      const providedAdminKey = normalizeSecret(
+        request.headers["x-admin-key"] || request.headers["X-Admin-Key"]
+      );
+
+      if (providedAdminKey) {
+        if (!normalizedAdminKey) {
+          return response.status(500).json({
+            ok: false,
+            reason: "missing_admin_key_env",
+          });
+        }
+
+        if (providedAdminKey !== normalizedAdminKey) {
+          return response.status(403).json({
+            ok: false,
+            reason: "invalid_admin_key",
+          });
+        }
+
+        return handleAdminRead(
+          response,
+          supabaseUrl,
+          serviceRoleKey,
+          threadId,
+          statusFilter
+        );
+      }
+
+      return handleVisitorThreadRead(
+        response,
+        supabaseUrl,
+        serviceRoleKey,
+        threadToken
+      );
+    }
+
+    if (request.method !== "POST") {
+      return response.status(405).json({ ok: false });
+    }
+
     if (!hasTrustedRequestSource(request)) {
       return response.status(403).json({
         ok: false,
@@ -755,12 +807,29 @@ export default async function handler(request, response) {
       });
     }
 
+    if (!isJsonRequest(request)) {
+      return response.status(415).json({
+        ok: false,
+        reason: "invalid_content_type",
+      });
+    }
+
+    if (getContentLength(request) > 8_192) {
+      return response.status(413).json({
+        ok: false,
+        reason: "payload_too_large",
+      });
+    }
+
+    const body = await readJsonBody(request);
+    const action =
+      sanitize(body.action || "visitor_message", 24) || "visitor_message";
     const normalizedAdminKey = normalizeSecret(messageAdminKey);
     const providedAdminKey = normalizeSecret(
       request.headers["x-admin-key"] || request.headers["X-Admin-Key"]
     );
 
-    if (providedAdminKey) {
+    if (action === "admin_reply") {
       if (!normalizedAdminKey) {
         return response.status(500).json({
           ok: false,
@@ -775,115 +844,70 @@ export default async function handler(request, response) {
         });
       }
 
-      return handleAdminRead(
+      return handleAdminReply(response, supabaseUrl, serviceRoleKey, body);
+    }
+
+    if (action === "admin_set_status") {
+      if (!normalizedAdminKey) {
+        return response.status(500).json({
+          ok: false,
+          reason: "missing_admin_key_env",
+        });
+      }
+
+      if (providedAdminKey !== normalizedAdminKey) {
+        return response.status(403).json({
+          ok: false,
+          reason: "invalid_admin_key",
+        });
+      }
+
+      return handleAdminStatusUpdate(
         response,
         supabaseUrl,
         serviceRoleKey,
-        threadId,
-        statusFilter
+        body
       );
     }
 
-    return handleVisitorThreadRead(
+    if (action === "admin_delete_thread") {
+      if (!normalizedAdminKey) {
+        return response.status(500).json({
+          ok: false,
+          reason: "missing_admin_key_env",
+        });
+      }
+
+      if (providedAdminKey !== normalizedAdminKey) {
+        return response.status(403).json({
+          ok: false,
+          reason: "invalid_admin_key",
+        });
+      }
+
+      return handleAdminDeleteThread(
+        response,
+        supabaseUrl,
+        serviceRoleKey,
+        body
+      );
+    }
+
+    return handleVisitorMessageCreate(
       response,
       supabaseUrl,
       serviceRoleKey,
-      threadToken
+      fingerprintSalt,
+      body,
+      request
     );
-  }
+  } catch (error) {
+    console.error("messages_handler_crashed", error);
 
-  if (request.method !== "POST") {
-    return response.status(405).json({ ok: false });
-  }
-
-  if (!hasTrustedRequestSource(request)) {
-    return response.status(403).json({
+    return response.status(500).json({
       ok: false,
-      reason: "untrusted_request_source",
+      reason: "messages_handler_crashed",
+      message: error instanceof Error ? error.message : "Unknown handler crash",
     });
   }
-
-  if (!isJsonRequest(request)) {
-    return response.status(415).json({
-      ok: false,
-      reason: "invalid_content_type",
-    });
-  }
-
-  if (getContentLength(request) > 8_192) {
-    return response.status(413).json({
-      ok: false,
-      reason: "payload_too_large",
-    });
-  }
-
-  const body = await readJsonBody(request);
-  const action = sanitize(body.action || "visitor_message", 24) || "visitor_message";
-  const normalizedAdminKey = normalizeSecret(messageAdminKey);
-  const providedAdminKey = normalizeSecret(
-    request.headers["x-admin-key"] || request.headers["X-Admin-Key"]
-  );
-
-  if (action === "admin_reply") {
-    if (!normalizedAdminKey) {
-      return response.status(500).json({
-        ok: false,
-        reason: "missing_admin_key_env",
-      });
-    }
-
-    if (providedAdminKey !== normalizedAdminKey) {
-      return response.status(403).json({
-        ok: false,
-        reason: "invalid_admin_key",
-      });
-    }
-
-    return handleAdminReply(response, supabaseUrl, serviceRoleKey, body);
-  }
-
-  if (action === "admin_set_status") {
-    if (!normalizedAdminKey) {
-      return response.status(500).json({
-        ok: false,
-        reason: "missing_admin_key_env",
-      });
-    }
-
-    if (providedAdminKey !== normalizedAdminKey) {
-      return response.status(403).json({
-        ok: false,
-        reason: "invalid_admin_key",
-      });
-    }
-
-    return handleAdminStatusUpdate(response, supabaseUrl, serviceRoleKey, body);
-  }
-
-  if (action === "admin_delete_thread") {
-    if (!normalizedAdminKey) {
-      return response.status(500).json({
-        ok: false,
-        reason: "missing_admin_key_env",
-      });
-    }
-
-    if (providedAdminKey !== normalizedAdminKey) {
-      return response.status(403).json({
-        ok: false,
-        reason: "invalid_admin_key",
-      });
-    }
-
-    return handleAdminDeleteThread(response, supabaseUrl, serviceRoleKey, body);
-  }
-
-  return handleVisitorMessageCreate(
-    response,
-    supabaseUrl,
-    serviceRoleKey,
-    fingerprintSalt,
-    body,
-    request
-  );
 }
