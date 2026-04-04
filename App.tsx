@@ -529,24 +529,24 @@ export default function App() {
 
       <AnimatedBackground theme={currentTrack} />
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/92">
+      <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.96)] shadow-[0_10px_34px_rgba(0,0,0,0.32)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 md:px-6">
           <div className="flex shrink-0 items-center gap-3">
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.22)]">
               <Sword className="h-5 w-5 text-red-400" />
             </div>
             <div>
-              <p className="whitespace-nowrap text-sm font-black uppercase tracking-[0.18em]">
+              <p className="whitespace-nowrap text-sm font-black uppercase tracking-[0.18em] text-white">
                 Fiora ADC
               </p>
-              <p className="whitespace-nowrap text-xs text-white/55">
+              <p className="whitespace-nowrap text-xs text-white/68">
                 Bot lane heresy
               </p>
             </div>
           </div>
 
           <nav className="hide-scrollbar hidden min-w-0 flex-1 overflow-x-auto xl:block">
-            <div className="flex w-max min-w-full items-center justify-center gap-2 whitespace-nowrap">
+            <div className="flex w-max min-w-full items-center justify-center gap-2 whitespace-nowrap rounded-[1.4rem] border border-white/10 bg-[rgba(255,255,255,0.04)] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               {pages.map((page) => (
                 <PageButton
                   key={page}
