@@ -36,7 +36,12 @@ const DATE_RANGE_OPTIONS: Array<{ value: DateRangeFilter; label: string }> = [
 
 type AdminTab = "overview" | "visitors" | "inbox";
 type DateRangeFilter = "all" | "24h" | "7d" | "30d";
-type ThreadStatusFilter = "all" | "open" | "handled" | "needs_reply";
+type ThreadStatusFilter =
+  | "all"
+  | "open"
+  | "handled"
+  | "archived"
+  | "needs_reply";
 
 type DashboardMetric = {
   label: string;
@@ -92,6 +97,9 @@ type DashboardOverview = {
   conversations: number;
   conversations_24h: number;
   waiting_replies: number;
+  open_threads: number;
+  handled_threads: number;
+  archived_threads: number;
 };
 
 type DashboardPayload = {
@@ -151,6 +159,12 @@ type ConversationPayload = {
   reason?: string;
 };
 
+type ThreadDeletePayload = {
+  ok?: boolean;
+  deletedThreadId?: number;
+  reason?: string;
+};
+
 type LoadState = "idle" | "loading" | "ready" | "error";
 
 type MessagesAdminPanelProps = {
@@ -204,7 +218,7 @@ function formatDuration(seconds: number | null | undefined) {
 }
 
 function threadNeedsReply(thread: ChatThread) {
-  if (thread.status === "handled") {
+  if (thread.status === "handled" || thread.status === "archived") {
     return false;
   }
 
@@ -344,6 +358,99 @@ function BreakdownPanel({
   );
 }
 
+function ShareBreakdownChart({
+  title,
+  subtitle,
+  items,
+  tone = "red",
+}: {
+  title: string;
+  subtitle: string;
+  items: DashboardMetric[];
+  tone?: "red" | "amber";
+}) {
+  const total = items.reduce((sum, item) => sum + item.count, 0);
+  const maxCount = Math.max(...items.map((item) => item.count), 1);
+
+  return (
+    <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.025)_100%)] p-5 shadow-[0_16px_34px_rgba(0,0,0,0.18)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-300">
+            {title}
+          </p>
+          <p className="mt-2 text-sm text-white/55">{subtitle}</p>
+        </div>
+        <div className="shrink-0 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2 text-right">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
+            Total
+          </p>
+          <p className="mt-1 text-xl font-black text-white">{total}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {items.length ? (
+          items.map((item, index) => {
+            const share = total ? Math.round((item.count / total) * 100) : 0;
+
+            return (
+              <div
+                key={`${title}-${item.label}`}
+                className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-xs font-black text-white/78">
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-white">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-white/40">
+                        {share}% share
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 text-right">
+                    <p className="text-lg font-black text-white">{item.count}</p>
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-white/40">
+                      events
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 h-2 rounded-full bg-white/5">
+                  <div
+                    className={cn(
+                      "h-full rounded-full shadow-[0_0_18px_rgba(255,80,120,0.18)]",
+                      tone === "amber"
+                        ? "bg-[linear-gradient(90deg,rgba(255,215,120,0.96),rgba(255,155,55,0.9))]"
+                        : "bg-[linear-gradient(90deg,rgba(255,130,155,0.98),rgba(255,45,92,0.92))]"
+                    )}
+                    style={{
+                      width: `${Math.max(
+                        item.count ? 12 : 0,
+                        Math.round((item.count / maxCount) * 100)
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 px-4 py-8 text-center text-sm text-white/45">
+            No data yet.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function DashboardFilterSelect({
   label,
   value,
@@ -453,6 +560,7 @@ export default function MessagesAdminPanel({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [threadLoadState, setThreadLoadState] = useState<LoadState>("idle");
+  const [threadActionState, setThreadActionState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState(
     "Enter your admin key to open the inbox."
   );
@@ -463,6 +571,7 @@ export default function MessagesAdminPanel({
   const hasKey = adminKey.trim().length > 0;
   const canReply =
     Boolean(selectedThreadId) &&
+    selectedThread?.status !== "archived" &&
     replyDraft.trim().length >= 2 &&
     replyState !== "loading";
 
@@ -553,7 +662,11 @@ export default function MessagesAdminPanel({
       try {
         const query = new URLSearchParams();
 
-        if (inboxStatusFilter === "open" || inboxStatusFilter === "handled") {
+        if (
+          inboxStatusFilter === "open" ||
+          inboxStatusFilter === "handled" ||
+          inboxStatusFilter === "archived"
+        ) {
           query.set("status", inboxStatusFilter);
         }
 
@@ -745,6 +858,7 @@ export default function MessagesAdminPanel({
     setMessages([]);
     setLoadState("idle");
     setThreadLoadState("idle");
+    setThreadActionState("idle");
     setReplyDraft("");
     setStatusMessage("Admin dashboard locked.");
   };
@@ -794,12 +908,12 @@ export default function MessagesAdminPanel({
   };
 
   const handleThreadStatusUpdate = useCallback(
-    async (status: "open" | "handled") => {
+    async (status: "open" | "handled" | "archived") => {
       if (!selectedThreadId || !adminKey.trim()) {
         return;
       }
 
-      setReplyState("loading");
+      setThreadActionState("loading");
 
       try {
         const response = await fetch("/api/messages", {
@@ -820,26 +934,84 @@ export default function MessagesAdminPanel({
           | null;
 
         if (!response.ok || !payload?.ok || !payload.thread || !payload.messages) {
-          setReplyState("error");
+          setThreadActionState("error");
           setStatusMessage("Status update failed.");
           return;
         }
 
         setSelectedThread(payload.thread);
         setMessages(payload.messages);
-        setReplyState("ready");
+        setThreadActionState("ready");
         setStatusMessage(
-          status === "handled" ? "Conversation marked handled." : "Conversation reopened."
+          status === "handled"
+            ? "Conversation marked handled."
+            : status === "archived"
+              ? "Conversation archived."
+              : "Conversation reopened."
         );
         void loadDashboard();
         void loadThreads();
       } catch {
-        setReplyState("error");
+        setThreadActionState("error");
         setStatusMessage("Status update failed.");
       }
     },
     [adminKey, loadDashboard, loadThreads, selectedThreadId]
   );
+
+  const handleDeleteThread = useCallback(async () => {
+    if (!selectedThreadId || !adminKey.trim()) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Delete this conversation permanently? This also removes all messages in the thread."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setThreadActionState("loading");
+
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-key": adminKey.trim(),
+        },
+        body: JSON.stringify({
+          action: "admin_delete_thread",
+          threadId: selectedThreadId,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | ThreadDeletePayload
+        | null;
+
+      if (!response.ok || !payload?.ok || !payload.deletedThreadId) {
+        setThreadActionState("error");
+        setStatusMessage("Delete failed.");
+        return;
+      }
+
+      setThreads((current) =>
+        current.filter((thread) => thread.id !== payload.deletedThreadId)
+      );
+      setSelectedThreadId(null);
+      setSelectedThread(null);
+      setMessages([]);
+      setThreadActionState("ready");
+      setStatusMessage("Conversation deleted.");
+      void loadDashboard();
+      void loadThreads();
+    } catch {
+      setThreadActionState("error");
+      setStatusMessage("Delete failed.");
+    }
+  }, [adminKey, loadDashboard, loadThreads, selectedThreadId]);
 
   const selectedThreadMeta = useMemo(() => {
     if (!selectedThread) {
@@ -877,11 +1049,15 @@ export default function MessagesAdminPanel({
           return false;
         }
 
-        if (inboxStatusFilter === "open" && thread.status === "handled") {
+        if (inboxStatusFilter === "open" && thread.status !== "open") {
           return false;
         }
 
         if (inboxStatusFilter === "handled" && thread.status !== "handled") {
+          return false;
+        }
+
+        if (inboxStatusFilter === "archived" && thread.status !== "archived") {
           return false;
         }
 
@@ -895,6 +1071,10 @@ export default function MessagesAdminPanel({
   );
   const priorityThreads = useMemo(
     () => threads.filter(threadNeedsReply).slice(0, 6),
+    [threads]
+  );
+  const unreadThreadCount = useMemo(
+    () => threads.filter(threadNeedsReply).length,
     [threads]
   );
   useEffect(() => {
@@ -937,7 +1117,7 @@ export default function MessagesAdminPanel({
       icon: Inbox,
       eyebrow: "Conversation mode",
       description:
-        "Open a thread, reply, and keep the visitor loop alive from here.",
+        "Open a thread, reply, archive, or clean up conversations from here.",
     },
   }[activeTab];
   const ActiveTabIcon = activeTabMeta.icon;
@@ -967,7 +1147,7 @@ export default function MessagesAdminPanel({
   const tabCounts = {
     overview: dashboardOverview?.unique_visitors ?? 0,
     visitors: dashboardData?.recentVisitors?.length ?? 0,
-    inbox: dashboardOverview?.waiting_replies ?? filteredThreads.length,
+    inbox: unreadThreadCount,
   };
 
   return (
@@ -1072,6 +1252,7 @@ export default function MessagesAdminPanel({
               ].map((tab) => {
                 const Icon = tab.icon;
                 const active = activeTab === tab.id;
+                const isUnreadTab = tab.id === "inbox" && unreadThreadCount > 0;
 
                 return (
                   <button
@@ -1084,14 +1265,21 @@ export default function MessagesAdminPanel({
                         ? "border-red-400/45 bg-red-500/12 shadow-[0_0_18px_rgba(255,0,60,0.14)]"
                         : "border-white/8 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
                     )}
-                  >
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-white">
-                      <Icon className="h-4 w-4 text-red-300" />
-                      {tab.label}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
-                      {tab.count}
-                    </span>
+                    >
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+                        <Icon className="h-4 w-4 text-red-300" />
+                        {tab.label}
+                      </span>
+                      <span
+                        className={cn(
+                          "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                          isUnreadTab
+                            ? "animate-pulse border border-red-300/40 bg-[linear-gradient(180deg,rgba(255,74,104,0.38),rgba(140,0,20,0.42))] text-white shadow-[0_0_20px_rgba(255,0,64,0.26)]"
+                            : "border border-white/10 bg-white/[0.06] text-white/70"
+                        )}
+                      >
+                        {tab.count}
+                      </span>
                   </button>
                 );
               })}
@@ -1117,6 +1305,8 @@ export default function MessagesAdminPanel({
                     {filteredThreads.map((thread) => {
                       const active = thread.id === selectedThreadId;
                       const needsReply = threadNeedsReply(thread);
+                      const isArchived = thread.status === "archived";
+                      const isHandled = thread.status === "handled";
 
                       return (
                         <motion.button
@@ -1125,12 +1315,18 @@ export default function MessagesAdminPanel({
                           type="button"
                           onClick={() => setSelectedThreadId(thread.id)}
                           className={cn(
-                            "w-full rounded-2xl border p-3 text-left transition",
-                            active
-                              ? "border-red-400/45 bg-red-500/12 shadow-[0_0_18px_rgba(255,0,60,0.14)]"
-                              : "border-white/8 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
+                            "relative w-full overflow-hidden rounded-2xl border p-3 text-left transition",
+                            needsReply
+                              ? "border-red-300/45 bg-[linear-gradient(180deg,rgba(255,45,85,0.16),rgba(40,8,14,0.78))] shadow-[0_0_24px_rgba(255,0,64,0.18)]"
+                              : active
+                                ? "border-red-400/45 bg-red-500/12 shadow-[0_0_18px_rgba(255,0,60,0.14)]"
+                                : "border-white/8 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
                           )}
                         >
+                          {needsReply ? (
+                            <div className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-[linear-gradient(180deg,rgba(255,170,190,0.95),rgba(255,40,90,0.95))]" />
+                          ) : null}
+
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <p className="truncate text-sm font-bold text-white">
@@ -1143,17 +1339,26 @@ export default function MessagesAdminPanel({
                             </div>
 
                             {needsReply ? (
-                              <span className="shrink-0 rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
-                                Reply
+                              <span className="shrink-0 rounded-full border border-red-300/40 bg-[linear-gradient(180deg,rgba(255,80,110,0.36),rgba(130,0,18,0.42))] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[0_0_18px_rgba(255,0,64,0.22)]">
+                                Unread
                               </span>
-                            ) : thread.status === "handled" ? (
+                            ) : isHandled ? (
                               <span className="shrink-0 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100">
                                 Handled
+                              </span>
+                            ) : isArchived ? (
+                              <span className="shrink-0 rounded-full border border-white/12 bg-white/[0.07] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/72">
+                                Archived
                               </span>
                             ) : null}
                           </div>
 
-                          <p className="mt-3 line-clamp-2 text-sm text-white/72">
+                          <p
+                            className={cn(
+                              "mt-3 line-clamp-2 text-sm",
+                              needsReply ? "text-white/90" : "text-white/72"
+                            )}
+                          >
                             {thread.last_message_preview || "No preview yet."}
                           </p>
 
@@ -1427,6 +1632,7 @@ export default function MessagesAdminPanel({
                     { value: "all", label: "All threads" },
                     { value: "open", label: "Open only" },
                     { value: "handled", label: "Handled only" },
+                    { value: "archived", label: "Archived only" },
                     { value: "needs_reply", label: "Needs reply" },
                   ]}
                   onChange={(value) =>
@@ -1479,6 +1685,32 @@ export default function MessagesAdminPanel({
                     value={dashboardOverview?.waiting_replies ?? 0}
                     tone="alert"
                   />
+                  <MetricCard
+                    label="Open threads"
+                    value={dashboardOverview?.open_threads ?? 0}
+                  />
+                  <MetricCard
+                    label="Handled"
+                    value={dashboardOverview?.handled_threads ?? 0}
+                  />
+                  <MetricCard
+                    label="Archived"
+                    value={dashboardOverview?.archived_threads ?? 0}
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <ShareBreakdownChart
+                    title="Country pressure"
+                    subtitle="Where the recent traffic clusters the most."
+                    items={dashboardData?.topCountries ?? []}
+                  />
+                  <ShareBreakdownChart
+                    title="Page pressure"
+                    subtitle="Which guide pages are pulling the most attention."
+                    items={dashboardData?.topPages ?? []}
+                    tone="amber"
+                  />
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-2">
@@ -1497,16 +1729,16 @@ export default function MessagesAdminPanel({
 
                 <div className="grid gap-4 xl:grid-cols-3">
                   <BreakdownPanel
-                    title="Top countries"
+                    title="Top referrers"
+                    items={dashboardData?.topReferrers ?? []}
+                  />
+                  <BreakdownPanel
+                    title="Countries snapshot"
                     items={dashboardData?.topCountries ?? []}
                   />
                   <BreakdownPanel
-                    title="Top pages"
+                    title="Pages snapshot"
                     items={dashboardData?.topPages ?? []}
-                  />
-                  <BreakdownPanel
-                    title="Top referrers"
-                    items={dashboardData?.topReferrers ?? []}
                   />
                 </div>
 
@@ -1594,8 +1826,12 @@ export default function MessagesAdminPanel({
                                   </p>
                                 </div>
                                 {threadNeedsReply(thread) ? (
-                                  <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
-                                    Reply
+                                  <span className="rounded-full border border-red-300/40 bg-[linear-gradient(180deg,rgba(255,80,110,0.34),rgba(130,0,18,0.42))] px-2 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-[0_0_16px_rgba(255,0,64,0.2)]">
+                                    Unread
+                                  </span>
+                                ) : thread.status === "archived" ? (
+                                  <span className="rounded-full border border-white/12 bg-white/[0.06] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/70">
+                                    Archived
                                   </span>
                                 ) : null}
                               </div>
@@ -1764,8 +2000,12 @@ export default function MessagesAdminPanel({
 
                     <div className="flex shrink-0 items-center gap-2">
                       {selectedThreadMeta?.needsReply ? (
-                        <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-                          Waiting for your reply
+                        <span className="animate-pulse rounded-full border border-red-300/40 bg-[linear-gradient(180deg,rgba(255,80,110,0.34),rgba(130,0,18,0.42))] px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-white shadow-[0_0_18px_rgba(255,0,64,0.22)]">
+                          Unread - reply waiting
+                        </span>
+                      ) : selectedThread.status === "archived" ? (
+                        <span className="rounded-full border border-white/12 bg-white/[0.05] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+                          Archived
                         </span>
                       ) : selectedThread.status === "handled" ? (
                         <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
@@ -1786,16 +2026,57 @@ export default function MessagesAdminPanel({
                               : "handled"
                           )
                         }
+                        disabled={
+                          selectedThread.status === "archived" ||
+                          threadActionState === "loading"
+                        }
                         className={cn(
                           "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] transition",
-                          selectedThread.status === "handled"
-                            ? "border-white/12 bg-white/[0.05] text-white/72 hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
-                            : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/15"
+                          selectedThread.status === "archived"
+                            ? "cursor-not-allowed border-white/10 bg-white/[0.03] text-white/32"
+                            : selectedThread.status === "handled"
+                              ? "border-white/12 bg-white/[0.05] text-white/72 hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                              : "border-emerald-300/20 bg-emerald-300/10 text-emerald-100 hover:bg-emerald-300/15"
                         )}
                       >
                         {selectedThread.status === "handled"
                           ? "Reopen"
                           : "Mark handled"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void handleThreadStatusUpdate(
+                            selectedThread.status === "archived"
+                              ? "open"
+                              : "archived"
+                          )
+                        }
+                        disabled={threadActionState === "loading"}
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] transition",
+                          selectedThread.status === "archived"
+                            ? "border-white/12 bg-white/[0.05] text-white/72 hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                            : "border-white/12 bg-black/25 text-white/72 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                        )}
+                      >
+                        {selectedThread.status === "archived"
+                          ? "Restore"
+                          : "Archive"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleDeleteThread()}
+                        disabled={threadActionState === "loading"}
+                        className={cn(
+                          "rounded-full border border-red-400/28 bg-red-500/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-red-100 transition hover:bg-red-500/18",
+                          threadActionState === "loading" &&
+                            "cursor-not-allowed opacity-55"
+                        )}
+                      >
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -1850,8 +2131,13 @@ export default function MessagesAdminPanel({
                           event.target.value.slice(0, MAX_ADMIN_REPLY_LENGTH)
                         )
                       }
-                      placeholder="Write your reply..."
+                      placeholder={
+                        selectedThread.status === "archived"
+                          ? "Restore this thread before replying..."
+                          : "Write your reply..."
+                      }
                       rows={4}
+                      disabled={selectedThread.status === "archived"}
                       className="w-full resize-none rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-red-500/35 focus:bg-red-500/[0.05]"
                     />
 
@@ -1870,7 +2156,9 @@ export default function MessagesAdminPanel({
                           ? "Reply failed. Try again."
                           : replyState === "ready"
                             ? "Reply sent."
-                            : "Visitor will see this on the same browser thread."}
+                            : selectedThread.status === "archived"
+                              ? "This thread is archived. Restore it if you want to answer."
+                              : "Visitor will see this on the same browser thread."}
                       </p>
 
                       <button

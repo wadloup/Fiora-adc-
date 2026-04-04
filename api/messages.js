@@ -18,6 +18,10 @@ const THREAD_MESSAGE_LIMIT = 120;
 function normalizeThreadStatus(value) {
   const normalized = sanitize(value || "", 24).toLowerCase();
 
+  if (normalized === "archived") {
+    return "archived";
+  }
+
   if (normalized === "handled") {
     return "handled";
   }
@@ -281,6 +285,26 @@ async function patchThread(supabaseUrl, serviceRoleKey, threadId, payload) {
 
   const rows = await response.json();
   return rows?.[0] || null;
+}
+
+async function deleteThread(supabaseUrl, serviceRoleKey, threadId) {
+  const response = await fetch(
+    createQueryUrl(supabaseUrl, "chat_threads", {
+      id: `eq.${threadId}`,
+    }),
+    {
+      method: "DELETE",
+      headers: buildSupabaseHeaders(serviceRoleKey, {
+        Prefer: "return=minimal",
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return true;
 }
 
 function buildThreadPatch({
@@ -658,6 +682,45 @@ async function handleAdminStatusUpdate(
   }
 }
 
+async function handleAdminDeleteThread(
+  response,
+  supabaseUrl,
+  serviceRoleKey,
+  body
+) {
+  const threadId = Number(body.threadId);
+
+  if (!Number.isFinite(threadId) || threadId <= 0) {
+    return response.status(400).json({
+      ok: false,
+      reason: "invalid_thread_id",
+    });
+  }
+
+  try {
+    const thread = await fetchThreadById(supabaseUrl, serviceRoleKey, threadId);
+
+    if (!thread) {
+      return response.status(404).json({
+        ok: false,
+        reason: "thread_not_found",
+      });
+    }
+
+    await deleteThread(supabaseUrl, serviceRoleKey, thread.id);
+
+    return response.status(200).json({
+      ok: true,
+      deletedThreadId: thread.id,
+    });
+  } catch (error) {
+    return response.status(500).json({
+      ok: false,
+      reason: inferChatErrorReason(error instanceof Error ? error.message : ""),
+    });
+  }
+}
+
 export default async function handler(request, response) {
   setApiSecurityHeaders(response);
   response.setHeader("Allow", "GET, POST");
@@ -795,6 +858,24 @@ export default async function handler(request, response) {
     }
 
     return handleAdminStatusUpdate(response, supabaseUrl, serviceRoleKey, body);
+  }
+
+  if (action === "admin_delete_thread") {
+    if (!normalizedAdminKey) {
+      return response.status(500).json({
+        ok: false,
+        reason: "missing_admin_key_env",
+      });
+    }
+
+    if (providedAdminKey !== normalizedAdminKey) {
+      return response.status(403).json({
+        ok: false,
+        reason: "invalid_admin_key",
+      });
+    }
+
+    return handleAdminDeleteThread(response, supabaseUrl, serviceRoleKey, body);
   }
 
   return handleVisitorMessageCreate(

@@ -6,7 +6,7 @@ import {
 
 const VISIT_LIMIT = 360;
 const THREAD_LIMIT = 80;
-const TOP_LIST_LIMIT = 6;
+const TOP_LIST_LIMIT = 8;
 const RECENT_VISITOR_LIMIT = 60;
 const RECENT_THREAD_LIMIT = 10;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -177,7 +177,7 @@ function buildVisitorKey(row) {
 }
 
 function threadNeedsReply(thread) {
-  if (thread?.status === "handled") {
+  if (thread?.status === "handled" || thread?.status === "archived") {
     return false;
   }
 
@@ -412,12 +412,10 @@ function aggregateVisitors(visitRows, threadRows) {
     }
   });
 
-  return [...visitorMap.values()]
-    .sort(
-      (a, b) =>
-        new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime()
-    )
-    .slice(0, RECENT_VISITOR_LIMIT);
+  return [...visitorMap.values()].sort(
+    (a, b) =>
+      new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime()
+  );
 }
 
 function buildOverview(visitRows, visitors, threads) {
@@ -442,6 +440,9 @@ function buildOverview(visitRows, visitors, threads) {
     return Number.isFinite(timestamp) && now - timestamp <= DAY_MS;
   });
   const waitingReplies = threads.filter(threadNeedsReply);
+  const openThreads = threads.filter((thread) => thread.status === "open");
+  const handledThreads = threads.filter((thread) => thread.status === "handled");
+  const archivedThreads = threads.filter((thread) => thread.status === "archived");
 
   return {
     visit_events: visitRows.length,
@@ -453,6 +454,9 @@ function buildOverview(visitRows, visitors, threads) {
     conversations: threads.length,
     conversations_24h: threads24h.length,
     waiting_replies: waitingReplies.length,
+    open_threads: openThreads.length,
+    handled_threads: handledThreads.length,
+    archived_threads: archivedThreads.length,
   };
 }
 
@@ -532,13 +536,14 @@ export default async function handler(request, response) {
   const filterOptions = buildFilterOptions(visitRows);
   const filteredVisitRows = applyVisitFilters(visitRows, filters);
   const filteredThreadRows = applyThreadFilters(threadRows, filters);
-  const recentVisitors = aggregateVisitors(filteredVisitRows, filteredThreadRows);
+  const aggregatedVisitors = aggregateVisitors(filteredVisitRows, filteredThreadRows);
+  const recentVisitors = aggregatedVisitors.slice(0, RECENT_VISITOR_LIMIT);
   const overview = buildOverview(
     filteredVisitRows,
-    recentVisitors,
+    aggregatedVisitors,
     filteredThreadRows
   );
-  const topCountries = formatCountryBreakdown(recentVisitors);
+  const topCountries = formatCountryBreakdown(aggregatedVisitors);
   const topPages = formatPageBreakdown(filteredVisitRows);
   const topReferrers = formatReferrerBreakdown(filteredVisitRows);
   const recentThreads = filteredThreadRows.slice(0, RECENT_THREAD_LIMIT);
