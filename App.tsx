@@ -159,6 +159,7 @@ const LAUNCH_SIDE_STICKERS = [
 const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
+type AdminPanelTab = "overview" | "visitors" | "inbox";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -176,6 +177,8 @@ export default function App() {
   const [launchFxBursts, setLaunchFxBursts] = useState<number[]>([]);
   const [launchCooldown, setLaunchCooldown] = useState(false);
   const [messagesAdminOpen, setMessagesAdminOpen] = useState(false);
+  const [messagesAdminInitialTab, setMessagesAdminInitialTab] =
+    useState<AdminPanelTab>("overview");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
@@ -439,7 +442,25 @@ export default function App() {
   useEffect(() => {
     const syncMessagesAdminState = () => {
       const searchParams = new URLSearchParams(window.location.search);
-      setMessagesAdminOpen(searchParams.get("admin") === "messages");
+      const adminView = searchParams.get("admin");
+
+      if (
+        adminView === "messages" ||
+        adminView === "dashboard" ||
+        adminView === "visitors"
+      ) {
+        setMessagesAdminInitialTab(
+          adminView === "messages"
+            ? "inbox"
+            : adminView === "visitors"
+              ? "visitors"
+              : "overview"
+        );
+        setMessagesAdminOpen(true);
+        return;
+      }
+
+      setMessagesAdminOpen(false);
     };
 
     syncMessagesAdminState();
@@ -1020,7 +1041,10 @@ export default function App() {
 
       {messagesAdminOpen ? (
         <Suspense fallback={null}>
-          <LazyMessagesAdminPanel onClose={closeMessagesAdmin} />
+          <LazyMessagesAdminPanel
+            onClose={closeMessagesAdmin}
+            initialTab={messagesAdminInitialTab}
+          />
         </Suspense>
       ) : (
         <MessageDock />

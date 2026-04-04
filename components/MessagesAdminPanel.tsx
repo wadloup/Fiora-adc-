@@ -1,6 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Clock3,
+  Globe2,
+  Inbox,
+  LayoutDashboard,
   Lock,
   MapPin,
   MessageSquareText,
@@ -8,6 +11,7 @@ import {
   SendHorizontal,
   Shield,
   UserRound,
+  Users,
   X,
 } from "lucide-react";
 import {
@@ -23,6 +27,60 @@ import { cn } from "../utils/cn";
 const ADMIN_KEY_STORAGE_KEY = "fiora-message-admin-key";
 const THREADS_REFRESH_MS = 12_000;
 const MAX_ADMIN_REPLY_LENGTH = 280;
+
+type AdminTab = "overview" | "visitors" | "inbox";
+
+type DashboardMetric = {
+  label: string;
+  count: number;
+};
+
+type DashboardVisitor = {
+  visitor_key: string;
+  visit_count: number;
+  first_seen_at: string;
+  last_seen_at: string;
+  total_duration_seconds: number;
+  latest_duration_seconds: number;
+  latest_country: string | null;
+  latest_region: string | null;
+  latest_city: string | null;
+  latest_guide_page: string;
+  latest_pathname: string;
+  latest_referrer_label: string;
+  latest_referrer: string | null;
+  latest_user_agent: string | null;
+  has_conversation: boolean;
+  needs_reply: boolean;
+};
+
+type DashboardOverview = {
+  visit_events: number;
+  unique_visitors: number;
+  unique_visitors_24h: number;
+  active_countries: number;
+  total_duration_seconds: number;
+  average_duration_seconds: number;
+  conversations: number;
+  conversations_24h: number;
+  waiting_replies: number;
+};
+
+type DashboardPayload = {
+  ok?: boolean;
+  generatedAt?: string;
+  overview?: DashboardOverview;
+  topCountries?: DashboardMetric[];
+  topPages?: DashboardMetric[];
+  topReferrers?: DashboardMetric[];
+  recentVisitors?: DashboardVisitor[];
+  recentThreads?: ChatThread[];
+  issues?: {
+    visits?: string | null;
+    chat?: string | null;
+  };
+  reason?: string;
+};
 
 type ChatThread = {
   id: number;
@@ -66,6 +124,7 @@ type LoadState = "idle" | "loading" | "ready" | "error";
 
 type MessagesAdminPanelProps = {
   onClose: () => void;
+  initialTab?: AdminTab;
 };
 
 function formatParisTime(value: string | null) {
@@ -91,6 +150,28 @@ function formatLocation(thread: ChatThread) {
   return parts.length ? parts.join(" / ") : "Unknown location";
 }
 
+function formatDuration(seconds: number | null | undefined) {
+  const safeValue = Number(seconds || 0);
+
+  if (!Number.isFinite(safeValue) || safeValue <= 0) {
+    return "0s";
+  }
+
+  if (safeValue >= 3600) {
+    const hours = Math.floor(safeValue / 3600);
+    const minutes = Math.floor((safeValue % 3600) / 60);
+    return `${hours}h ${String(minutes).padStart(2, "0")}m`;
+  }
+
+  if (safeValue >= 60) {
+    const minutes = Math.floor(safeValue / 60);
+    const remainingSeconds = safeValue % 60;
+    return `${minutes}m ${String(remainingSeconds).padStart(2, "0")}s`;
+  }
+
+  return `${safeValue}s`;
+}
+
 function threadNeedsReply(thread: ChatThread) {
   if (!thread.last_visitor_message_at) {
     return false;
@@ -106,11 +187,97 @@ function threadNeedsReply(thread: ChatThread) {
   );
 }
 
+function reasonToMessage(reason?: string | null) {
+  switch (reason) {
+    case "missing_admin_key_env":
+      return "The server has not picked up MESSAGE_ADMIN_KEY yet. Redeploy Vercel, then try again.";
+    case "chat_schema_missing":
+      return "Chat tables are missing in Supabase.";
+    case "visit_schema_missing":
+      return "Visit log tables are missing in Supabase.";
+    case "invalid_admin_key":
+      return "Invalid admin key.";
+    case "untrusted_request_source":
+      return "Blocked request source.";
+    case "missing_dashboard_env":
+      return "Dashboard env vars are missing on the server.";
+    default:
+      return "Admin data is unavailable right now.";
+  }
+}
+
+function MetricCard({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string | number;
+  tone?: "default" | "alert";
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border px-4 py-4",
+        tone === "alert"
+          ? "border-amber-300/25 bg-amber-300/10"
+          : "border-white/10 bg-white/[0.045]"
+      )}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+        {label}
+      </p>
+      <p className="mt-3 text-2xl font-black text-white">{value}</p>
+    </div>
+  );
+}
+
+function BreakdownPanel({
+  title,
+  items,
+}: {
+  title: string;
+  items: DashboardMetric[];
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
+        {title}
+      </p>
+      <div className="mt-4 space-y-2">
+        {items.length ? (
+          items.map((item) => (
+            <div
+              key={`${title}-${item.label}`}
+              className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2"
+            >
+              <span className="truncate text-sm text-white/85">{item.label}</span>
+              <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-white/75">
+                {item.count}
+              </span>
+            </div>
+          ))
+        ) : (
+          <div className="rounded-xl border border-dashed border-white/10 bg-black/15 px-3 py-4 text-sm text-white/45">
+            No data yet.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function MessagesAdminPanel({
   onClose,
+  initialTab = "overview",
 }: MessagesAdminPanelProps) {
+  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
   const [adminKey, setAdminKey] = useState("");
   const [draftKey, setDraftKey] = useState("");
+  const [dashboardState, setDashboardState] = useState<LoadState>("idle");
+  const [dashboardData, setDashboardData] = useState<DashboardPayload | null>(
+    null
+  );
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<number | null>(null);
   const [selectedThread, setSelectedThread] = useState<ChatThread | null>(null);
@@ -129,6 +296,54 @@ export default function MessagesAdminPanel({
     Boolean(selectedThreadId) &&
     replyDraft.trim().length >= 2 &&
     replyState !== "loading";
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  const loadDashboard = useCallback(
+    async (keyOverride?: string) => {
+      const keyToUse = (keyOverride ?? adminKey).trim();
+
+      if (!keyToUse) {
+        setDashboardState("error");
+        setStatusMessage("Missing admin key.");
+        return;
+      }
+
+      setDashboardState("loading");
+
+      try {
+        const response = await fetch("/api/admin-dashboard", {
+          method: "GET",
+          headers: {
+            "x-admin-key": keyToUse,
+          },
+          cache: "no-store",
+        });
+
+        const payload = (await response.json().catch(() => null)) as
+          | DashboardPayload
+          | null;
+
+        if (!response.ok || !payload?.ok) {
+          setDashboardState("error");
+          setStatusMessage(reasonToMessage(payload?.reason));
+          return;
+        }
+
+        setDashboardData(payload);
+        setDashboardState("ready");
+        setAdminKey(keyToUse);
+        setStatusMessage("Dashboard loaded.");
+        window.sessionStorage.setItem(ADMIN_KEY_STORAGE_KEY, keyToUse);
+      } catch {
+        setDashboardState("error");
+        setStatusMessage("Dashboard unavailable right now.");
+      }
+    },
+    [adminKey]
+  );
 
   const loadThreads = useCallback(
     async (keyOverride?: string) => {
@@ -258,8 +473,9 @@ export default function MessagesAdminPanel({
     }
 
     setDraftKey(savedKey);
+    void loadDashboard(savedKey);
     void loadThreads(savedKey);
-  }, [loadThreads]);
+  }, [loadDashboard, loadThreads]);
 
   useEffect(() => {
     if (!selectedThreadId || !adminKey.trim()) {
@@ -275,6 +491,7 @@ export default function MessagesAdminPanel({
     }
 
     const intervalId = window.setInterval(() => {
+      void loadDashboard();
       void loadThreads();
       void loadConversation();
     }, THREADS_REFRESH_MS);
@@ -282,7 +499,7 @@ export default function MessagesAdminPanel({
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [hasKey, loadConversation, loadThreads]);
+  }, [hasKey, loadConversation, loadDashboard, loadThreads]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "end" });
@@ -290,11 +507,19 @@ export default function MessagesAdminPanel({
 
   const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await loadThreads(draftKey);
+    await Promise.all([loadDashboard(draftKey), loadThreads(draftKey)]);
+  };
+
+  const handleRefresh = () => {
+    void loadDashboard();
+    void loadThreads();
+    void loadConversation();
   };
 
   const handleLock = () => {
     window.sessionStorage.removeItem(ADMIN_KEY_STORAGE_KEY);
+    setDashboardData(null);
+    setDashboardState("idle");
     setAdminKey("");
     setDraftKey("");
     setThreads([]);
@@ -304,7 +529,7 @@ export default function MessagesAdminPanel({
     setLoadState("idle");
     setThreadLoadState("idle");
     setReplyDraft("");
-    setStatusMessage("Admin view locked.");
+    setStatusMessage("Admin dashboard locked.");
   };
 
   const handleReply = async (event: FormEvent<HTMLFormElement>) => {
@@ -344,6 +569,7 @@ export default function MessagesAdminPanel({
       setMessages(payload.messages);
       setReplyState("ready");
       setStatusMessage("Reply sent.");
+      void loadDashboard();
       void loadThreads();
     } catch {
       setReplyState("error");
@@ -362,6 +588,46 @@ export default function MessagesAdminPanel({
     };
   }, [selectedThread]);
 
+  const dashboardOverview = dashboardData?.overview;
+  const dashboardIssues = dashboardData?.issues;
+  const recentVisitors = dashboardData?.recentVisitors ?? [];
+  const recentThreads = dashboardData?.recentThreads ?? [];
+  const priorityThreads = useMemo(
+    () => threads.filter(threadNeedsReply).slice(0, 6),
+    [threads]
+  );
+  const isUnlocking =
+    loadState === "loading" || dashboardState === "loading";
+  const activeTabMeta = {
+    overview: {
+      label: "Overview",
+      icon: LayoutDashboard,
+      eyebrow: "Dashboard view",
+      description:
+        "Traffic, countries, pages, and open conversations in one place.",
+    },
+    visitors: {
+      label: "Visitors",
+      icon: Users,
+      eyebrow: "Live visitor read",
+      description:
+        "Recent human traffic with page, duration, referrer, and location.",
+    },
+    inbox: {
+      label: "Inbox",
+      icon: Inbox,
+      eyebrow: "Conversation mode",
+      description:
+        "Open a thread, reply, and keep the visitor loop alive from here.",
+    },
+  }[activeTab];
+  const ActiveTabIcon = activeTabMeta.icon;
+  const tabCounts = {
+    overview: dashboardOverview?.unique_visitors ?? 0,
+    visitors: dashboardData?.recentVisitors?.length ?? 0,
+    inbox: dashboardOverview?.waiting_replies ?? threads.length,
+  };
+
   return (
     <div className="fixed inset-x-4 top-[7.25rem] bottom-5 z-[70] hidden lg:block xl:left-6 xl:right-6">
       <motion.div
@@ -377,10 +643,10 @@ export default function MessagesAdminPanel({
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
                   <Shield className="h-3.5 w-3.5" />
-                  Private inbox
+                  Admin dashboard
                 </div>
                 <p className="mt-3 text-lg font-black text-white">
-                  Conversations
+                  Control room
                 </p>
                 <p className="mt-1 text-xs text-white/55">{statusMessage}</p>
               </div>
@@ -412,10 +678,10 @@ export default function MessagesAdminPanel({
               <div className="flex items-center gap-2">
                 <button
                   type="submit"
-                  disabled={!draftKey.trim() || loadState === "loading"}
+                  disabled={!draftKey.trim() || isUnlocking}
                   className={cn(
                     "inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition",
-                    draftKey.trim() && loadState !== "loading"
+                    draftKey.trim() && !isUnlocking
                       ? "border-red-500/35 bg-red-500/12 text-red-200 hover:bg-red-500/18"
                       : "cursor-not-allowed border-white/10 bg-white/[0.04] text-white/35"
                   )}
@@ -423,7 +689,7 @@ export default function MessagesAdminPanel({
                   <RefreshCw
                     className={cn(
                       "h-3.5 w-3.5",
-                      loadState === "loading" && "animate-spin"
+                      isUnlocking && "animate-spin"
                     )}
                   />
                   {hasKey ? "Refresh" : "Unlock"}
@@ -440,58 +706,252 @@ export default function MessagesAdminPanel({
             </form>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-            <AnimatePresence mode="popLayout">
-              {threads.length ? (
-                <div className="space-y-2">
-                  {threads.map((thread) => {
-                    const active = thread.id === selectedThreadId;
-                    const needsReply = threadNeedsReply(thread);
+          <div className="border-b border-white/8 px-4 py-4">
+            <div className="space-y-2">
+              {[
+                {
+                  id: "overview" as const,
+                  label: "Overview",
+                  icon: LayoutDashboard,
+                  count: tabCounts.overview,
+                },
+                {
+                  id: "visitors" as const,
+                  label: "Visitors",
+                  icon: Users,
+                  count: tabCounts.visitors,
+                },
+                {
+                  id: "inbox" as const,
+                  label: "Inbox",
+                  icon: Inbox,
+                  count: tabCounts.inbox,
+                },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const active = activeTab === tab.id;
 
-                    return (
-                      <motion.button
-                        key={thread.id}
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-2xl border px-3 py-3 text-left transition",
+                      active
+                        ? "border-red-400/45 bg-red-500/12 shadow-[0_0_18px_rgba(255,0,60,0.14)]"
+                        : "border-white/8 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
+                    )}
+                  >
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+                      <Icon className="h-4 w-4 text-red-300" />
+                      {tab.label}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+            <div className="mb-3 grid grid-cols-2 gap-2">
+              <MetricCard
+                label="Visitors"
+                value={dashboardOverview?.unique_visitors ?? 0}
+              />
+              <MetricCard
+                label="Need reply"
+                value={dashboardOverview?.waiting_replies ?? 0}
+                tone="alert"
+              />
+            </div>
+            <AnimatePresence mode="popLayout">
+              {activeTab === "inbox" ? (
+                threads.length ? (
+                  <div className="space-y-2">
+                    {threads.map((thread) => {
+                      const active = thread.id === selectedThreadId;
+                      const needsReply = threadNeedsReply(thread);
+
+                      return (
+                        <motion.button
+                          key={thread.id}
+                          layout
+                          type="button"
+                          onClick={() => setSelectedThreadId(thread.id)}
+                          className={cn(
+                            "w-full rounded-2xl border p-3 text-left transition",
+                            active
+                              ? "border-red-400/45 bg-red-500/12 shadow-[0_0_18px_rgba(255,0,60,0.14)]"
+                              : "border-white/8 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-bold text-white">
+                                {thread.nickname?.trim() || "Anonymous"}
+                              </p>
+                              <p className="mt-1 truncate text-[11px] text-white/45">
+                                {thread.contact?.trim() ||
+                                  formatLocation(thread)}
+                              </p>
+                            </div>
+
+                            {needsReply ? (
+                              <span className="shrink-0 rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
+                                Reply
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <p className="mt-3 line-clamp-2 text-sm text-white/72">
+                            {thread.last_message_preview || "No preview yet."}
+                          </p>
+
+                          <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/38">
+                            {formatParisTime(thread.updated_at)}
+                          </p>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-center text-sm text-white/45">
+                    No conversations yet.
+                  </div>
+                )
+              ) : activeTab === "visitors" ? (
+                recentVisitors.length ? (
+                  <div className="space-y-2">
+                    {recentVisitors.slice(0, 10).map((visitor) => (
+                      <motion.div
+                        key={visitor.visitor_key}
                         layout
-                        type="button"
-                        onClick={() => setSelectedThreadId(thread.id)}
-                        className={cn(
-                          "w-full rounded-2xl border p-3 text-left transition",
-                          active
-                            ? "border-red-400/45 bg-red-500/12 shadow-[0_0_18px_rgba(255,0,60,0.14)]"
-                            : "border-white/8 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
-                        )}
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="truncate text-sm font-bold text-white">
-                              {thread.nickname?.trim() || "Anonymous"}
+                              {[
+                                visitor.latest_country,
+                                visitor.latest_region,
+                                visitor.latest_city,
+                              ]
+                                .filter(Boolean)
+                                .join(" / ") || "Unknown visitor"}
                             </p>
                             <p className="mt-1 truncate text-[11px] text-white/45">
-                              {thread.contact?.trim() || formatLocation(thread)}
+                              {visitor.latest_guide_page} {" · "}
+                              {formatDuration(visitor.total_duration_seconds)}
                             </p>
                           </div>
+                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
+                            {visitor.visit_count} visits
+                          </span>
+                        </div>
+                        <p className="mt-3 truncate text-xs text-white/62">
+                          {visitor.latest_referrer_label}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-center text-sm text-white/45">
+                    No visitor data yet.
+                  </div>
+                )
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+                      Health check
+                    </p>
+                    <div className="mt-3 space-y-2 text-sm text-white/75">
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                        <span>Visits feed</span>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                            dashboardIssues?.visits
+                              ? "border border-amber-300/25 bg-amber-300/12 text-amber-100"
+                              : "border border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                          )}
+                        >
+                          {dashboardIssues?.visits ? "Check" : "Ready"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                        <span>Chat feed</span>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                            dashboardIssues?.chat
+                              ? "border border-amber-300/25 bg-amber-300/12 text-amber-100"
+                              : "border border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                          )}
+                        >
+                          {dashboardIssues?.chat ? "Check" : "Ready"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-                          {needsReply ? (
-                            <span className="shrink-0 rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+                      Top countries
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {(dashboardData?.topCountries ?? []).length ? (
+                        (dashboardData?.topCountries ?? []).map((country) => (
+                          <span
+                            key={country.label}
+                            className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white/78"
+                          >
+                            {country.label} {" · "} {country.count}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-sm text-white/45">
+                          Nothing yet.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+                      Priority inbox
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {priorityThreads.length ? (
+                        priorityThreads.map((thread) => (
+                          <button
+                            key={`priority-${thread.id}`}
+                            type="button"
+                            onClick={() => {
+                              setActiveTab("inbox");
+                              setSelectedThreadId(thread.id);
+                            }}
+                            className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-left transition hover:border-red-500/20 hover:bg-red-500/[0.05]"
+                          >
+                            <span className="truncate text-sm text-white/82">
+                              {thread.nickname?.trim() || "Anonymous"}
+                            </span>
+                            <span className="shrink-0 rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
                               Reply
                             </span>
-                          ) : null}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-white/10 bg-black/15 px-3 py-4 text-sm text-white/45">
+                          No one is waiting for a reply right now.
                         </div>
-
-                        <p className="mt-3 line-clamp-2 text-sm text-white/72">
-                          {thread.last_message_preview || "No preview yet."}
-                        </p>
-
-                        <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/38">
-                          {formatParisTime(thread.updated_at)}
-                        </p>
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-center text-sm text-white/45">
-                  No conversations yet.
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </AnimatePresence>
@@ -499,143 +959,468 @@ export default function MessagesAdminPanel({
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          {selectedThread ? (
-            <>
-              <div className="border-b border-white/8 px-6 py-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-lg font-black text-white">
-                      <UserRound className="h-5 w-5 text-red-300" />
-                      <span className="truncate">
-                        {selectedThread.nickname?.trim() || "Anonymous"}
+          <div className="border-b border-white/8 px-6 py-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-red-300">
+                  {activeTabMeta.eyebrow}
+                </p>
+                <p className="mt-2 flex items-center gap-2 text-xl font-black text-white">
+                  <ActiveTabIcon className="h-5 w-5 text-red-300" />
+                  <span className="truncate">{activeTabMeta.label}</span>
+                </p>
+                <p className="mt-2 max-w-3xl text-sm text-white/58">
+                  {activeTabMeta.description}
+                </p>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2">
+                {dashboardData?.generatedAt ? (
+                  <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/62">
+                    {formatParisTime(dashboardData.generatedAt)}
+                  </span>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={handleRefresh}
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/12 bg-white/5 p-2.5 text-white/72 transition hover:border-red-500/25 hover:bg-red-500/8 hover:text-red-200"
+                  aria-label="Refresh dashboard"
+                >
+                  <RefreshCw
+                    className={cn(
+                      "h-4 w-4",
+                      (loadState === "loading" || dashboardState === "loading") &&
+                        "animate-spin"
+                    )}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {activeTab === "overview" ? (
+            <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
+              <div className="space-y-5">
+                {dashboardIssues?.visits ? (
+                  <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm text-amber-50">
+                    Visits feed: {reasonToMessage(dashboardIssues.visits)}
+                  </div>
+                ) : null}
+                {dashboardIssues?.chat ? (
+                  <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm text-amber-50">
+                    Chat feed: {reasonToMessage(dashboardIssues.chat)}
+                  </div>
+                ) : null}
+
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  <MetricCard
+                    label="Visit events"
+                    value={dashboardOverview?.visit_events ?? 0}
+                  />
+                  <MetricCard
+                    label="Unique visitors"
+                    value={dashboardOverview?.unique_visitors ?? 0}
+                  />
+                  <MetricCard
+                    label="Visitors 24h"
+                    value={dashboardOverview?.unique_visitors_24h ?? 0}
+                  />
+                  <MetricCard
+                    label="Active countries"
+                    value={dashboardOverview?.active_countries ?? 0}
+                  />
+                  <MetricCard
+                    label="Avg duration"
+                    value={formatDuration(
+                      dashboardOverview?.average_duration_seconds ?? 0
+                    )}
+                  />
+                  <MetricCard
+                    label="Waiting replies"
+                    value={dashboardOverview?.waiting_replies ?? 0}
+                    tone="alert"
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-3">
+                  <BreakdownPanel
+                    title="Top countries"
+                    items={dashboardData?.topCountries ?? []}
+                  />
+                  <BreakdownPanel
+                    title="Top pages"
+                    items={dashboardData?.topPages ?? []}
+                  />
+                  <BreakdownPanel
+                    title="Top referrers"
+                    items={dashboardData?.topReferrers ?? []}
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
+                        Recent visitors
+                      </p>
+                      <span className="text-xs text-white/45">
+                        {recentVisitors.length} shown
                       </span>
-                    </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/55">
-                      <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-red-300/75" />
-                        {selectedThreadMeta?.location}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Clock3 className="h-3.5 w-3.5 text-red-300/75" />
-                        {selectedThreadMeta?.lastSeen}
-                      </span>
-                      {selectedThread.contact ? (
-                        <span className="truncate text-white/72">
-                          Contact: {selectedThread.contact}
-                        </span>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {recentVisitors.slice(0, 8).map((visitor) => (
+                        <div
+                          key={`overview-visitor-${visitor.visitor_key}`}
+                          className="rounded-2xl border border-white/8 bg-black/20 p-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-bold text-white">
+                                {[
+                                  visitor.latest_country,
+                                  visitor.latest_region,
+                                  visitor.latest_city,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" / ") || "Unknown visitor"}
+                              </p>
+                              <p className="mt-1 truncate text-xs text-white/48">
+                                {visitor.latest_guide_page}{" · "}
+                                {visitor.latest_pathname}
+                              </p>
+                            </div>
+                            <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/72">
+                              {visitor.visit_count} visits
+                            </span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-white/58">
+                            <span>{formatParisTime(visitor.last_seen_at)}</span>
+                            <span>·</span>
+                            <span>
+                              {formatDuration(visitor.total_duration_seconds)}
+                            </span>
+                            <span>·</span>
+                            <span className="truncate">
+                              {visitor.latest_referrer_label}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                      {!recentVisitors.length ? (
+                        <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 px-4 py-8 text-center text-sm text-white/45">
+                          No visitor data yet.
+                        </div>
                       ) : null}
                     </div>
                   </div>
 
-                  {selectedThreadMeta?.needsReply ? (
-                    <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-                      Waiting for your reply
-                    </span>
-                  ) : (
-                    <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
-                      Up to date
-                    </span>
-                  )}
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
+                        Recent conversations
+                      </p>
+                      <div className="mt-4 space-y-2">
+                        {recentThreads.length ? (
+                          recentThreads.map((thread) => (
+                            <button
+                              key={`overview-thread-${thread.id}`}
+                              type="button"
+                              onClick={() => {
+                                setActiveTab("inbox");
+                                setSelectedThreadId(thread.id);
+                              }}
+                              className="w-full rounded-2xl border border-white/8 bg-black/20 p-3 text-left transition hover:border-red-500/20 hover:bg-red-500/[0.05]"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-bold text-white">
+                                    {thread.nickname?.trim() || "Anonymous"}
+                                  </p>
+                                  <p className="mt-1 truncate text-[11px] text-white/48">
+                                    {thread.contact?.trim() || formatLocation(thread)}
+                                  </p>
+                                </div>
+                                {threadNeedsReply(thread) ? (
+                                  <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+                                    Reply
+                                  </span>
+                                ) : null}
+                              </div>
+                              <p className="mt-3 line-clamp-2 text-sm text-white/72">
+                                {thread.last_message_preview || "No preview yet."}
+                              </p>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 px-4 py-8 text-center text-sm text-white/45">
+                            No conversations yet.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
+                        Total watch time
+                      </p>
+                      <p className="mt-3 text-3xl font-black text-white">
+                        {formatDuration(
+                          dashboardOverview?.total_duration_seconds ?? 0
+                        )}
+                      </p>
+                      <p className="mt-2 text-sm text-white/55">
+                        Combined active time from recent visit events pulled into
+                        the dashboard.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+          ) : null}
 
-              <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
-                <div className="space-y-3">
-                  {messages.map((message) => (
+          {activeTab === "visitors" ? (
+            <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
+              <div className="grid gap-4 xl:grid-cols-2">
+                {recentVisitors.length ? (
+                  recentVisitors.map((visitor) => (
                     <div
-                      key={message.id}
-                      className={cn(
-                        "flex",
-                        message.author === "admin"
-                          ? "justify-end"
-                          : "justify-start"
-                      )}
+                      key={`visitor-card-${visitor.visitor_key}`}
+                      className="rounded-2xl border border-white/10 bg-white/[0.045] p-4"
                     >
-                      <div
-                        className={cn(
-                          "max-w-[70%] rounded-2xl px-4 py-3 shadow-[0_12px_22px_rgba(0,0,0,0.16)]",
-                          message.author === "admin"
-                            ? "rounded-br-md border border-red-300/28 bg-[linear-gradient(180deg,rgba(255,55,85,0.26),rgba(120,0,16,0.24))] text-white"
-                            : "rounded-bl-md border border-white/12 bg-white/[0.06] text-white/92"
-                        )}
-                      >
-                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                          {message.content}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="flex items-center gap-2 text-lg font-black text-white">
+                            <Globe2 className="h-4.5 w-4.5 text-red-300" />
+                            <span className="truncate">
+                              {[
+                                visitor.latest_country,
+                                visitor.latest_region,
+                                visitor.latest_city,
+                              ]
+                                .filter(Boolean)
+                                .join(" / ") || "Unknown visitor"}
+                            </span>
+                          </p>
+                          <p className="mt-2 text-xs text-white/52">
+                            Last seen {formatParisTime(visitor.last_seen_at)}
+                          </p>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2">
+                          {visitor.needs_reply ? (
+                            <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+                              Needs reply
+                            </span>
+                          ) : null}
+                          {visitor.has_conversation ? (
+                            <span className="rounded-full border border-red-300/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100">
+                              Chat linked
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                            Visits
+                          </p>
+                          <p className="mt-2 text-xl font-black text-white">
+                            {visitor.visit_count}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                            Total duration
+                          </p>
+                          <p className="mt-2 text-xl font-black text-white">
+                            {formatDuration(visitor.total_duration_seconds)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 space-y-2 text-sm text-white/72">
+                        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                          <span className="text-white/52">Latest page</span>
+                          <span className="truncate font-semibold text-white">
+                            {visitor.latest_guide_page}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                          <span className="text-white/52">Path</span>
+                          <span className="truncate font-semibold text-white">
+                            {visitor.latest_pathname}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                          <span className="text-white/52">Referrer</span>
+                          <span className="truncate font-semibold text-white">
+                            {visitor.latest_referrer_label}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                          User agent
                         </p>
-                        <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
-                          {message.author === "admin" ? "Admin" : "Visitor"} ·{" "}
-                          {formatParisTime(message.created_at)}
+                        <p className="mt-2 break-words text-xs leading-relaxed text-white/58">
+                          {visitor.latest_user_agent || "Unknown"}
                         </p>
                       </div>
                     </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-              </div>
-
-              <div className="border-t border-white/8 px-6 py-5">
-                <form onSubmit={handleReply} className="space-y-3">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-red-200">
-                    <MessageSquareText className="h-4 w-4" />
-                    Reply as admin
+                  ))
+                ) : (
+                  <div className="col-span-full flex min-h-[260px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-sm text-white/45">
+                    No visitor data available yet.
                   </div>
-
-                  <textarea
-                    value={replyDraft}
-                    onChange={(event) =>
-                      setReplyDraft(
-                        event.target.value.slice(0, MAX_ADMIN_REPLY_LENGTH)
-                      )
-                    }
-                    placeholder="Write your reply..."
-                    rows={4}
-                    className="w-full resize-none rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-red-500/35 focus:bg-red-500/[0.05]"
-                  />
-
-                  <div className="flex items-center justify-between gap-3">
-                    <p
-                      className={cn(
-                        "text-xs",
-                        replyState === "error"
-                          ? "text-red-200"
-                          : replyState === "ready"
-                            ? "text-emerald-200"
-                            : "text-white/45"
-                      )}
-                    >
-                      {replyState === "error"
-                        ? "Reply failed. Try again."
-                        : replyState === "ready"
-                          ? "Reply sent."
-                          : "Visitor will see this on the same browser thread."}
-                    </p>
-
-                    <button
-                      type="submit"
-                      disabled={!canReply}
-                      className={cn(
-                        "inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] transition",
-                        canReply
-                          ? "border-red-300/60 bg-[linear-gradient(180deg,rgba(255,55,85,0.34),rgba(120,0,16,0.35))] text-white shadow-[0_0_24px_rgba(255,0,60,0.24)] hover:bg-[linear-gradient(180deg,rgba(255,70,95,0.42),rgba(140,0,18,0.4))]"
-                          : "cursor-not-allowed border-red-500/20 bg-red-500/[0.08] text-white/40"
-                      )}
-                    >
-                      <SendHorizontal className="h-4 w-4" />
-                      Send
-                    </button>
-                  </div>
-                </form>
+                )}
               </div>
-            </>
-          ) : (
-            <div className="flex h-full items-center justify-center p-8 text-center text-white/45">
-              {threadLoadState === "loading"
-                ? "Loading conversation..."
-                : "Select a conversation on the left."}
             </div>
-          )}
+          ) : null}
+
+          {activeTab === "inbox" ? (
+            selectedThread ? (
+              <>
+                <div className="border-b border-white/8 px-6 py-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-lg font-black text-white">
+                        <UserRound className="h-5 w-5 text-red-300" />
+                        <span className="truncate">
+                          {selectedThread.nickname?.trim() || "Anonymous"}
+                        </span>
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/55">
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-red-300/75" />
+                          {selectedThreadMeta?.location}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock3 className="h-3.5 w-3.5 text-red-300/75" />
+                          {selectedThreadMeta?.lastSeen}
+                        </span>
+                        {selectedThread.contact ? (
+                          <span className="truncate text-white/72">
+                            Contact: {selectedThread.contact}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {selectedThreadMeta?.needsReply ? (
+                      <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+                        Waiting for your reply
+                      </span>
+                    ) : (
+                      <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
+                        Up to date
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
+                  <div className="space-y-3">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={cn(
+                          "flex",
+                          message.author === "admin"
+                            ? "justify-end"
+                            : "justify-start"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "max-w-[70%] rounded-2xl px-4 py-3 shadow-[0_12px_22px_rgba(0,0,0,0.16)]",
+                            message.author === "admin"
+                              ? "rounded-br-md border border-red-300/28 bg-[linear-gradient(180deg,rgba(255,55,85,0.26),rgba(120,0,16,0.24))] text-white"
+                              : "rounded-bl-md border border-white/12 bg-white/[0.06] text-white/92"
+                          )}
+                        >
+                          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                            {message.content}
+                          </p>
+                          <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
+                            {message.author === "admin" ? "Admin" : "Visitor"}
+                            {" · "}
+                            {formatParisTime(message.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </div>
+
+                <div className="border-t border-white/8 px-6 py-5">
+                  <form onSubmit={handleReply} className="space-y-3">
+                    <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-red-200">
+                      <MessageSquareText className="h-4 w-4" />
+                      Reply as admin
+                    </div>
+
+                    <textarea
+                      value={replyDraft}
+                      onChange={(event) =>
+                        setReplyDraft(
+                          event.target.value.slice(0, MAX_ADMIN_REPLY_LENGTH)
+                        )
+                      }
+                      placeholder="Write your reply..."
+                      rows={4}
+                      className="w-full resize-none rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-red-500/35 focus:bg-red-500/[0.05]"
+                    />
+
+                    <div className="flex items-center justify-between gap-3">
+                      <p
+                        className={cn(
+                          "text-xs",
+                          replyState === "error"
+                            ? "text-red-200"
+                            : replyState === "ready"
+                              ? "text-emerald-200"
+                              : "text-white/45"
+                        )}
+                      >
+                        {replyState === "error"
+                          ? "Reply failed. Try again."
+                          : replyState === "ready"
+                            ? "Reply sent."
+                            : "Visitor will see this on the same browser thread."}
+                      </p>
+
+                      <button
+                        type="submit"
+                        disabled={!canReply}
+                        className={cn(
+                          "inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] transition",
+                          canReply
+                            ? "border-red-300/60 bg-[linear-gradient(180deg,rgba(255,55,85,0.34),rgba(120,0,16,0.35))] text-white shadow-[0_0_24px_rgba(255,0,60,0.24)] hover:bg-[linear-gradient(180deg,rgba(255,70,95,0.42),rgba(140,0,18,0.4))]"
+                            : "cursor-not-allowed border-red-500/20 bg-red-500/[0.08] text-white/40"
+                        )}
+                      >
+                        <SendHorizontal className="h-4 w-4" />
+                        Send
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </>
+            ) : (
+              <div className="flex h-full items-center justify-center p-8 text-center text-white/45">
+                {threadLoadState === "loading"
+                  ? "Loading conversation..."
+                  : "Select a conversation on the left."}
+              </div>
+            )
+          ) : null}
         </div>
       </motion.div>
     </div>
   );
 }
+
