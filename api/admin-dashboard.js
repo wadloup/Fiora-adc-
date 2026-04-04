@@ -75,7 +75,7 @@ function inferReason(errorText) {
 }
 
 function normalizeDateRange(value) {
-  const normalized = sanitize(value || "", 12).toLowerCase();
+  const normalized = (sanitize(value || "", 12) || "").toLowerCase();
 
   if (normalized === "24h" || normalized === "7d" || normalized === "30d") {
     return normalized;

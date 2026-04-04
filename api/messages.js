@@ -16,7 +16,7 @@ const THREAD_LIST_LIMIT = 80;
 const THREAD_MESSAGE_LIMIT = 120;
 
 function normalizeThreadStatus(value) {
-  const normalized = sanitize(value || "", 24).toLowerCase();
+  const normalized = (sanitize(value || "", 24) || "").toLowerCase();
 
   if (normalized === "archived") {
     return "archived";
