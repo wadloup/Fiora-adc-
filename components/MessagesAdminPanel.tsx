@@ -794,9 +794,15 @@ export default function MessagesAdminPanel({
     }
 
     setDraftKey(savedKey);
+
+    if (initialTab === "inbox") {
+      void loadThreads(savedKey);
+      return;
+    }
+
     void loadDashboard(savedKey);
     void loadThreads(savedKey);
-  }, [loadDashboard, loadThreads]);
+  }, [initialTab, loadDashboard, loadThreads]);
 
   useEffect(() => {
     if (!selectedThreadId || !adminKey.trim()) {
@@ -807,12 +813,12 @@ export default function MessagesAdminPanel({
   }, [adminKey, loadConversation, selectedThreadId]);
 
   useEffect(() => {
-    if (!hasKey) {
+    if (!hasKey || activeTab === "inbox") {
       return;
     }
 
     void loadDashboard();
-  }, [filters, hasKey, loadDashboard]);
+  }, [activeTab, filters, hasKey, loadDashboard]);
 
   useEffect(() => {
     if (!hasKey) {
@@ -828,15 +834,23 @@ export default function MessagesAdminPanel({
     }
 
     const intervalId = window.setInterval(() => {
+      if (activeTab === "inbox") {
+        void loadThreads();
+        void loadConversation();
+        return;
+      }
+
       void loadDashboard();
-      void loadThreads();
-      void loadConversation();
+
+      if (activeTab === "visitors") {
+        void loadThreads();
+      }
     }, THREADS_REFRESH_MS);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [hasKey, loadConversation, loadDashboard, loadThreads]);
+  }, [activeTab, hasKey, loadConversation, loadDashboard, loadThreads]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "end" });
@@ -844,13 +858,27 @@ export default function MessagesAdminPanel({
 
   const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (activeTab === "inbox") {
+      await loadThreads(draftKey);
+      return;
+    }
+
     await Promise.all([loadDashboard(draftKey), loadThreads(draftKey)]);
   };
 
   const handleRefresh = () => {
+    if (activeTab === "inbox") {
+      void loadThreads();
+      void loadConversation();
+      return;
+    }
+
     void loadDashboard();
-    void loadThreads();
-    void loadConversation();
+
+    if (activeTab === "visitors") {
+      void loadThreads();
+    }
   };
 
   const handleLock = () => {
@@ -907,8 +935,11 @@ export default function MessagesAdminPanel({
       setMessages(payload.messages);
       setReplyState("ready");
       setStatusMessage("Reply sent.");
-      void loadDashboard();
       void loadThreads();
+
+      if (activeTab !== "inbox") {
+        void loadDashboard();
+      }
     } catch {
       setReplyState("error");
     }
@@ -956,14 +987,17 @@ export default function MessagesAdminPanel({
               ? "Conversation archived."
               : "Conversation reopened."
         );
-        void loadDashboard();
         void loadThreads();
+
+        if (activeTab !== "inbox") {
+          void loadDashboard();
+        }
       } catch {
         setThreadActionState("error");
         setStatusMessage("Status update failed.");
       }
     },
-    [adminKey, loadDashboard, loadThreads, selectedThreadId]
+    [activeTab, adminKey, loadDashboard, loadThreads, selectedThreadId]
   );
 
   const handleDeleteThread = useCallback(async () => {
@@ -1012,13 +1046,16 @@ export default function MessagesAdminPanel({
       setMessages([]);
       setThreadActionState("ready");
       setStatusMessage("Conversation deleted.");
-      void loadDashboard();
       void loadThreads();
+
+      if (activeTab !== "inbox") {
+        void loadDashboard();
+      }
     } catch {
       setThreadActionState("error");
       setStatusMessage("Delete failed.");
     }
-  }, [adminKey, loadDashboard, loadThreads, selectedThreadId]);
+  }, [activeTab, adminKey, loadDashboard, loadThreads, selectedThreadId]);
 
   const selectedThreadMeta = useMemo(() => {
     if (!selectedThread) {
