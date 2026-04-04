@@ -195,6 +195,43 @@ function getRequestedAdminTab(): AdminTab | null {
   return null;
 }
 
+function readAdminSessionKey() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  try {
+    return window.sessionStorage.getItem(ADMIN_KEY_STORAGE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function persistAdminSessionKey(value: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    window.sessionStorage.setItem(ADMIN_KEY_STORAGE_KEY, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function clearAdminSessionKey() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.removeItem(ADMIN_KEY_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures so admin access does not break in privacy modes.
+  }
+}
+
 function formatParisTime(value: string | null) {
   if (!value) {
     return "Unknown time";
@@ -669,7 +706,7 @@ export default function MessagesAdminPanel({
         setDashboardState("ready");
         setAdminKey(keyToUse);
         setStatusMessage("Dashboard loaded.");
-        window.sessionStorage.setItem(ADMIN_KEY_STORAGE_KEY, keyToUse);
+        persistAdminSessionKey(keyToUse);
       } catch {
         setDashboardState("error");
         setStatusMessage("Dashboard unavailable right now.");
@@ -754,7 +791,7 @@ export default function MessagesAdminPanel({
             ? `${threadList.length} conversations loaded.`
             : "No conversations yet."
         );
-        window.sessionStorage.setItem(ADMIN_KEY_STORAGE_KEY, keyToUse);
+        persistAdminSessionKey(keyToUse);
 
         if (threadList.length) {
           setSelectedThreadId((current) =>
@@ -812,7 +849,7 @@ export default function MessagesAdminPanel({
   }, [adminKey, selectedThreadId]);
 
   useEffect(() => {
-    const savedKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE_KEY) || "";
+    const savedKey = readAdminSessionKey();
 
     if (!savedKey) {
       return;
@@ -907,7 +944,7 @@ export default function MessagesAdminPanel({
   };
 
   const handleLock = () => {
-    window.sessionStorage.removeItem(ADMIN_KEY_STORAGE_KEY);
+    clearAdminSessionKey();
     setDashboardData(null);
     setDashboardState("idle");
     setAdminKey("");
