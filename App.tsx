@@ -1103,7 +1103,7 @@ export default function App() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                        className="mt-1 flex items-center gap-2 text-[clamp(2.2rem,5vw,3.25rem)] font-black uppercase leading-[0.92] tracking-[-0.035em] text-red-300 md:gap-3"
+                          className="mt-1 flex items-center gap-0.5 text-[clamp(2.2rem,5vw,3.25rem)] font-black uppercase leading-[0.92] tracking-[-0.035em] text-red-300 md:gap-1"
                       >
                         <span className="bg-gradient-to-b from-[#ffb6b6] via-[#ff7a7a] to-[#ff5858] bg-clip-text text-transparent">
                           SUPPORT CHECK BELOW
@@ -1115,7 +1115,7 @@ export default function App() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)]"
+                            className="-ml-1 shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)] md:-ml-1.5"
                         >
                           <ArrowDown className="h-9 w-9 md:h-11 md:w-11" />
                         </motion.span>
