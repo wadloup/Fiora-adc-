@@ -1241,8 +1241,8 @@ export default function App() {
           )}
         </NeonCard>
 
-        {currentPage === "Home" ? (
-          <div className="grid gap-4 xl:grid-cols-[1.04fr_0.96fr]">
+          {currentPage === "Home" ? (
+            <div className="grid gap-3 xl:grid-cols-[0.98fr_1.02fr]">
             <GuideQuickStart
               activeMode={guideMode}
               resumePage={lastVisitedPage}
