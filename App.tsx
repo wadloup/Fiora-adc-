@@ -828,7 +828,7 @@ export default function App() {
 
   const openAdcQuickStart = useCallback(() => {
     setGuideModeAndPersist("adc");
-    goPage("Runes");
+    goPage("Why Fiora ADC Works");
   }, [goPage, setGuideModeAndPersist]);
 
   const openBrowseQuickStart = useCallback(() => {
