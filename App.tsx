@@ -1241,38 +1241,25 @@ export default function App() {
           )}
         </NeonCard>
 
-          {currentPage === "Home" ? (
-            <div className="grid gap-3 xl:grid-cols-[0.98fr_1.02fr]">
-            <GuideQuickStart
-              activeMode={guideMode}
-              resumePage={lastVisitedPage}
-              onChooseSupport={openSupportQuickStart}
-              onChooseAdc={openAdcQuickStart}
-              onChooseBrowse={openBrowseQuickStart}
-              onResume={resumeGuideProgress}
+          {currentPage !== "Home" ? (
+            <GuideProgress
+              routeLabel={activeGuideMeta.label}
+              routeSummary={activeGuideMeta.summary}
+              currentPage={currentPage}
+              currentFocus={PAGE_FOCUS_TEXT[currentPage]}
+              currentStep={currentGuideStep + 1}
+              totalSteps={activeGuideFlow.length}
+              previousPage={previousGuidePage}
+              nextPage={nextGuidePage}
+              onPrevious={openPreviousGuidePage}
+              onNext={openNextGuidePage}
             />
+          ) : null}
 
-            <QuickAnswerAssistant scenarios={quickAnswerScenarios} />
-          </div>
-        ) : null}
-
-        <GuideProgress
-          routeLabel={activeGuideMeta.label}
-          routeSummary={activeGuideMeta.summary}
-          currentPage={currentPage}
-          currentFocus={PAGE_FOCUS_TEXT[currentPage]}
-          currentStep={currentGuideStep + 1}
-          totalSteps={activeGuideFlow.length}
-          previousPage={previousGuidePage}
-          nextPage={nextGuidePage}
-          onPrevious={openPreviousGuidePage}
-          onNext={openNextGuidePage}
-        />
-
-        {currentPage === "Home" ? (
-          <NeonCard className="overflow-hidden">
-            <div ref={homeSupportSectionRef} />
-            <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
+          {currentPage === "Home" ? (
+            <NeonCard className="overflow-hidden">
+              <div ref={homeSupportSectionRef} />
+              <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
               <div className="relative min-h-[360px] overflow-hidden">
                 <img
                   src={homeHeroImage}
@@ -1317,12 +1304,27 @@ export default function App() {
                   </div>
                 </div>
               </div>
-              <HomeSupportShowcase />
-            </div>
-          </NeonCard>
-        ) : null}
+                <HomeSupportShowcase />
+              </div>
+            </NeonCard>
+          ) : null}
 
-        <NarrationPanel page={currentPage} />
+          {currentPage === "Home" ? (
+            <div className="grid gap-3 xl:grid-cols-[0.98fr_1.02fr]">
+              <GuideQuickStart
+                activeMode={guideMode}
+                resumePage={lastVisitedPage}
+                onChooseSupport={openSupportQuickStart}
+                onChooseAdc={openAdcQuickStart}
+                onChooseBrowse={openBrowseQuickStart}
+                onResume={resumeGuideProgress}
+              />
+
+              <QuickAnswerAssistant scenarios={quickAnswerScenarios} />
+            </div>
+          ) : null}
+
+          <NarrationPanel page={currentPage} />
 
         <AnimatePresence mode="sync">
           <motion.div
