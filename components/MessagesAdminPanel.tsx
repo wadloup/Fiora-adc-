@@ -472,9 +472,14 @@ function DashboardFilterSelect({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="rounded-2xl border border-white/12 bg-white/[0.05] px-3 py-2.5 text-sm text-white outline-none transition focus:border-red-500/35 focus:bg-red-500/[0.05]"
+        style={{ colorScheme: "dark" }}
       >
         {options.map((option) => (
-          <option key={`${label}-${option.value}`} value={option.value}>
+          <option
+            key={`${label}-${option.value}`}
+            value={option.value}
+            className="bg-[#140c11] text-white"
+          >
             {option.label}
           </option>
         ))}
