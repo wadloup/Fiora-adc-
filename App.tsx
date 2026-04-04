@@ -529,7 +529,7 @@ export default function App() {
 
       <AnimatedBackground theme={currentTrack} />
 
-      <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.72)] shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">
           <div className="flex shrink-0 items-center gap-3">
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-2 shadow-[0_0_18px_rgba(255,0,60,0.22)]">
