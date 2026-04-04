@@ -27,10 +27,15 @@ import {
   X,
 } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
+import GuideProgress from "./components/GuideProgress";
+import GuideQuickStart from "./components/GuideQuickStart";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
 import MessageDock from "./components/MessageDock";
 import MusicPlayer from "./components/MusicPlayer";
 import NarrationPanel from "./components/NarrationPanel";
+import QuickAnswerAssistant, {
+  type QuickAnswerScenario,
+} from "./components/QuickAnswerAssistant";
 import NeonCard from "./components/ui/NeonCard";
 import PageButton from "./components/ui/PageButton";
 import {
@@ -160,6 +165,101 @@ const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
 type AdminPanelTab = "overview" | "visitors" | "inbox";
+type GuideMode = "support" | "adc" | "browse";
+
+const GUIDE_MODE_STORAGE_KEY = "fiora-guide-mode";
+const LAST_GUIDE_PAGE_STORAGE_KEY = "fiora-last-guide-page";
+const GUIDE_MODE_META: Record<GuideMode, { label: string; summary: string }> = {
+  support: {
+    label: "Support route",
+    summary:
+      "Start with support-specific pressure, peel, and lane sync before touching the rest.",
+  },
+  adc: {
+    label: "ADC route",
+    summary:
+      "Start with setup: runes, early levels, lane windows, and the tools that make Fiora ADC playable.",
+  },
+  browse: {
+    label: "Full browse",
+    summary:
+      "Take the guide in a natural order without locking yourself into one role-first path.",
+  },
+};
+const GUIDE_FLOWS: Record<GuideMode, PageName[]> = {
+  support: [
+    "Home",
+    "Fiora's Support",
+    "Lane Phase",
+    "Skill Order",
+    "Runes",
+    "Build",
+    "Matchups",
+    "Mechanical Tips",
+    "Mid/Late Game",
+    "Videos / Clips",
+    "Why Fiora ADC Works",
+  ],
+  adc: [
+    "Home",
+    "Runes",
+    "Skill Order",
+    "Lane Phase",
+    "Matchups",
+    "Build",
+    "Mechanical Tips",
+    "Mid/Late Game",
+    "Fiora's Support",
+    "Videos / Clips",
+    "Why Fiora ADC Works",
+  ],
+  browse: [...pages],
+};
+const PAGE_FOCUS_TEXT: Record<PageName, string> = {
+  Home: "Pick the right route before you start wandering through the guide.",
+  "Why Fiora ADC Works":
+    "Understand the lane logic before you judge the pick by random clips.",
+  Runes: "Decide whether lane opens with pure bite or with movement and reset.",
+  Build: "Choose greed, balance, or safety without pretending all games want the same items.",
+  "Skill Order":
+    "Your first levels decide whether lane survives or actually becomes dangerous.",
+  Matchups:
+    "Read the danger correctly so you stop forcing the same trade into every duo.",
+  "Lane Phase":
+    "Health, brush, tempo, and commit timing matter more than random confidence.",
+  "Fiora's Support":
+    "Support sync is the fastest way to make the lane look intentional instead of cursed.",
+  "Mid/Late Game":
+    "Pick your job after lane and stop drifting between split, flank, and group.",
+  "Mechanical Tips":
+    "Use this when you need reminders on spacing, Riposte timing, and clean execution.",
+  "Videos / Clips":
+    "Watch clips for setup and cleanup, not just the kill at the end.",
+};
+
+function readBrowserStorage(key: string) {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  try {
+    return window.localStorage.getItem(key) || "";
+  } catch {
+    return "";
+  }
+}
+
+function writeBrowserStorage(key: string, value: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage failures so UX helpers never break the public site.
+  }
+}
 
 function getAdminPanelTabFromLocation(): AdminPanelTab | null {
   if (typeof window === "undefined") {
@@ -199,6 +299,8 @@ export default function App() {
   const [musicVolume, setMusicVolume] = useState(0.06);
   const [launchFxBursts, setLaunchFxBursts] = useState<number[]>([]);
   const [launchCooldown, setLaunchCooldown] = useState(false);
+  const [guideMode, setGuideMode] = useState<GuideMode | null>(null);
+  const [lastVisitedPage, setLastVisitedPage] = useState<PageName | null>(null);
   const [messagesAdminOpen, setMessagesAdminOpen] = useState(
     initialAdminTab !== null
   );
@@ -220,19 +322,189 @@ export default function App() {
     (track) => track.id === selectedTrackId
   );
   const adminOnlyMode = messagesAdminOpen;
+  const activeGuideMode = guideMode ?? "browse";
+  const activeGuideMeta = GUIDE_MODE_META[activeGuideMode];
+  const activeGuideFlow = GUIDE_FLOWS[activeGuideMode];
+  const currentGuideStep = Math.max(
+    0,
+    activeGuideFlow.findIndex((page) => page === currentPage)
+  );
+  const previousGuidePage =
+    currentGuideStep > 0 ? activeGuideFlow[currentGuideStep - 1] : null;
+  const nextGuidePage =
+    currentGuideStep < activeGuideFlow.length - 1
+      ? activeGuideFlow[currentGuideStep + 1]
+      : null;
 
-  const filteredPages = useMemo(() => {
-    if (!query.trim()) {
-      return pages;
+  const scrollTopSmooth = useCallback(
+    () => window.scrollTo({ top: 0, behavior: "smooth" }),
+    []
+  );
+  const scrollTopInstant = useCallback(
+    () => window.scrollTo({ top: 0, behavior: "auto" }),
+    []
+  );
+
+  const goPage = useCallback(
+    (page: PageName) => {
+      setCurrentPage(page);
+      setMobileOpen(false);
+      setQuery("");
+      scrollTopInstant();
+    },
+    [scrollTopInstant]
+  );
+
+  const goLaneSection = useCallback(
+    (id: LaneSectionId) => {
+      setCurrentPage("Lane Phase");
+      setMobileOpen(false);
+      setQuery("");
+      setTimeout(() => {
+        laneRefs.current[id]?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 80);
+    },
+    []
+  );
+
+  const searchActions = useMemo(
+    () => [
+      {
+        id: "page-home",
+        label: "Home / overview",
+        description: "Return to the entry point and choose a faster route.",
+        badge: "Page",
+        keywords: ["home", "overview", "start", "intro"],
+        run: () => goPage("Home"),
+      },
+      {
+        id: "page-why",
+        label: "Why Fiora ADC Works",
+        description: "Pressure logic, lane identity, and why the pick functions at all.",
+        badge: "Page",
+        keywords: ["why", "works", "pressure", "logic", "concept"],
+        run: () => goPage("Why Fiora ADC Works"),
+      },
+      {
+        id: "page-runes",
+        label: "Runes / PTA / Phase Rush",
+        description: "Open the rune page fast when you need setup, not theory.",
+        badge: "Runes",
+        keywords: ["runes", "pta", "phase rush", "keystone", "tempo"],
+        run: () => goPage("Runes"),
+      },
+      {
+        id: "page-build",
+        label: "Build routes",
+        description: "Core, snowball, stable, and defensive item paths.",
+        badge: "Build",
+        keywords: ["build", "hydra", "eclipse", "triforce", "maw", "ga"],
+        run: () => goPage("Build"),
+      },
+      {
+        id: "page-skill",
+        label: "Level 2 / Level 3 plan",
+        description: "W level 2 safety, then level 3 short-burst windows.",
+        badge: "Skill",
+        keywords: ["level 2", "level 3", "skill order", "parry", "w", "e"],
+        run: () => goPage("Skill Order"),
+      },
+      {
+        id: "lane-early",
+        label: "Early lane plan",
+        description: "Protect HP, respect the spike, then punish the first real mistake.",
+        badge: "Lane",
+        keywords: ["early lane", "double range", "poke", "health", "lane"],
+        run: () => goLaneSection("early"),
+      },
+      {
+        id: "lane-wave",
+        label: "Wave / brush control",
+        description: "Brush timing, wave shape, crash timing, and jungle punish windows.",
+        badge: "Lane",
+        keywords: ["wave", "brush", "bush", "vision", "crash", "tempo"],
+        run: () => goLaneSection("wave"),
+      },
+      {
+        id: "lane-support",
+        label: "Support engage timing",
+        description: "Hook lanes, engage timing, peel, and support sync.",
+        badge: "Support",
+        keywords: ["support", "hook", "engage", "autofill", "peel", "timing"],
+        run: () => goLaneSection("support"),
+      },
+      {
+        id: "page-matchups",
+        label: "Matchup read",
+        description: "Open champion danger cards before forcing the lane blind.",
+        badge: "Matchups",
+        keywords: [
+          "matchup",
+          "draven",
+          "jhin",
+          "jinx",
+          "caitlyn",
+          "ezreal",
+          "braum",
+          "lulu",
+          "twitch",
+        ],
+        run: () => goPage("Matchups"),
+      },
+      {
+        id: "page-support",
+        label: "Fiora's Support",
+        description: "The support-first route with real partner logic and clips.",
+        badge: "Support",
+        keywords: ["support route", "alistar", "braum", "yuumi", "supports"],
+        run: () => goPage("Fiora's Support"),
+      },
+      {
+        id: "page-midlate",
+        label: "Mid / Late conversion",
+        description: "What to do after lane is won so the lead actually cashes out.",
+        badge: "Macro",
+        keywords: ["mid", "late", "macro", "split", "flank", "group"],
+        run: () => goPage("Mid/Late Game"),
+      },
+      {
+        id: "page-mechanics",
+        label: "Mechanical reminders",
+        description: "Spacing, Riposte timing, vital angles, and burst discipline.",
+        badge: "Mechanics",
+        keywords: ["mechanics", "riposte", "spacing", "vital", "combo"],
+        run: () => goPage("Mechanical Tips"),
+      },
+      {
+        id: "page-videos",
+        label: "Videos / Clips",
+        description: "See the setup, the trigger, and the cleanup in motion.",
+        badge: "Clips",
+        keywords: ["videos", "clips", "youtube", "examples", "vod"],
+        run: () => goPage("Videos / Clips"),
+      },
+    ],
+    [goLaneSection, goPage]
+  );
+
+  const searchResults = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return [];
     }
 
-    return pages.filter((page) =>
-      page.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [query]);
-
-  const scrollTopSmooth = () => window.scrollTo({ top: 0, behavior: "smooth" });
-  const scrollTopInstant = () => window.scrollTo({ top: 0, behavior: "auto" });
+    return searchActions
+      .filter((entry) =>
+        [entry.label, entry.description, ...entry.keywords].some((value) =>
+          value.toLowerCase().includes(normalizedQuery)
+        )
+      )
+      .slice(0, 8);
+  }, [query, searchActions]);
 
   const playBackgroundMusic = useCallback(async () => {
     const audio = audioRef.current;
@@ -470,6 +742,32 @@ export default function App() {
   }, [adminOnlyMode, currentPage]);
 
   useEffect(() => {
+    const storedMode = readBrowserStorage(GUIDE_MODE_STORAGE_KEY);
+    const storedPage = readBrowserStorage(LAST_GUIDE_PAGE_STORAGE_KEY);
+
+    if (
+      storedMode === "support" ||
+      storedMode === "adc" ||
+      storedMode === "browse"
+    ) {
+      setGuideMode(storedMode);
+    }
+
+    if (pages.includes(storedPage as PageName) && storedPage !== "Home") {
+      setLastVisitedPage(storedPage as PageName);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (adminOnlyMode || currentPage === "Home") {
+      return;
+    }
+
+    setLastVisitedPage(currentPage);
+    writeBrowserStorage(LAST_GUIDE_PAGE_STORAGE_KEY, currentPage);
+  }, [adminOnlyMode, currentPage]);
+
+  useEffect(() => {
     const syncMessagesAdminState = () => {
       const searchParams = new URLSearchParams(window.location.search);
       const adminView = searchParams.get("admin");
@@ -508,21 +806,109 @@ export default function App() {
     setMessagesAdminOpen(false);
   }, []);
 
-  const goPage = (page: PageName) => {
-    setCurrentPage(page);
-    setMobileOpen(false);
-    scrollTopInstant();
-  };
+  const setGuideModeAndPersist = useCallback((mode: GuideMode) => {
+    setGuideMode(mode);
+    writeBrowserStorage(GUIDE_MODE_STORAGE_KEY, mode);
+  }, []);
 
-  const goLaneSection = (id: LaneSectionId) => {
-    setCurrentPage("Lane Phase");
-    setTimeout(() => {
-      laneRefs.current[id]?.scrollIntoView({
+  const openSupportQuickStart = useCallback(() => {
+    setGuideModeAndPersist("support");
+
+    if (currentPage !== "Home") {
+      goPage("Home");
+    }
+
+    window.setTimeout(() => {
+      homeSupportSectionRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
-    }, 80);
-  };
+    }, currentPage === "Home" ? 40 : 180);
+  }, [currentPage, goPage, setGuideModeAndPersist]);
+
+  const openAdcQuickStart = useCallback(() => {
+    setGuideModeAndPersist("adc");
+    goPage("Runes");
+  }, [goPage, setGuideModeAndPersist]);
+
+  const openBrowseQuickStart = useCallback(() => {
+    setGuideModeAndPersist("browse");
+    goPage("Why Fiora ADC Works");
+  }, [goPage, setGuideModeAndPersist]);
+
+  const resumeGuideProgress = useCallback(() => {
+    if (lastVisitedPage) {
+      goPage(lastVisitedPage);
+    }
+  }, [goPage, lastVisitedPage]);
+
+  const openPreviousGuidePage = useCallback(() => {
+    if (previousGuidePage) {
+      goPage(previousGuidePage);
+    }
+  }, [goPage, previousGuidePage]);
+
+  const openNextGuidePage = useCallback(() => {
+    if (nextGuidePage) {
+      goPage(nextGuidePage);
+    }
+  }, [goPage, nextGuidePage]);
+
+  const quickAnswerScenarios = useMemo<QuickAnswerScenario[]>(
+    () => [
+      {
+        id: "support-autofill",
+        label: "I got support autofill",
+        category: "Role path",
+        answer:
+          "Start with support timing first. If the support side is wrong, Fiora ADC never gets a real window no matter how good the rune page looks.",
+        target: "Home support draft block, then Fiora's Support.",
+        actionLabel: "Open support route",
+        onAction: openSupportQuickStart,
+      },
+      {
+        id: "double-range",
+        label: "Enemy double range",
+        category: "Lane pressure",
+        answer:
+          "Protect health first, respect level 2 timing, and use the level 2 W / level 3 burst plan instead of trying to brute-force lane early.",
+        target: "Skill Order and Early Lane plan.",
+        actionLabel: "Open level plan",
+        onAction: () => goPage("Skill Order"),
+      },
+      {
+        id: "hook-lane",
+        label: "Enemy hook lane",
+        category: "Support sync",
+        answer:
+          "You need support spacing and commit discipline more than greed. This is a support-sync problem before it is a mechanics problem.",
+        target: "Lane Phase support section.",
+        actionLabel: "Open support timing",
+        onAction: () => goLaneSection("support"),
+      },
+      {
+        id: "safe-setup",
+        label: "I need the safe setup",
+        category: "Setup",
+        answer:
+          "Take the route that stabilizes lane first: runes, build pivots, then the safer short-trade logic instead of chasing heroic all-ins.",
+        target: "Runes and Build.",
+        actionLabel: "Open setup",
+        onAction: () => goPage("Build"),
+      },
+      {
+        id: "matchup-check",
+        label: "I need a matchup read",
+        category: "Draft read",
+        answer:
+          "Open the matchup page before lane starts so you know whether this is a patience lane, a punish lane, or a do-not-ego lane.",
+        target: "Matchups.",
+        actionLabel: "Open matchups",
+        onAction: () => goPage("Matchups"),
+      },
+    ],
+    [goLaneSection, goPage, openSupportQuickStart]
+  );
 
   const searchBlock = (
     <div
@@ -536,20 +922,30 @@ export default function App() {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search section"
+          placeholder="Search page, matchup, rune, or lane concept"
           className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
         />
       </div>
       {query ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {filteredPages.length ? (
-            filteredPages.map((page) => (
+        <div className="mt-3 grid gap-2">
+          {searchResults.length ? (
+            searchResults.map((entry) => (
               <button
-                key={page}
-                onClick={() => goPage(page)}
-                className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+                key={entry.id}
+                onClick={() => entry.run()}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/20 bg-red-500/[0.08] px-3 py-3 text-left transition hover:border-red-400/32 hover:bg-red-500/[0.12]"
               >
-                {page}
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-red-100">
+                    {entry.label}
+                  </p>
+                  <p className="mt-1 text-xs text-white/62">
+                    {entry.description}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/62">
+                  {entry.badge}
+                </span>
               </button>
             ))
           ) : (
@@ -844,6 +1240,34 @@ export default function App() {
             </div>
           )}
         </NeonCard>
+
+        {currentPage === "Home" ? (
+          <div className="grid gap-4 xl:grid-cols-[1.04fr_0.96fr]">
+            <GuideQuickStart
+              activeMode={guideMode}
+              resumePage={lastVisitedPage}
+              onChooseSupport={openSupportQuickStart}
+              onChooseAdc={openAdcQuickStart}
+              onChooseBrowse={openBrowseQuickStart}
+              onResume={resumeGuideProgress}
+            />
+
+            <QuickAnswerAssistant scenarios={quickAnswerScenarios} />
+          </div>
+        ) : null}
+
+        <GuideProgress
+          routeLabel={activeGuideMeta.label}
+          routeSummary={activeGuideMeta.summary}
+          currentPage={currentPage}
+          currentFocus={PAGE_FOCUS_TEXT[currentPage]}
+          currentStep={currentGuideStep + 1}
+          totalSteps={activeGuideFlow.length}
+          previousPage={previousGuidePage}
+          nextPage={nextGuidePage}
+          onPrevious={openPreviousGuidePage}
+          onNext={openNextGuidePage}
+        />
 
         {currentPage === "Home" ? (
           <NeonCard className="overflow-hidden">
