@@ -1086,7 +1086,7 @@ export default function App() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                            className="-ml-7 shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)] md:-ml-9 lg:-ml-11"
+                            className="-ml-3 shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)] md:-ml-4 lg:-ml-5"
                         >
                           <ArrowDown className="h-9 w-9 md:h-11 md:w-11" />
                         </motion.span>
