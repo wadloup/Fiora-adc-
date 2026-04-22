@@ -209,7 +209,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300">
-              Manga
+              Read - Manga
             </p>
             <p className="mt-1 truncate text-xl font-black uppercase tracking-[0.06em] text-white">
               Just for my pleasure
