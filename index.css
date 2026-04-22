@@ -74,6 +74,7 @@ body {
 }
 
 .manga-dock-card {
+  overflow: visible !important;
   animation: manga-aura-beat 2.7s ease-in-out infinite;
   box-shadow:
     0 0 22px rgba(255, 0, 72, 0.24),
@@ -86,10 +87,9 @@ body {
 .manga-dock-card::after {
   content: "";
   position: absolute;
-  inset: 0;
-  z-index: 2;
+  inset: -8px;
+  z-index: -1;
   border-radius: inherit;
-  padding: 2px;
   background: conic-gradient(
     from 0deg,
     rgba(255, 20, 88, 0.95),
@@ -98,16 +98,9 @@ body {
     rgba(170, 65, 255, 0.9),
     rgba(255, 20, 88, 0.95)
   );
-  opacity: 0.74;
+  opacity: 0.62;
+  filter: blur(16px);
   pointer-events: none;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
   animation: manga-aura-spin 4.8s linear infinite;
 }
 
