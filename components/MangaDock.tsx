@@ -260,7 +260,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                     </h2>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 xl:flex-nowrap xl:justify-end">
                     <button
                       type="button"
                       onClick={previousMangaTrack}
@@ -292,7 +292,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       <SkipForward className="h-4 w-4" />
                     </button>
 
-                    <label className="inline-flex min-w-[260px] flex-col gap-1 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68">
+                    <label className="inline-flex min-w-[260px] flex-col gap-1 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68 xl:min-w-[230px]">
                       <span className="text-red-200">Music choice</span>
                       <select
                         value={activeTrackIndex}
@@ -314,7 +314,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       </select>
                     </label>
 
-                    <label className="inline-flex min-w-[160px] items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68">
+                    <label className="inline-flex min-w-[160px] items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68 xl:min-w-[150px]">
                       <Volume2 className="h-3.5 w-3.5 text-red-200" />
                       <input
                         type="range"
@@ -361,35 +361,35 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       </button>
                     ))}
 
-                    <span className="mx-1 hidden h-7 w-px bg-white/12 md:block" />
-
-                    <button
-                      type="button"
-                      onClick={zoomOut}
-                      disabled={zoomIndex === 0}
-                      className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
-                      aria-label="Zoom out"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetZoom}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68 transition hover:text-white"
-                      aria-label="Reset zoom"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      {Math.round(zoom * 100)}%
-                    </button>
-                    <button
-                      type="button"
-                      onClick={zoomIn}
-                      disabled={zoomIndex === ZOOM_STEPS.length - 1}
-                      className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
-                      aria-label="Zoom in"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
+                    <div className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-white/12 bg-white/[0.04] p-1">
+                      <button
+                        type="button"
+                        onClick={zoomOut}
+                        disabled={zoomIndex === 0}
+                        className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label="Zoom out"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetZoom}
+                        className="inline-flex min-w-[70px] items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/72 transition hover:text-white"
+                        aria-label="Reset zoom"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        {Math.round(zoom * 100)}%
+                      </button>
+                      <button
+                        type="button"
+                        onClick={zoomIn}
+                        disabled={zoomIndex === ZOOM_STEPS.length - 1}
+                        className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label="Zoom in"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
