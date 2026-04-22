@@ -52,16 +52,16 @@ export default function MangaDock() {
         onClick={() => setOpen(true)}
         whileHover={{ y: -2, scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
-        className="fixed right-4 top-[24.7rem] z-[58] hidden w-[280px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block sm:right-5 md:right-6"
+        className="fixed right-4 top-[24.7rem] z-[58] hidden w-[320px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block sm:right-5 md:right-6"
         aria-label="Open manga pages"
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-red-300">
-              Manga board
+            <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300">
+              Manga
             </p>
-            <p className="mt-1 truncate text-sm font-black uppercase tracking-[0.08em] text-white">
-              Preview page 1
+            <p className="mt-1 truncate text-base font-black uppercase tracking-[0.06em] text-white">
+              Just for my pleasure
             </p>
           </div>
           <span className="rounded-2xl border border-red-400/25 bg-red-500/12 p-2 text-red-200">
@@ -73,7 +73,7 @@ export default function MangaDock() {
           <img
             src="/manga/planche-1-preview.jpg"
             alt="Manga page 1 preview"
-            className="h-36 w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
+            className="h-44 w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />
