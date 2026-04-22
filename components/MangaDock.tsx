@@ -452,24 +452,24 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                 </div>
               </div>
 
-              <div className="pointer-events-none fixed bottom-7 right-7 z-[96] flex items-center gap-3">
+              <div className="pointer-events-none fixed bottom-8 right-8 z-[96] flex items-center gap-4">
                 <button
                   type="button"
                   onClick={previousMangaPage}
-                  className="pointer-events-auto inline-flex items-center gap-3 rounded-2xl border border-white/28 bg-black/92 px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_16px_46px_rgba(0,0,0,0.78)] backdrop-blur-xl transition hover:border-red-300/60 hover:bg-red-950/90 hover:text-red-100"
+                  className="pointer-events-auto inline-flex min-w-[168px] items-center justify-center gap-4 rounded-[1.65rem] border-2 border-white/40 bg-black px-8 py-5 text-lg font-black uppercase tracking-[0.18em] text-white shadow-[0_20px_60px_rgba(0,0,0,0.9),0_0_28px_rgba(255,255,255,0.18)] ring-1 ring-white/20 backdrop-blur-xl transition hover:scale-[1.03] hover:border-red-200/80 hover:bg-red-950 hover:text-red-50 hover:shadow-[0_22px_70px_rgba(0,0,0,0.95),0_0_36px_rgba(255,80,120,0.34)]"
                   aria-label="Previous manga page"
                 >
-                  <SkipBack className="h-5 w-5" />
+                  <SkipBack className="h-7 w-7" />
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={nextMangaPage}
-                  className="pointer-events-auto inline-flex items-center gap-3 rounded-2xl border border-red-300/55 bg-red-950/92 px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-red-50 shadow-[0_16px_46px_rgba(0,0,0,0.7),0_0_24px_rgba(255,0,60,0.24)] backdrop-blur-xl transition hover:border-red-200/75 hover:bg-red-900/95"
+                  className="pointer-events-auto inline-flex min-w-[168px] items-center justify-center gap-4 rounded-[1.65rem] border-2 border-red-200/80 bg-red-950 px-8 py-5 text-lg font-black uppercase tracking-[0.18em] text-red-50 shadow-[0_20px_60px_rgba(0,0,0,0.86),0_0_42px_rgba(255,0,72,0.5)] ring-1 ring-red-200/30 backdrop-blur-xl transition hover:scale-[1.03] hover:border-white/85 hover:bg-red-900 hover:shadow-[0_22px_70px_rgba(0,0,0,0.94),0_0_54px_rgba(255,40,100,0.68)]"
                   aria-label="Next manga page"
                 >
                   Next
-                  <SkipForward className="h-5 w-5" />
+                  <SkipForward className="h-7 w-7" />
                 </button>
               </div>
             </div>
