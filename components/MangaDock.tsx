@@ -23,6 +23,8 @@ const MANGA_PAGES = [
   { src: "/manga/planche-3.png", alt: "Manga page 3" },
   { src: "/manga/planche-4.png", alt: "Manga page 4" },
   { src: "/manga/planche-5.png", alt: "Manga page 5" },
+  { src: "/manga/planche-6.png", alt: "Manga page 6" },
+  { src: "/manga/planche-7.png", alt: "Manga page 7" },
 ];
 
 const ZOOM_STEPS = [0.75, 0.9, 1, 1.15, 1.35, 1.6, 1.9, 2.25];
@@ -281,84 +283,116 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/24 p-2">
-                  <div className="inline-flex shrink-0 items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={previousMangaTrack}
-                      className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:border-red-400/35 hover:text-red-100"
-                      aria-label="Previous manga music"
-                    >
-                      <SkipBack className="h-4 w-4" />
-                    </button>
+                <div className="space-y-2 rounded-2xl border border-white/10 bg-black/24 p-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="inline-flex shrink-0 items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={previousMangaTrack}
+                        className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:border-red-400/35 hover:text-red-100"
+                        aria-label="Previous manga music"
+                      >
+                        <SkipBack className="h-4 w-4" />
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={toggleMangaAudio}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-red-400/35 bg-red-500/14 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-100 transition hover:bg-red-500/20"
-                    >
-                      {mangaPlaying ? (
-                        <Pause className="h-3.5 w-3.5" />
-                      ) : (
-                        <Play className="h-3.5 w-3.5" />
-                      )}
-                      {mangaPlaying ? "Pause" : "Play"}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={toggleMangaAudio}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-red-400/35 bg-red-500/14 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-100 transition hover:bg-red-500/20"
+                      >
+                        {mangaPlaying ? (
+                          <Pause className="h-3.5 w-3.5" />
+                        ) : (
+                          <Play className="h-3.5 w-3.5" />
+                        )}
+                        {mangaPlaying ? "Pause" : "Play"}
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={nextMangaTrack}
-                      className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:border-red-400/35 hover:text-red-100"
-                      aria-label="Next manga music"
-                    >
-                      <SkipForward className="h-4 w-4" />
-                    </button>
+                      <button
+                        type="button"
+                        onClick={nextMangaTrack}
+                        className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:border-red-400/35 hover:text-red-100"
+                        aria-label="Next manga music"
+                      >
+                        <SkipForward className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <label className="inline-flex h-10 min-w-[220px] flex-[2_1_260px] items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/68">
+                      <span className="shrink-0 text-red-200">Music</span>
+                      <select
+                        value={activeTrackIndex}
+                        onChange={(event) =>
+                          selectMangaTrack(Number(event.target.value))
+                        }
+                        className="min-w-0 flex-1 border-0 bg-transparent text-xs font-black uppercase tracking-[0.06em] text-white outline-none"
+                        aria-label="Choose manga music"
+                      >
+                        {MANGA_TRACKS.map((track, index) => (
+                          <option
+                            key={track.src}
+                            value={index}
+                            className="bg-black text-white"
+                          >
+                            {track.title} - {track.subtitle}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="inline-flex h-10 min-w-[130px] flex-1 items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/68">
+                      <Volume2 className="h-3.5 w-3.5 shrink-0 text-red-200" />
+                      <input
+                        type="range"
+                        min="0"
+                        max="0.8"
+                        step="0.01"
+                        value={mangaVolume}
+                        onChange={(event) =>
+                          changeMangaVolume(Number(event.target.value))
+                        }
+                        className="control-slider w-full"
+                        aria-label="Manga music volume"
+                      />
+                    </label>
+
+                    <div className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-white/12 bg-white/[0.04] p-1">
+                      <button
+                        type="button"
+                        onClick={zoomOut}
+                        disabled={zoomIndex === 0}
+                        className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label="Zoom out"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetZoom}
+                        className="inline-flex min-w-[70px] items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/72 transition hover:text-white"
+                        aria-label="Reset zoom"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        {Math.round(zoom * 100)}%
+                      </button>
+                      <button
+                        type="button"
+                        onClick={zoomIn}
+                        disabled={zoomIndex === ZOOM_STEPS.length - 1}
+                        className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label="Zoom in"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
 
-                  <label className="inline-flex h-10 min-w-[220px] flex-1 items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/68 md:max-w-[310px]">
-                    <span className="shrink-0 text-red-200">Music</span>
-                    <select
-                      value={activeTrackIndex}
-                      onChange={(event) =>
-                        selectMangaTrack(Number(event.target.value))
-                      }
-                      className="min-w-0 flex-1 border-0 bg-transparent text-xs font-black uppercase tracking-[0.06em] text-white outline-none"
-                      aria-label="Choose manga music"
-                    >
-                      {MANGA_TRACKS.map((track, index) => (
-                        <option
-                          key={track.src}
-                          value={index}
-                          className="bg-black text-white"
-                        >
-                          {track.title} - {track.subtitle}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="inline-flex h-10 min-w-[130px] flex-1 items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/68 md:max-w-[170px]">
-                    <Volume2 className="h-3.5 w-3.5 shrink-0 text-red-200" />
-                    <input
-                      type="range"
-                      min="0"
-                      max="0.8"
-                      step="0.01"
-                      value={mangaVolume}
-                      onChange={(event) =>
-                        changeMangaVolume(Number(event.target.value))
-                      }
-                      className="control-slider w-full"
-                      aria-label="Manga music volume"
-                    />
-                  </label>
-
-                  <div className="flex min-w-[260px] flex-1 flex-wrap items-center gap-1.5">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(52px,1fr))] gap-1.5">
                     <button
                       type="button"
                       onClick={() => setViewMode("double")}
                       className={cn(
-                        "inline-flex h-10 items-center gap-2 rounded-2xl border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition",
+                        "inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl border px-2 text-[10px] font-semibold uppercase tracking-[0.1em] transition",
                         viewMode === "double"
                           ? "border-red-400/45 bg-red-500/16 text-red-100"
                           : "border-white/12 bg-white/[0.04] text-white/68 hover:text-white"
@@ -374,7 +408,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                         type="button"
                         onClick={() => showSinglePage(index)}
                         className={cn(
-                          "inline-flex h-10 items-center gap-2 rounded-2xl border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition",
+                          "inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl border px-2 text-[10px] font-semibold uppercase tracking-[0.1em] transition",
                           viewMode === "single" && activePageIndex === index
                             ? "border-red-400/45 bg-red-500/16 text-red-100"
                             : "border-white/12 bg-white/[0.04] text-white/68 hover:text-white"
@@ -384,36 +418,6 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                         {index + 1}
                       </button>
                     ))}
-                  </div>
-
-                  <div className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-white/12 bg-white/[0.04] p-1">
-                    <button
-                      type="button"
-                      onClick={zoomOut}
-                      disabled={zoomIndex === 0}
-                      className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
-                      aria-label="Zoom out"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetZoom}
-                      className="inline-flex min-w-[70px] items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/72 transition hover:text-white"
-                      aria-label="Reset zoom"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      {Math.round(zoom * 100)}%
-                    </button>
-                    <button
-                      type="button"
-                      onClick={zoomIn}
-                      disabled={zoomIndex === ZOOM_STEPS.length - 1}
-                      className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
-                      aria-label="Zoom in"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
                   </div>
                 </div>
               </div>
