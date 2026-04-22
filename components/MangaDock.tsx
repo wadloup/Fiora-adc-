@@ -20,6 +20,8 @@ import { cn } from "../utils/cn";
 const MANGA_PAGES = [
   { src: "/manga/planche-1.png", alt: "Manga page 1" },
   { src: "/manga/planche-2.png", alt: "Manga page 2" },
+  { src: "/manga/planche-3.png", alt: "Manga page 3" },
+  { src: "/manga/planche-4.png", alt: "Manga page 4" },
 ];
 
 const ZOOM_STEPS = [0.75, 0.9, 1, 1.15, 1.35, 1.6, 1.9, 2.25];
@@ -232,7 +234,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
 
         <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2">
           <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">
-            2 pages
+            4 pages
           </span>
           <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-200">
             Open
@@ -267,7 +269,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                     </p>
                     <h2 className="mt-1 text-2xl font-black uppercase tracking-[0.04em] text-white">
                       {viewMode === "double"
-                        ? "Two-page preview"
+                        ? "Four-page preview"
                         : `Page ${activePageIndex + 1}`}
                     </h2>
                   </div>
@@ -353,7 +355,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       )}
                     >
                       <Columns2 className="h-3.5 w-3.5" />
-                      2 pages
+                      4 pages
                     </button>
 
                     {MANGA_PAGES.map((_, index) => (
