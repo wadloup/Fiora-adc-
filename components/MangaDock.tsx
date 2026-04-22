@@ -9,6 +9,8 @@ import {
   Play,
   Plus,
   RotateCcw,
+  SkipBack,
+  SkipForward,
   Volume2,
   X,
 } from "lucide-react";
@@ -21,7 +23,23 @@ const MANGA_PAGES = [
 ];
 
 const ZOOM_STEPS = [0.75, 0.9, 1, 1.15, 1.35, 1.6, 1.9, 2.25];
-const MANGA_AUDIO_SRC = "/audio/big-bad-noisy-sons-of-amon.mp3";
+const MANGA_TRACKS = [
+  {
+    title: "Big Bad Noisy",
+    subtitle: "Sons of Amon",
+    src: "/audio/big-bad-noisy-sons-of-amon.mp3",
+  },
+  {
+    title: "GODS",
+    subtitle: "NewJeans - Levitated Grooves Remix",
+    src: "/audio/gods-newjeans-levitated-grooves-remix.mp3",
+  },
+  {
+    title: "Rush Forward",
+    subtitle: "Manga rush",
+    src: "/audio/rush-forward.mp3",
+  },
+];
 
 type MangaViewMode = "single" | "double";
 
@@ -37,8 +55,11 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const [zoomIndex, setZoomIndex] = useState(2);
   const [mangaPlaying, setMangaPlaying] = useState(false);
   const [mangaVolume, setMangaVolume] = useState(0.42);
+  const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const mangaAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playAfterTrackChangeRef = useRef(false);
   const zoom = ZOOM_STEPS[zoomIndex];
+  const activeTrack = MANGA_TRACKS[activeTrackIndex];
 
   const playMangaAudio = async () => {
     const audio = mangaAudioRef.current;
@@ -94,6 +115,17 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     setZoomIndex((current) => Math.min(ZOOM_STEPS.length - 1, current + 1));
   const resetZoom = () => setZoomIndex(2);
 
+  const selectMangaTrack = (trackIndex: number) => {
+    const audio = mangaAudioRef.current;
+    playAfterTrackChangeRef.current = mangaPlaying || Boolean(audio && !audio.paused);
+    setActiveTrackIndex(
+      (trackIndex + MANGA_TRACKS.length) % MANGA_TRACKS.length
+    );
+  };
+
+  const previousMangaTrack = () => selectMangaTrack(activeTrackIndex - 1);
+  const nextMangaTrack = () => selectMangaTrack(activeTrackIndex + 1);
+
   const toggleMangaAudio = () => {
     if (mangaPlaying) {
       pauseMangaAudio();
@@ -113,6 +145,27 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
 
   useEffect(() => {
     const audio = mangaAudioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    audio.load();
+    audio.currentTime = 0;
+
+    if (!playAfterTrackChangeRef.current) {
+      return;
+    }
+
+    playAfterTrackChangeRef.current = false;
+
+    audio
+      .play()
+      .then(() => setMangaPlaying(true))
+      .catch(() => setMangaPlaying(false));
+  }, [activeTrackIndex]);
+
+  useEffect(() => {
+    const audio = mangaAudioRef.current;
     return () => {
       audio?.pause();
     };
@@ -128,12 +181,12 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
         onClick={openReader}
         whileHover={{ y: -2, scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
-        className="fixed right-4 top-[24.7rem] z-[58] hidden w-[360px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block sm:right-5 md:right-6"
+        className="fixed right-4 top-[24.7rem] z-[58] hidden w-[468px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block sm:right-5 md:right-6"
         aria-label="Open manga pages"
       >
         <audio
           ref={mangaAudioRef}
-          src={MANGA_AUDIO_SRC}
+          src={activeTrack.src}
           loop
           preload="none"
           onPlay={() => setMangaPlaying(true)}
@@ -146,7 +199,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
             <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300">
               Manga
             </p>
-            <p className="mt-1 truncate text-lg font-black uppercase tracking-[0.06em] text-white">
+            <p className="mt-1 truncate text-xl font-black uppercase tracking-[0.06em] text-white">
               Just for my pleasure
             </p>
           </div>
@@ -159,7 +212,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
           <img
             src="/manga/planche-1-preview.jpg"
             alt="Manga page 1 preview"
-            className="h-52 w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
+            className="h-[270px] w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />
@@ -210,6 +263,15 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
+                      onClick={previousMangaTrack}
+                      className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:border-red-400/35 hover:text-red-100"
+                      aria-label="Previous manga music"
+                    >
+                      <SkipBack className="h-4 w-4" />
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={toggleMangaAudio}
                       className="inline-flex items-center gap-2 rounded-2xl border border-red-400/35 bg-red-500/14 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-100 transition hover:bg-red-500/20"
                     >
@@ -220,6 +282,37 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       )}
                       {mangaPlaying ? "Pause" : "Play"}
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={nextMangaTrack}
+                      className="rounded-2xl border border-white/12 bg-white/[0.04] p-2 text-white/78 transition hover:border-red-400/35 hover:text-red-100"
+                      aria-label="Next manga music"
+                    >
+                      <SkipForward className="h-4 w-4" />
+                    </button>
+
+                    <label className="inline-flex min-w-[260px] flex-col gap-1 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68">
+                      <span className="text-red-200">Music choice</span>
+                      <select
+                        value={activeTrackIndex}
+                        onChange={(event) =>
+                          selectMangaTrack(Number(event.target.value))
+                        }
+                        className="w-full border-0 bg-transparent text-xs font-black uppercase tracking-[0.08em] text-white outline-none"
+                        aria-label="Choose manga music"
+                      >
+                        {MANGA_TRACKS.map((track, index) => (
+                          <option
+                            key={track.src}
+                            value={index}
+                            className="bg-black text-white"
+                          >
+                            {track.title} - {track.subtitle}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
 
                     <label className="inline-flex min-w-[160px] items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68">
                       <Volume2 className="h-3.5 w-3.5 text-red-200" />
