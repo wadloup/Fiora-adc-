@@ -29,6 +29,7 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import GuideProgress from "./components/GuideProgress";
 import GuideQuickStart from "./components/GuideQuickStart";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
+import MangaDock from "./components/MangaDock";
 import MessageDock from "./components/MessageDock";
 import MusicPlayer from "./components/MusicPlayer";
 import NarrationPanel from "./components/NarrationPanel";
@@ -1587,6 +1588,8 @@ export default function App() {
         onNext={goToNextTrack}
         mobile
       />
+
+      <MangaDock />
 
       <button
         onClick={scrollTopSmooth}
