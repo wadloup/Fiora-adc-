@@ -110,6 +110,18 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     setViewMode("single");
   };
 
+  const previousMangaPage = () => {
+    setViewMode("single");
+    setActivePageIndex(
+      (current) => (current - 1 + MANGA_PAGES.length) % MANGA_PAGES.length
+    );
+  };
+
+  const nextMangaPage = () => {
+    setViewMode("single");
+    setActivePageIndex((current) => (current + 1) % MANGA_PAGES.length);
+  };
+
   const zoomOut = () => setZoomIndex((current) => Math.max(0, current - 1));
   const zoomIn = () =>
     setZoomIndex((current) => Math.min(ZOOM_STEPS.length - 1, current + 1));
@@ -438,6 +450,27 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                     );
                   })}
                 </div>
+              </div>
+
+              <div className="pointer-events-none fixed bottom-6 right-6 z-[96] flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={previousMangaPage}
+                  className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-black/72 px-4 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/78 shadow-[0_12px_34px_rgba(0,0,0,0.45)] backdrop-blur-md transition hover:border-red-400/45 hover:bg-red-500/16 hover:text-red-100"
+                  aria-label="Previous manga page"
+                >
+                  <SkipBack className="h-4 w-4" />
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={nextMangaPage}
+                  className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-red-400/35 bg-red-500/18 px-4 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-red-100 shadow-[0_12px_34px_rgba(255,0,60,0.18)] backdrop-blur-md transition hover:border-red-300/60 hover:bg-red-500/26"
+                  aria-label="Next manga page"
+                >
+                  Next
+                  <SkipForward className="h-4 w-4" />
+                </button>
               </div>
             </div>
           </motion.div>
