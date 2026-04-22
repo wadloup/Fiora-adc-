@@ -22,6 +22,7 @@ const MANGA_PAGES = [
   { src: "/manga/planche-2.png", alt: "Manga page 2" },
   { src: "/manga/planche-3.png", alt: "Manga page 3" },
   { src: "/manga/planche-4.png", alt: "Manga page 4" },
+  { src: "/manga/planche-5.png", alt: "Manga page 5" },
 ];
 
 const ZOOM_STEPS = [0.75, 0.9, 1, 1.15, 1.35, 1.6, 1.9, 2.25];
@@ -62,6 +63,8 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const playAfterTrackChangeRef = useRef(false);
   const zoom = ZOOM_STEPS[zoomIndex];
   const activeTrack = MANGA_TRACKS[activeTrackIndex];
+  const pageCountLabel = `${MANGA_PAGES.length} pages`;
+  const previewTitle = `${MANGA_PAGES.length}-page preview`;
 
   const playMangaAudio = async () => {
     const audio = mangaAudioRef.current;
@@ -234,7 +237,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
 
         <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2">
           <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">
-            4 pages
+            {pageCountLabel}
           </span>
           <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-200">
             Open
@@ -262,19 +265,25 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
 
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-4">
               <div className="shrink-0 rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.7)] px-5 py-4 shadow-[0_0_26px_rgba(255,0,60,0.16)]">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
+                        Manga board
+                      </p>
+                      <h2 className="mt-1 text-2xl font-black uppercase tracking-[0.04em] text-white">
+                        {viewMode === "double"
+                          ? previewTitle
+                          : `Page ${activePageIndex + 1}`}
+                      </h2>
+                    </div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
-                      Manga board
+                      {pageCountLabel}
                     </p>
-                    <h2 className="mt-1 text-2xl font-black uppercase tracking-[0.04em] text-white">
-                      {viewMode === "double"
-                        ? "Four-page preview"
-                        : `Page ${activePageIndex + 1}`}
-                    </h2>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 xl:flex-nowrap xl:justify-end">
+                  <div className="hide-scrollbar min-w-0 overflow-x-auto rounded-2xl border border-white/10 bg-black/20 p-1">
+                    <div className="flex w-max min-w-full items-center gap-2 pr-1">
                     <button
                       type="button"
                       onClick={previousMangaTrack}
@@ -355,7 +364,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       )}
                     >
                       <Columns2 className="h-3.5 w-3.5" />
-                      4 pages
+                      {pageCountLabel}
                     </button>
 
                     {MANGA_PAGES.map((_, index) => (
@@ -406,6 +415,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               <div className="min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-black/36 p-3 md:p-4">
