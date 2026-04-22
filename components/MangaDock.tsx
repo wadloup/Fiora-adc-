@@ -452,24 +452,24 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                 </div>
               </div>
 
-              <div className="pointer-events-none fixed bottom-6 right-6 z-[96] flex items-center gap-2">
+              <div className="pointer-events-none fixed bottom-7 right-7 z-[96] flex items-center gap-3">
                 <button
                   type="button"
                   onClick={previousMangaPage}
-                  className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-black/72 px-4 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/78 shadow-[0_12px_34px_rgba(0,0,0,0.45)] backdrop-blur-md transition hover:border-red-400/45 hover:bg-red-500/16 hover:text-red-100"
+                  className="pointer-events-auto inline-flex items-center gap-3 rounded-2xl border border-white/28 bg-black/92 px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_16px_46px_rgba(0,0,0,0.78)] backdrop-blur-xl transition hover:border-red-300/60 hover:bg-red-950/90 hover:text-red-100"
                   aria-label="Previous manga page"
                 >
-                  <SkipBack className="h-4 w-4" />
+                  <SkipBack className="h-5 w-5" />
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={nextMangaPage}
-                  className="pointer-events-auto inline-flex items-center gap-2 rounded-2xl border border-red-400/35 bg-red-500/18 px-4 py-3 text-[10px] font-black uppercase tracking-[0.16em] text-red-100 shadow-[0_12px_34px_rgba(255,0,60,0.18)] backdrop-blur-md transition hover:border-red-300/60 hover:bg-red-500/26"
+                  className="pointer-events-auto inline-flex items-center gap-3 rounded-2xl border border-red-300/55 bg-red-950/92 px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-red-50 shadow-[0_16px_46px_rgba(0,0,0,0.7),0_0_24px_rgba(255,0,60,0.24)] backdrop-blur-xl transition hover:border-red-200/75 hover:bg-red-900/95"
                   aria-label="Next manga page"
                 >
                   Next
-                  <SkipForward className="h-4 w-4" />
+                  <SkipForward className="h-5 w-5" />
                 </button>
               </div>
             </div>
