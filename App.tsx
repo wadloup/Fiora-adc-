@@ -57,6 +57,8 @@ import { trackGuidePageViewed } from "./utils/analytics";
 import {
   requestAllVoiceStop,
   requestNarrationStart,
+  requestSiteAudioPause,
+  requestSiteAudioResume,
 } from "./utils/audioControl";
 import { logVisitorPageView } from "./utils/visitLogger";
 
@@ -282,6 +284,7 @@ export default function App() {
   const resumeOnTrackChangeRef = useRef(false);
   const musicVolumeRef = useRef(0.06);
   const initialMusicAutoplayAttemptedRef = useRef(false);
+  const mangaPausedMusicRef = useRef(false);
   const launchFxCounterRef = useRef(0);
   const launchFxTimeoutsRef = useRef<number[]>([]);
   const launchSpamCountRef = useRef(0);
@@ -508,6 +511,27 @@ export default function App() {
     audio.pause();
     setMusicPlaying(false);
   }, []);
+
+  const pauseSiteAudioForManga = useCallback(() => {
+    const audio = audioRef.current;
+    mangaPausedMusicRef.current = Boolean(audio && !audio.paused && !audio.ended);
+
+    if (audio && mangaPausedMusicRef.current) {
+      audio.pause();
+      setMusicPlaying(false);
+    }
+
+    requestSiteAudioPause();
+  }, []);
+
+  const resumeSiteAudioAfterManga = useCallback(() => {
+    requestSiteAudioResume();
+
+    if (mangaPausedMusicRef.current) {
+      mangaPausedMusicRef.current = false;
+      void playBackgroundMusic();
+    }
+  }, [playBackgroundMusic]);
 
   const toggleBackgroundMusic = useCallback(async () => {
     if (musicPlaying) {
@@ -1589,7 +1613,10 @@ export default function App() {
         mobile
       />
 
-      <MangaDock />
+      <MangaDock
+        onOpen={pauseSiteAudioForManga}
+        onClose={resumeSiteAudioAfterManga}
+      />
 
       <button
         onClick={scrollTopSmooth}

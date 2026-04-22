@@ -3,6 +3,8 @@ export const STOP_NARRATION_EVENT = "fiora-stop-narration";
 export const STOP_SPEAKABLE_EVENT = "fiora-stop-speakable";
 export const START_NARRATION_EVENT = "fiora-start-narration";
 export const VOICE_MUTE_STATE_EVENT = "fiora-voice-mute-state";
+export const PAUSE_SITE_AUDIO_EVENT = "fiora-pause-site-audio";
+export const RESUME_SITE_AUDIO_EVENT = "fiora-resume-site-audio";
 
 let voicesMuted = false;
 
@@ -28,6 +30,14 @@ export function requestSpeakableStop() {
 
 export function requestNarrationStart() {
   dispatchAudioEvent(START_NARRATION_EVENT, { manual: true });
+}
+
+export function requestSiteAudioPause() {
+  dispatchAudioEvent(PAUSE_SITE_AUDIO_EVENT);
+}
+
+export function requestSiteAudioResume() {
+  dispatchAudioEvent(RESUME_SITE_AUDIO_EVENT);
 }
 
 export function areVoicesMuted() {

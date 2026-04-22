@@ -7,6 +7,8 @@ import { cn } from "../../utils/cn";
 import { trackSpeakableBlockPlayed } from "../../utils/analytics";
 import {
   ACTIVE_SPEAKABLE_EVENT,
+  PAUSE_SITE_AUDIO_EVENT,
+  RESUME_SITE_AUDIO_EVENT,
   requestNarrationStop,
   setActiveSpeakable,
   STOP_SPEAKABLE_EVENT,
@@ -14,6 +16,8 @@ import {
 
 let activeSpeakableId: string | null = null;
 let activeRecordedAudio: HTMLAudioElement | null = null;
+let activeRecordedAudioPausedByManga = false;
+let activeSpeechPausedByManga = false;
 
 function playActivationSound() {
   if (typeof window === "undefined") {
@@ -75,6 +79,8 @@ function stopSpeakable() {
 
   activeSpeakableId = null;
   setActiveSpeakable(null);
+  activeRecordedAudioPausedByManga = false;
+  activeSpeechPausedByManga = false;
 }
 
 type SpeakableCardProps = {
@@ -110,11 +116,60 @@ export default function SpeakableCard({
       }
     };
 
+    const pauseRequested = () => {
+      if (activeSpeakableId !== speakableId) {
+        return;
+      }
+
+      if (activeRecordedAudio && !activeRecordedAudio.paused) {
+        activeRecordedAudio.pause();
+        activeRecordedAudioPausedByManga = true;
+        return;
+      }
+
+      if (
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window &&
+        window.speechSynthesis.speaking &&
+        !window.speechSynthesis.paused
+      ) {
+        window.speechSynthesis.pause();
+        activeSpeechPausedByManga = true;
+      }
+    };
+
+    const resumeRequested = () => {
+      if (activeSpeakableId !== speakableId) {
+        return;
+      }
+
+      if (activeRecordedAudioPausedByManga && activeRecordedAudio) {
+        activeRecordedAudioPausedByManga = false;
+        void activeRecordedAudio.play().catch(() => {
+          activeRecordedAudio = null;
+          activeSpeakableId = null;
+          setActiveSpeakable(null);
+        });
+        return;
+      }
+
+      if (
+        activeSpeechPausedByManga &&
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window
+      ) {
+        activeSpeechPausedByManga = false;
+        window.speechSynthesis.resume();
+      }
+    };
+
     window.addEventListener(
       ACTIVE_SPEAKABLE_EVENT,
       updateActiveState as EventListener
     );
     window.addEventListener(STOP_SPEAKABLE_EVENT, stopRequested);
+    window.addEventListener(PAUSE_SITE_AUDIO_EVENT, pauseRequested);
+    window.addEventListener(RESUME_SITE_AUDIO_EVENT, resumeRequested);
 
     return () => {
       window.removeEventListener(
@@ -122,6 +177,8 @@ export default function SpeakableCard({
         updateActiveState as EventListener
       );
       window.removeEventListener(STOP_SPEAKABLE_EVENT, stopRequested);
+      window.removeEventListener(PAUSE_SITE_AUDIO_EVENT, pauseRequested);
+      window.removeEventListener(RESUME_SITE_AUDIO_EVENT, resumeRequested);
 
       if (activeSpeakableId === speakableId) {
         stopSpeakable();

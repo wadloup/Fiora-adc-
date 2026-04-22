@@ -10,6 +10,8 @@ import {
 } from "../data/siteData";
 import {
   areVoicesMuted,
+  PAUSE_SITE_AUDIO_EVENT,
+  RESUME_SITE_AUDIO_EVENT,
   requestSpeakableStop,
   START_NARRATION_EVENT,
   STOP_NARRATION_EVENT,
@@ -35,6 +37,8 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
   const [displayText, setDisplayText] = useState(voiceText[page]);
   const tickerRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const pausedByMangaRef = useRef(false);
+  const speechPausedByMangaRef = useRef(false);
   const recordedAudioSrc = narrationAudio[page];
   const hasRecordedNarration = Boolean(recordedAudioSrc);
 
@@ -210,9 +214,54 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
       setVoicesMuted(Boolean(customEvent.detail?.muted));
     };
 
+    const pauseRequested = () => {
+      const audio = audioRef.current;
+
+      if (recordedAudioSrc && audio && !audio.paused && !audio.ended) {
+        audio.pause();
+        pausedByMangaRef.current = true;
+        setSpeaking(false);
+        return;
+      }
+
+      if (
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window &&
+        window.speechSynthesis.speaking &&
+        !window.speechSynthesis.paused
+      ) {
+        window.speechSynthesis.pause();
+        speechPausedByMangaRef.current = true;
+        setSpeaking(false);
+      }
+    };
+
+    const resumeRequested = () => {
+      const audio = audioRef.current;
+
+      if (pausedByMangaRef.current && audio) {
+        pausedByMangaRef.current = false;
+        setSpeaking(true);
+        void audio.play().catch(() => setSpeaking(false));
+        return;
+      }
+
+      if (
+        speechPausedByMangaRef.current &&
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window
+      ) {
+        speechPausedByMangaRef.current = false;
+        window.speechSynthesis.resume();
+        setSpeaking(true);
+      }
+    };
+
     window.addEventListener(STOP_NARRATION_EVENT, stopRequested);
     window.addEventListener(START_NARRATION_EVENT, startRequested as EventListener);
     window.addEventListener(VOICE_MUTE_STATE_EVENT, muteStateChanged as EventListener);
+    window.addEventListener(PAUSE_SITE_AUDIO_EVENT, pauseRequested);
+    window.addEventListener(RESUME_SITE_AUDIO_EVENT, resumeRequested);
 
     return () => {
       window.removeEventListener(STOP_NARRATION_EVENT, stopRequested);
@@ -224,8 +273,10 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
         VOICE_MUTE_STATE_EVENT,
         muteStateChanged as EventListener
       );
+      window.removeEventListener(PAUSE_SITE_AUDIO_EVENT, pauseRequested);
+      window.removeEventListener(RESUME_SITE_AUDIO_EVENT, resumeRequested);
     };
-  }, [speak, stop]);
+  }, [recordedAudioSrc, speak, stop]);
 
   useEffect(() => {
     setDisplayText(voiceText[page]);
