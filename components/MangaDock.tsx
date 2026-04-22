@@ -264,26 +264,25 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
             </button>
 
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-4">
-              <div className="shrink-0 rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.7)] px-5 py-4 shadow-[0_0_26px_rgba(255,0,60,0.16)]">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
-                        Manga board
-                      </p>
-                      <h2 className="mt-1 text-2xl font-black uppercase tracking-[0.04em] text-white">
-                        {viewMode === "double"
-                          ? previewTitle
-                          : `Page ${activePageIndex + 1}`}
-                      </h2>
-                    </div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
-                      {pageCountLabel}
+              <div className="shrink-0 rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.72)] px-4 py-3 shadow-[0_0_26px_rgba(255,0,60,0.16)]">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-red-300">
+                      Manga board
                     </p>
+                    <h2 className="mt-0.5 text-xl font-black uppercase tracking-[0.04em] text-white md:text-2xl">
+                      {viewMode === "double"
+                        ? previewTitle
+                        : `Page ${activePageIndex + 1}`}
+                    </h2>
                   </div>
+                  <p className="rounded-2xl border border-red-400/25 bg-red-500/12 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-red-100">
+                    {pageCountLabel}
+                  </p>
+                </div>
 
-                  <div className="hide-scrollbar min-w-0 overflow-x-auto rounded-2xl border border-white/10 bg-black/20 p-1">
-                    <div className="flex w-max min-w-full items-center gap-2 pr-1">
+                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/24 p-2">
+                  <div className="inline-flex shrink-0 items-center gap-1.5">
                     <button
                       type="button"
                       onClick={previousMangaTrack}
@@ -314,57 +313,59 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                     >
                       <SkipForward className="h-4 w-4" />
                     </button>
+                  </div>
 
-                    <label className="inline-flex min-w-[260px] flex-col gap-1 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68 xl:min-w-[230px]">
-                      <span className="text-red-200">Music choice</span>
-                      <select
-                        value={activeTrackIndex}
-                        onChange={(event) =>
-                          selectMangaTrack(Number(event.target.value))
-                        }
-                        className="w-full border-0 bg-transparent text-xs font-black uppercase tracking-[0.08em] text-white outline-none"
-                        aria-label="Choose manga music"
-                      >
-                        {MANGA_TRACKS.map((track, index) => (
-                          <option
-                            key={track.src}
-                            value={index}
-                            className="bg-black text-white"
-                          >
-                            {track.title} - {track.subtitle}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                  <label className="inline-flex h-10 min-w-[220px] flex-1 items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/68 md:max-w-[310px]">
+                    <span className="shrink-0 text-red-200">Music</span>
+                    <select
+                      value={activeTrackIndex}
+                      onChange={(event) =>
+                        selectMangaTrack(Number(event.target.value))
+                      }
+                      className="min-w-0 flex-1 border-0 bg-transparent text-xs font-black uppercase tracking-[0.06em] text-white outline-none"
+                      aria-label="Choose manga music"
+                    >
+                      {MANGA_TRACKS.map((track, index) => (
+                        <option
+                          key={track.src}
+                          value={index}
+                          className="bg-black text-white"
+                        >
+                          {track.title} - {track.subtitle}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-                    <label className="inline-flex min-w-[160px] items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/68 xl:min-w-[150px]">
-                      <Volume2 className="h-3.5 w-3.5 text-red-200" />
-                      <input
-                        type="range"
-                        min="0"
-                        max="0.8"
-                        step="0.01"
-                        value={mangaVolume}
-                        onChange={(event) =>
-                          changeMangaVolume(Number(event.target.value))
-                        }
-                        className="control-slider w-full"
-                        aria-label="Manga music volume"
-                      />
-                    </label>
+                  <label className="inline-flex h-10 min-w-[130px] flex-1 items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/68 md:max-w-[170px]">
+                    <Volume2 className="h-3.5 w-3.5 shrink-0 text-red-200" />
+                    <input
+                      type="range"
+                      min="0"
+                      max="0.8"
+                      step="0.01"
+                      value={mangaVolume}
+                      onChange={(event) =>
+                        changeMangaVolume(Number(event.target.value))
+                      }
+                      className="control-slider w-full"
+                      aria-label="Manga music volume"
+                    />
+                  </label>
 
+                  <div className="flex min-w-[260px] flex-1 flex-wrap items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => setViewMode("double")}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] transition",
+                        "inline-flex h-10 items-center gap-2 rounded-2xl border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition",
                         viewMode === "double"
                           ? "border-red-400/45 bg-red-500/16 text-red-100"
                           : "border-white/12 bg-white/[0.04] text-white/68 hover:text-white"
                       )}
                     >
                       <Columns2 className="h-3.5 w-3.5" />
-                      {pageCountLabel}
+                      All
                     </button>
 
                     {MANGA_PAGES.map((_, index) => (
@@ -373,49 +374,48 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                         type="button"
                         onClick={() => showSinglePage(index)}
                         className={cn(
-                          "inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] transition",
+                          "inline-flex h-10 items-center gap-2 rounded-2xl border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition",
                           viewMode === "single" && activePageIndex === index
                             ? "border-red-400/45 bg-red-500/16 text-red-100"
                             : "border-white/12 bg-white/[0.04] text-white/68 hover:text-white"
                         )}
                       >
                         <PanelTopOpen className="h-3.5 w-3.5" />
-                        Page {index + 1}
+                        {index + 1}
                       </button>
                     ))}
+                  </div>
 
-                    <div className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-white/12 bg-white/[0.04] p-1">
-                      <button
-                        type="button"
-                        onClick={zoomOut}
-                        disabled={zoomIndex === 0}
-                        className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
-                        aria-label="Zoom out"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={resetZoom}
-                        className="inline-flex min-w-[70px] items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/72 transition hover:text-white"
-                        aria-label="Reset zoom"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                        {Math.round(zoom * 100)}%
-                      </button>
-                      <button
-                        type="button"
-                        onClick={zoomIn}
-                        disabled={zoomIndex === ZOOM_STEPS.length - 1}
-                        className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
-                        aria-label="Zoom in"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    </div>
+                  <div className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-white/12 bg-white/[0.04] p-1">
+                    <button
+                      type="button"
+                      onClick={zoomOut}
+                      disabled={zoomIndex === 0}
+                      className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                      aria-label="Zoom out"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetZoom}
+                      className="inline-flex min-w-[70px] items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/72 transition hover:text-white"
+                      aria-label="Reset zoom"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      {Math.round(zoom * 100)}%
+                    </button>
+                    <button
+                      type="button"
+                      onClick={zoomIn}
+                      disabled={zoomIndex === ZOOM_STEPS.length - 1}
+                      className="rounded-xl p-2 text-white/78 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                      aria-label="Zoom in"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-              </div>
               </div>
 
               <div className="min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-black/36 p-3 md:p-4">
