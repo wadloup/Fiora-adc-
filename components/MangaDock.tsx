@@ -200,9 +200,21 @@ export default function MangaDock() {
                     );
 
                     return (
-                      <div
+                      <button
                         key={page.src}
-                        className="w-[min(78vw,560px)] overflow-hidden rounded-2xl border border-white/10 bg-black/45 shadow-[0_18px_60px_rgba(0,0,0,0.35)] xl:w-[560px]"
+                        type="button"
+                        onClick={() => {
+                          if (viewMode === "double") {
+                            showSinglePage(realIndex);
+                          }
+                        }}
+                        className={cn(
+                          "w-[min(78vw,560px)] overflow-hidden rounded-2xl border border-white/10 bg-black/45 text-left shadow-[0_18px_60px_rgba(0,0,0,0.35)] xl:w-[560px]",
+                          viewMode === "double"
+                            ? "cursor-zoom-in transition hover:border-red-400/45 hover:shadow-[0_18px_70px_rgba(255,0,60,0.18)]"
+                            : "cursor-default"
+                        )}
+                        aria-label={`Open page ${realIndex + 1} in single-page mode`}
                       >
                         <div className="border-b border-white/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-200">
                           Page {realIndex + 1}
@@ -214,7 +226,7 @@ export default function MangaDock() {
                           loading="eager"
                           decoding="async"
                         />
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
