@@ -55,8 +55,7 @@ const MANGA_TRACKS = [
     src: "/audio/rush-forward.mp3",
   },
 ];
-
-const MANGA_PAGE_TRACK_INDEXES = [0, 1, 2, 0, 1, 2, 0, 1, 2, 0];
+const DEFAULT_MANGA_TRACK_INDEX = 1;
 
 type MangaViewMode = "single" | "double";
 
@@ -72,8 +71,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const [zoomIndex, setZoomIndex] = useState(2);
   const [mangaPlaying, setMangaPlaying] = useState(false);
   const [mangaVolume, setMangaVolume] = useState(0.42);
-  const [activeTrackIndex, setActiveTrackIndex] = useState(0);
-  const [autoPageMusic, setAutoPageMusic] = useState(true);
+  const [activeTrackIndex, setActiveTrackIndex] = useState(DEFAULT_MANGA_TRACK_INDEX);
   const mangaAudioRef = useRef<HTMLAudioElement | null>(null);
   const pausedSiteMediaRef = useRef<HTMLMediaElement[]>([]);
   const pausedSpeechByMangaRef = useRef(false);
@@ -82,9 +80,6 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const activeTrack = MANGA_TRACKS[activeTrackIndex];
   const pageCountLabel = `${MANGA_PAGES.length} pages`;
   const previewTitle = `${MANGA_PAGES.length}-page preview`;
-
-  const getPageTrackIndex = (pageIndex: number) =>
-    MANGA_PAGE_TRACK_INDEXES[pageIndex] ?? pageIndex % MANGA_TRACKS.length;
 
   const playMangaAudio = async () => {
     const audio = mangaAudioRef.current;
@@ -170,6 +165,12 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     setOpen(true);
 
     const audio = mangaAudioRef.current;
+    if (activeTrackIndex !== DEFAULT_MANGA_TRACK_INDEX) {
+      playAfterTrackChangeRef.current = true;
+      setActiveTrackIndex(DEFAULT_MANGA_TRACK_INDEX);
+      return;
+    }
+
     if (audio) {
       audio.currentTime = 0;
     }
@@ -209,7 +210,6 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const selectMangaTrack = (trackIndex: number) => {
     const audio = mangaAudioRef.current;
     playAfterTrackChangeRef.current = mangaPlaying || Boolean(audio && !audio.paused);
-    setAutoPageMusic(false);
     setActiveTrackIndex(
       (trackIndex + MANGA_TRACKS.length) % MANGA_TRACKS.length
     );
@@ -234,26 +234,6 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
       mangaAudioRef.current.volume = value;
     }
   };
-
-  const toggleAutoPageMusic = () => {
-    setAutoPageMusic((current) => !current);
-  };
-
-  useEffect(() => {
-    if (!autoPageMusic || viewMode !== "single") {
-      return;
-    }
-
-    const nextTrackIndex = getPageTrackIndex(activePageIndex);
-    if (nextTrackIndex === activeTrackIndex) {
-      return;
-    }
-
-    const audio = mangaAudioRef.current;
-    playAfterTrackChangeRef.current =
-      mangaPlaying || Boolean(audio && !audio.paused);
-    setActiveTrackIndex(nextTrackIndex);
-  }, [activePageIndex, activeTrackIndex, autoPageMusic, mangaPlaying, viewMode]);
 
   useEffect(() => {
     const audio = mangaAudioRef.current;
@@ -446,20 +426,6 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                       aria-label="Manga music volume"
                     />
                   </label>
-
-                  <button
-                    type="button"
-                    onClick={toggleAutoPageMusic}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-2xl border px-3 py-3 text-[10px] font-black uppercase tracking-[0.14em] transition",
-                      autoPageMusic
-                        ? "border-cyan-300/40 bg-cyan-400/12 text-cyan-100"
-                        : "border-white/12 bg-white/[0.04] text-white/60 hover:text-white"
-                    )}
-                  >
-                    <span>Auto music</span>
-                    <span>{autoPageMusic ? "On" : "Off"}</span>
-                  </button>
 
                   <div className="inline-flex w-full items-center justify-between gap-1 rounded-2xl border border-white/12 bg-white/[0.04] p-1">
                     <button
