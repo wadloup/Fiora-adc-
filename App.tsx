@@ -15,7 +15,6 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
-  CornerDownRight,
   Menu,
   Pause,
   Play,
@@ -172,7 +171,6 @@ type GuideMode = "support" | "adc" | "browse";
 
 const GUIDE_MODE_STORAGE_KEY = "fiora-guide-mode";
 const LAST_GUIDE_PAGE_STORAGE_KEY = "fiora-last-guide-page";
-const GUIDE_CONTENT_FLOW = pages.filter((page) => page !== "Home");
 const GUIDE_MODE_META: Record<GuideMode, { label: string; summary: string }> = {
   support: {
     label: "Support route",
@@ -263,7 +261,6 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
   const laneRefs = useRef<Partial<Record<LaneSectionId, HTMLDivElement | null>>>(
     {}
   );
@@ -301,7 +298,7 @@ export default function App() {
   const adminOnlyMode = messagesAdminOpen;
   const activeGuideMode = guideMode ?? "browse";
   const activeGuideMeta = GUIDE_MODE_META[activeGuideMode];
-  const activeGuideFlow = GUIDE_CONTENT_FLOW;
+  const activeGuideFlow = pages;
   const activeGuideSummary =
     guideMode === null
       ? GUIDE_MODE_META.browse.summary
@@ -486,11 +483,6 @@ export default function App() {
       )
       .slice(0, 8);
   }, [query, searchActions]);
-
-  const searchPanelOpen = searchFocused || Boolean(query.trim());
-  const visibleSearchEntries = query.trim()
-    ? searchResults
-    : searchActions.slice(0, 5);
 
   const playBackgroundMusic = useCallback(async () => {
     const audio = audioRef.current;
@@ -861,43 +853,6 @@ export default function App() {
     }
   }, [goPage, nextGuidePage]);
 
-  useEffect(() => {
-    const handleGuideKeys = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const isTyping =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        Boolean(target?.isContentEditable);
-
-      if (event.key === "/" && !isTyping) {
-        event.preventDefault();
-        document.getElementById("site-guide-search")?.focus();
-        return;
-      }
-
-      if (isTyping || currentPage === "Home") {
-        return;
-      }
-
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        openPreviousGuidePage();
-      }
-
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        openNextGuidePage();
-      }
-    };
-
-    window.addEventListener("keydown", handleGuideKeys);
-
-    return () => {
-      window.removeEventListener("keydown", handleGuideKeys);
-    };
-  }, [currentPage, openNextGuidePage, openPreviousGuidePage]);
-
   const quickAnswerScenarios = useMemo<QuickAnswerScenario[]>(
     () => [
       {
@@ -957,84 +912,46 @@ export default function App() {
   const searchBlock = (
     <div
       className={cn(
-        "relative z-40 w-full",
+        "w-full",
         currentPage === "Home" ? "lg:w-[280px] lg:flex-none" : "lg:w-[360px]"
       )}
     >
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300" />
         <input
-          id="site-guide-search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => setSearchFocused(false)}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              setQuery("");
-              setSearchFocused(false);
-              event.currentTarget.blur();
-            }
-          }}
           placeholder="Search page, matchup, rune, or lane concept"
-          className="w-full rounded-2xl border border-red-500/30 bg-black/50 py-3 pl-10 pr-10 text-white shadow-[0_10px_28px_rgba(0,0,0,0.25)] outline-none transition focus:border-red-300/50 focus:bg-black/70 focus:shadow-[0_0_26px_rgba(255,0,70,0.16)] placeholder:text-white/40"
+          className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
         />
-        {query ? (
-          <button
-            type="button"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => setQuery("")}
-            className="absolute right-2 top-1/2 rounded-xl p-2 text-white/50 transition hover:bg-white/10 hover:text-white"
-            aria-label="Clear search"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
       </div>
-      <AnimatePresence>
-        {searchPanelOpen ? (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.16 }}
-            onMouseDown={(event) => event.preventDefault()}
-            className="absolute left-0 right-0 top-full z-[80] mt-2 max-h-[min(70vh,28rem)] overflow-auto rounded-2xl border border-red-400/25 bg-[rgba(8,6,8,0.96)] p-2 shadow-[0_22px_70px_rgba(0,0,0,0.72),0_0_28px_rgba(255,0,60,0.16)] backdrop-blur-xl"
-          >
-            {visibleSearchEntries.length ? (
-              <div className="grid gap-1.5">
-                {visibleSearchEntries.map((entry) => (
-                  <button
-                    key={entry.id}
-                    onClick={() => {
-                      setSearchFocused(false);
-                      entry.run();
-                    }}
-                    className="group flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.035] px-3 py-2.5 text-left transition hover:border-red-400/30 hover:bg-red-500/[0.1]"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-red-50">
-                        {entry.label}
-                      </p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/58">
-                        {entry.description}
-                      </p>
-                    </div>
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/60 transition group-hover:text-red-100">
-                      {entry.badge}
-                      <CornerDownRight className="h-3 w-3" />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <span className="block px-3 py-3 text-sm text-white/50">
-                Nothing found.
-              </span>
-            )}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {query ? (
+        <div className="mt-3 grid gap-2">
+          {searchResults.length ? (
+            searchResults.map((entry) => (
+              <button
+                key={entry.id}
+                onClick={() => entry.run()}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/20 bg-red-500/[0.08] px-3 py-3 text-left transition hover:border-red-400/32 hover:bg-red-500/[0.12]"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-red-100">
+                    {entry.label}
+                  </p>
+                  <p className="mt-1 text-xs text-white/62">
+                    {entry.description}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/62">
+                  {entry.badge}
+                </span>
+              </button>
+            ))
+          ) : (
+            <span className="text-sm text-white/50">Nothing found.</span>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 
@@ -1107,11 +1024,10 @@ export default function App() {
 
           <nav className="hide-scrollbar hidden min-w-0 flex-1 overflow-x-auto xl:block">
             <div className="flex w-max min-w-full items-center justify-center gap-1 whitespace-nowrap rounded-[1.35rem] border border-white/10 bg-[rgba(255,255,255,0.035)] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-              {pages.map((page, index) => (
+              {pages.map((page) => (
                 <PageButton
                   key={page}
                   label={page}
-                  index={index}
                   active={currentPage === page}
                   onClick={() => goPage(page)}
                 />
