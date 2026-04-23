@@ -68,6 +68,8 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [autoPageMusic, setAutoPageMusic] = useState(true);
   const mangaAudioRef = useRef<HTMLAudioElement | null>(null);
+  const pausedSiteMediaRef = useRef<HTMLMediaElement[]>([]);
+  const pausedSpeechByMangaRef = useRef(false);
   const playAfterTrackChangeRef = useRef(false);
   const zoom = ZOOM_STEPS[zoomIndex];
   const activeTrack = MANGA_TRACKS[activeTrackIndex];
@@ -103,8 +105,61 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     setMangaPlaying(false);
   };
 
+  const pauseSiteMediaForManga = () => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const mangaAudio = mangaAudioRef.current;
+    pausedSiteMediaRef.current = [];
+    pausedSpeechByMangaRef.current = false;
+
+    document.querySelectorAll<HTMLMediaElement>("audio, video").forEach((media) => {
+      const isSilentVideo =
+        media.tagName === "VIDEO" && (media.muted || media.volume === 0);
+
+      if (media === mangaAudio || media.paused || media.ended || isSilentVideo) {
+        return;
+      }
+
+      pausedSiteMediaRef.current.push(media);
+      media.pause();
+    });
+
+    if (
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window &&
+      window.speechSynthesis.speaking &&
+      !window.speechSynthesis.paused
+    ) {
+      window.speechSynthesis.pause();
+      pausedSpeechByMangaRef.current = true;
+    }
+  };
+
+  const resumeSiteMediaAfterManga = () => {
+    pausedSiteMediaRef.current.forEach((media) => {
+      if (!media.isConnected || media.ended) {
+        return;
+      }
+
+      void media.play().catch(() => undefined);
+    });
+    pausedSiteMediaRef.current = [];
+
+    if (
+      pausedSpeechByMangaRef.current &&
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window
+    ) {
+      window.speechSynthesis.resume();
+    }
+    pausedSpeechByMangaRef.current = false;
+  };
+
   const openReader = () => {
     onOpen?.();
+    pauseSiteMediaForManga();
     setOpen(true);
 
     const audio = mangaAudioRef.current;
@@ -117,6 +172,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
 
   const close = () => {
     pauseMangaAudio();
+    resumeSiteMediaAfterManga();
     setOpen(false);
     onClose?.();
   };
@@ -217,6 +273,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     const audio = mangaAudioRef.current;
     return () => {
       audio?.pause();
+      resumeSiteMediaAfterManga();
     };
   }, []);
 
