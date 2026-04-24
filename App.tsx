@@ -1037,7 +1037,7 @@ export default function App() {
   }
 
   return (
-    <div className="blade-stage relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
         <audio
           ref={audioRef}
           src={currentTrack.src}
@@ -1078,8 +1078,8 @@ export default function App() {
         ) : null}
       </AnimatePresence>
 
-      <header className="premium-nav sticky top-0 z-50 border-b border-red-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.22)]">
-        <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-3.5 md:px-5">
+      <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">
             <div className="flex shrink-0 items-center gap-2">
               <div>
                 <p className="whitespace-nowrap text-sm font-black uppercase tracking-[0.18em] text-white">
@@ -1142,24 +1142,16 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-[90rem] space-y-7 px-4 py-7 md:px-6 md:py-10">
-        <NeonCard
-          noBlur
-          className={cn(
-            "p-4 md:p-5 lg:p-6",
-            currentPage === "Home"
-              ? "hero-command-panel overflow-hidden"
-              : "page-command-panel"
-          )}
-        >
+      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10">
+        <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
-            <div className="relative z-10 space-y-4">
+            <div className="space-y-4">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
                     Draft read
                   </p>
-                  <h1 className="cinematic-title mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
+                  <h1 className="mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
                     <>
                       Fiora ADC. No autopilot, no free lane.
                       <motion.span
@@ -1227,7 +1219,7 @@ export default function App() {
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.94 }}
                       className={cn(
-                        "premium-card-3d group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]",
+                        "group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]",
                         launchCooldown
                           ? "cursor-not-allowed opacity-70 saturate-75"
                           : "cursor-pointer"
@@ -1292,13 +1284,13 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
                     Draft read
                   </p>
-                  <h1 className="cinematic-title mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
+                  <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
                     <>
                       {currentPage}
                       <span className="mt-1 block text-base font-medium text-white/70 md:text-lg">
@@ -1330,7 +1322,7 @@ export default function App() {
           ) : null}
 
           {currentPage === "Home" ? (
-            <NeonCard className="scroll-reveal overflow-hidden">
+            <NeonCard className="overflow-hidden">
               <div ref={homeSupportSectionRef} />
               <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
               <div className="relative min-h-[360px] overflow-hidden">
@@ -1344,11 +1336,9 @@ export default function App() {
                   onError={recoverImage}
                   style={{ objectPosition: "center 26%" }}
                 />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/55 to-transparent" />
-                <div className="absolute -right-28 top-10 h-56 w-56 rounded-full bg-red-500/20 blur-3xl" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
                 <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
-                  <div className="premium-card-3d max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
+                  <div className="max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
                     <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-300">
                       Draft priority
                     </p>
@@ -1365,13 +1355,13 @@ export default function App() {
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                       <button
                         onClick={() => goPage("Fiora's Support")}
-                        className="premium-cta w-full rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20 sm:w-auto"
+                        className="w-full rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20 sm:w-auto"
                       >
                         Go to Fiora's Support
                       </button>
                       <button
                         onClick={() => goLaneSection("support")}
-                        className="premium-nav-pill w-full rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10 sm:w-auto"
+                        className="w-full rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10 sm:w-auto"
                       >
                         Open Lane Phase - Support
                       </button>
@@ -1404,10 +1394,10 @@ export default function App() {
         <AnimatePresence mode="sync">
           <motion.div
             key={currentPage}
-            initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -8, filter: "blur(6px)" }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.14 }}
             className="space-y-6"
           >
             <Suspense

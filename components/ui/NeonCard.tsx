@@ -17,8 +17,8 @@ const NeonCard = React.forwardRef<HTMLDivElement, NeonCardProps>(
         ref={ref}
         className={cn(
           noBlur
-            ? "premium-surface premium-surface-solid rounded-3xl border border-red-500/25"
-            : "premium-surface rounded-3xl border border-red-500/25",
+            ? "rounded-3xl border border-red-500/25 bg-[rgba(20,6,10,0.72)] shadow-[0_0_24px_rgba(255,0,60,0.12)]"
+            : "rounded-3xl border border-red-500/25 bg-[rgba(18,7,10,0.76)] shadow-[0_0_24px_rgba(255,0,60,0.12)]",
           className
         )}
       >

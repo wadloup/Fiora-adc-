@@ -68,7 +68,7 @@ export default function GuideQuickStart({
   };
 
   return (
-    <div className="premium-surface scroll-reveal rounded-[1.7rem] border border-red-500/20 p-4">
+    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(20,8,12,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
@@ -120,7 +120,7 @@ export default function GuideQuickStart({
               type="button"
               onClick={actionMap[option.id]}
               className={cn(
-                "premium-card-3d group rounded-[1.4rem] border p-3.5 text-left transition duration-200",
+                "group rounded-[1.4rem] border p-3.5 text-left transition duration-200",
                 active
                   ? "border-red-400/40 bg-[linear-gradient(180deg,rgba(255,60,90,0.13),rgba(20,8,12,0.6))] shadow-[0_0_14px_rgba(255,0,60,0.12)]"
                   : "border-white/10 bg-white/[0.04] hover:border-red-500/25 hover:bg-red-500/[0.05]"

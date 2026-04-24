@@ -33,7 +33,7 @@ export default function GuideProgress({
   );
 
   return (
-    <div className="premium-surface scroll-reveal rounded-[1.55rem] border border-red-500/18 p-3.5">
+    <div className="rounded-[1.55rem] border border-red-500/18 bg-[rgba(16,8,11,0.6)] p-3.5 shadow-[0_0_14px_rgba(255,0,60,0.08)]">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -70,7 +70,7 @@ export default function GuideProgress({
             onClick={onPrevious}
             disabled={!previousPage}
             className={cn(
-              "premium-nav-pill inline-flex min-w-[118px] items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition",
+              "inline-flex min-w-[118px] items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition",
               previousPage
                 ? "border-white/12 bg-white/[0.05] text-white/84 hover:border-red-500/25 hover:bg-red-500/[0.07]"
                 : "cursor-not-allowed border-white/8 bg-white/[0.03] text-white/30"
@@ -85,7 +85,7 @@ export default function GuideProgress({
             onClick={onNext}
             disabled={!nextPage}
             className={cn(
-              "premium-nav-pill inline-flex min-w-[118px] items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition",
+              "inline-flex min-w-[118px] items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition",
               nextPage
                 ? "border-red-400/28 bg-red-500/[0.1] text-red-100 hover:bg-red-500/[0.16]"
                 : "cursor-not-allowed border-white/8 bg-white/[0.03] text-white/30"
