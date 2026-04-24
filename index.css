@@ -75,6 +75,120 @@ body {
   pointer-events: none;
 }
 
+.premium-panel {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  backdrop-filter: blur(18px) saturate(1.12);
+  transform-style: preserve-3d;
+}
+
+.premium-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), transparent 28%),
+    radial-gradient(circle at 12% 0%, rgba(255, 45, 85, 0.18), transparent 32%),
+    radial-gradient(circle at 88% 8%, rgba(255, 255, 255, 0.08), transparent 28%);
+  opacity: 0.88;
+}
+
+.premium-panel::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent) top / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 42%);
+  pointer-events: none;
+}
+
+.studio-hero {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.studio-depth-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: linear-gradient(90deg, black, transparent 72%);
+  opacity: 0.34;
+  transform: translateZ(-120px) scale(1.08);
+  animation: studio-grid-sink 18s linear infinite;
+}
+
+.studio-title-cut {
+  filter: drop-shadow(0 0 26px rgba(255, 40, 80, 0.22));
+}
+
+.studio-primary-cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.studio-primary-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.18) 42%, transparent 62%);
+  transform: translateX(-130%);
+  transition: transform 0.65s ease;
+}
+
+.studio-primary-cta:hover::before {
+  transform: translateX(130%);
+}
+
+.studio-route-card {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.studio-route-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 50, 85, 0.22), transparent 36%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 32%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.studio-route-card:hover::before {
+  opacity: 1;
+}
+
+.studio-command-panel {
+  transform-style: preserve-3d;
+}
+
+.studio-command-strip {
+  box-shadow:
+    0 30px 110px rgba(0, 0, 0, 0.42),
+    0 0 48px rgba(255, 0, 60, 0.11);
+}
+
+@keyframes studio-grid-sink {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+
+  100% {
+    background-position: 80px 80px, 80px 80px;
+  }
+}
+
 @keyframes intro-grid-drift {
   0% {
     transform: translate3d(0, 0, 0);
@@ -249,6 +363,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .studio-depth-grid,
+  .intro-cinematic-grid {
+    animation: none;
+  }
+
   .manga-dock-card,
   .manga-dock-card::after {
     animation: none;

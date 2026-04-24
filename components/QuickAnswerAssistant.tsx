@@ -1,4 +1,5 @@
 import { ArrowRight, Radar, ShieldAlert } from "lucide-react";
+import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { cn } from "../utils/cn";
 
@@ -36,7 +37,13 @@ export default function QuickAnswerAssistant({
   }
 
   return (
-    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(18,8,11,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.22 }}
+      transition={{ duration: 0.55, ease: "easeOut", delay: 0.06 }}
+      className="premium-panel rounded-[1.7rem] border border-red-500/20 bg-[rgba(18,8,11,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]"
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
@@ -66,10 +73,12 @@ export default function QuickAnswerAssistant({
             const active = scenario.id === selectedScenario.id;
 
             return (
-              <button
+              <motion.button
                 key={scenario.id}
                 type="button"
                 onClick={() => setSelectedScenarioId(scenario.id)}
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.99 }}
                 className={cn(
                   "rounded-2xl border px-3.5 py-3 text-left transition",
                   active
@@ -85,7 +94,7 @@ export default function QuickAnswerAssistant({
                     {scenario.category}
                   </span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -123,6 +132,6 @@ export default function QuickAnswerAssistant({
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

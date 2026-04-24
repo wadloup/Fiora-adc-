@@ -6,6 +6,7 @@ import {
   RotateCcw,
   Swords,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "../utils/cn";
 
 type GuideMode = "support" | "adc" | "browse";
@@ -68,7 +69,13 @@ export default function GuideQuickStart({
   };
 
   return (
-    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(20,8,12,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.22 }}
+      transition={{ duration: 0.55, ease: "easeOut" }}
+      className="premium-panel rounded-[1.7rem] border border-red-500/20 bg-[rgba(20,8,12,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]"
+    >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
@@ -115,10 +122,12 @@ export default function GuideQuickStart({
           const active = activeMode === option.id;
 
           return (
-            <button
+            <motion.button
               key={option.id}
               type="button"
               onClick={actionMap[option.id]}
+              whileHover={{ y: -5, rotateX: 2.5 }}
+              whileTap={{ scale: 0.985 }}
               className={cn(
                 "group rounded-[1.4rem] border p-3.5 text-left transition duration-200",
                 active
@@ -146,10 +155,10 @@ export default function GuideQuickStart({
                 <span>{option.cta}</span>
                 <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
               </div>
-            </button>
+            </motion.button>
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -12,8 +12,6 @@ import {
 import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowDown,
-  ArrowRight,
   ArrowUp,
   Menu,
   Pause,
@@ -37,6 +35,7 @@ import NarrationPanel from "./components/NarrationPanel";
 import QuickAnswerAssistant, {
   type QuickAnswerScenario,
 } from "./components/QuickAnswerAssistant";
+import StudioHero from "./components/StudioHero";
 import NeonCard from "./components/ui/NeonCard";
 import PageButton from "./components/ui/PageButton";
 import {
@@ -829,6 +828,10 @@ export default function App() {
     writeBrowserStorage(GUIDE_MODE_STORAGE_KEY, mode);
   }, []);
 
+  const openMangaReader = useCallback(() => {
+    setMangaOpenRequest((current) => current + 1);
+  }, []);
+
   const closeFirstVisitIntro = useCallback(() => {
     writeBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY, "1");
     setFirstVisitIntroOpen(false);
@@ -879,8 +882,8 @@ export default function App() {
 
   const openIntroManga = useCallback(() => {
     closeFirstVisitIntro();
-    setMangaOpenRequest((current) => current + 1);
-  }, [closeFirstVisitIntro]);
+    openMangaReader();
+  }, [closeFirstVisitIntro, openMangaReader]);
 
   const resumeGuideProgress = useCallback(() => {
     if (lastVisitedPage) {
@@ -1131,121 +1134,19 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10">
-        <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
-          {currentPage === "Home" ? (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
-                    Draft read
-                  </p>
-                  <h1 className="mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
-                    <>
-                      Fiora ADC. No autopilot, no free lane.
-                      <motion.span
-                        animate={{
-                          y: [0, -2, 0],
-                          textShadow: [
-                            "0 0 12px rgba(255, 90, 90, 0.18)",
-                            "0 0 30px rgba(255, 90, 90, 0.38)",
-                            "0 0 12px rgba(255, 90, 90, 0.18)",
-                          ],
-                        }}
-                        transition={{
-                          duration: 1.9,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                          className="mt-1 flex items-center gap-0.5 text-[clamp(2.2rem,5vw,3.25rem)] font-black uppercase leading-[0.92] tracking-[-0.035em] text-red-300 md:gap-1"
-                      >
-                        <span className="bg-gradient-to-b from-[#ffb6b6] via-[#ff7a7a] to-[#ff5858] bg-clip-text text-transparent">
-                          SUPPORT CHECK BELOW
-                        </span>
-                        <motion.span
-                          animate={{ y: [0, 7, 0], opacity: [0.7, 1, 0.7] }}
-                          transition={{
-                            duration: 0.95,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                            className="-ml-3 shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)] md:-ml-4 lg:-ml-5"
-                        >
-                          <ArrowDown className="h-9 w-9 md:h-11 md:w-11" />
-                        </motion.span>
-                      </motion.span>
-                    </>
-                  </h1>
-                </div>
+      <main className="relative z-10 mx-auto max-w-[96rem] space-y-7 px-4 py-7 md:px-6 md:py-10">
+        {currentPage === "Home" ? (
+          <>
+            <StudioHero
+              launchCooldown={launchCooldown}
+              searchSlot={searchBlock}
+              onStartExperience={() => void launchSiteAudio()}
+              onOpenGuide={openAdcQuickStart}
+              onOpenSupport={openSupportQuickStart}
+              onOpenManga={openMangaReader}
+            />
 
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                  <div className="relative mx-auto flex items-center gap-1 lg:mx-0">
-                    <div className="pointer-events-none flex items-center -space-x-1">
-                      {[0, 1].map((index) => (
-                        <motion.span
-                          key={index}
-                          animate={{
-                            x: [0, 7, 0],
-                            opacity: [0.35, 1, 0.35],
-                          }}
-                          transition={{
-                            duration: 1.1,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: index * 0.16,
-                          }}
-                          className="text-red-200 drop-shadow-[0_0_12px_rgba(255,70,70,0.45)]"
-                        >
-                          <ArrowRight className="h-20 w-20" />
-                        </motion.span>
-                      ))}
-                    </div>
-
-                    <motion.button
-                      type="button"
-                      onClick={() => void launchSiteAudio()}
-                      disabled={launchCooldown}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.94 }}
-                      className={cn(
-                        "group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]",
-                        launchCooldown
-                          ? "cursor-not-allowed opacity-70 saturate-75"
-                          : "cursor-pointer"
-                      )}
-                      aria-label="Start music and narration"
-                    >
-                      <span className="absolute inset-[6px] rounded-full border border-slate-900/30 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.62)_0%,rgba(223,234,245,0.58)_14%,rgba(149,165,181,0.62)_36%,rgba(75,86,97,0.9)_66%,rgba(18,22,28,1)_100%)] shadow-[inset_0_6px_10px_rgba(255,255,255,0.38),inset_0_-8px_10px_rgba(0,0,0,0.5)]" />
-                      <motion.span
-                        animate={{
-                          scale: [1, 1.03, 1],
-                          boxShadow: [
-                            "inset 0 12px 20px rgba(255,255,255,0.18), inset 0 -16px 18px rgba(0,0,0,0.4), 0 0 0 rgba(255,40,40,0)",
-                            "inset 0 12px 20px rgba(255,255,255,0.22), inset 0 -16px 18px rgba(0,0,0,0.42), 0 0 34px rgba(255,40,40,0.32)",
-                            "inset 0 12px 20px rgba(255,255,255,0.18), inset 0 -16px 18px rgba(0,0,0,0.4), 0 0 0 rgba(255,40,40,0)",
-                          ],
-                        }}
-                        transition={{
-                          duration: 1.8,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                        className="absolute inset-[13px] flex items-center justify-center rounded-full border border-red-100/15 bg-[radial-gradient(circle_at_34%_25%,rgba(255,255,255,0.9)_0%,rgba(255,210,210,0.82)_12%,rgba(255,84,84,0.96)_28%,rgba(219,10,10,1)_56%,rgba(103,0,0,1)_100%)] px-3 text-center shadow-[inset_0_8px_14px_rgba(255,255,255,0.18),inset_0_-12px_14px_rgba(0,0,0,0.4)]"
-                      >
-                        <span className="absolute left-1/2 top-2 h-3 w-11 -translate-x-1/2 rounded-full bg-white/50 blur-[1px]" />
-                        <span className="absolute inset-0 rounded-full border border-white/10" />
-                        <span className="relative z-10 text-[0.68rem] font-black uppercase leading-[0.9] tracking-[0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">
-                          PUSH THE
-                          <br />
-                          BUTTON
-                        </span>
-                      </motion.span>
-                    </motion.button>
-                  </div>
-                  {searchBlock}
-                </div>
-              </div>
-
+            <NeonCard noBlur className="studio-command-strip p-4 md:p-5 lg:p-6">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] lg:items-start">
                 <div className="min-w-0">
                   <Suspense
@@ -1271,8 +1172,10 @@ export default function App() {
                   onNext={goToNextTrack}
                 />
               </div>
-            </div>
-          ) : (
+            </NeonCard>
+          </>
+        ) : (
+          <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-4">
                 <div>
@@ -1292,8 +1195,8 @@ export default function App() {
 
               {searchBlock}
             </div>
-          )}
-        </NeonCard>
+          </NeonCard>
+        )}
 
             {currentPage !== "Home" ? (
               <GuideProgress
