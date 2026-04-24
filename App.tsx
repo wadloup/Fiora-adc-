@@ -1063,6 +1063,17 @@ export default function App() {
             onOpenGuide={openIntroGuide}
             onOpenSupport={openIntroSupport}
             onOpenManga={openIntroManga}
+            voteSlot={
+              <Suspense
+                fallback={
+                  <div className="rounded-3xl border border-red-500/20 bg-black/35 p-5 text-xs font-black uppercase tracking-[0.18em] text-white/45 backdrop-blur-xl">
+                    Loading vote...
+                  </div>
+                }
+              >
+                <LazyReportVoteBlock compact />
+              </Suspense>
+            }
           />
         ) : null}
       </AnimatePresence>

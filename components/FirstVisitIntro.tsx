@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Shield, Swords, X } from "lucide-react";
 
@@ -6,6 +7,7 @@ type FirstVisitIntroProps = {
   onOpenGuide: () => void;
   onOpenSupport: () => void;
   onOpenManga: () => void;
+  voteSlot?: ReactNode;
 };
 
 const introChoices = [
@@ -37,6 +39,7 @@ export default function FirstVisitIntro({
   onOpenGuide,
   onOpenSupport,
   onOpenManga,
+  voteSlot,
 }: FirstVisitIntroProps) {
   const runChoice = (action: (typeof introChoices)[number]["action"]) => {
     if (action === "guide") {
@@ -57,7 +60,7 @@ export default function FirstVisitIntro({
       role="dialog"
       aria-modal="true"
       aria-label="Fiora ADC intro"
-      className="fixed inset-0 z-[140] overflow-hidden bg-black text-white"
+      className="fixed inset-0 z-[140] overflow-x-hidden overflow-y-auto bg-black text-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -166,6 +169,17 @@ export default function FirstVisitIntro({
             );
           })}
         </motion.div>
+
+        {voteSlot ? (
+          <motion.div
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.48, ease: "easeOut", delay: 2.08 }}
+            className="mt-5 w-full max-w-[56rem]"
+          >
+            {voteSlot}
+          </motion.div>
+        ) : null}
 
         <motion.p
           initial={{ opacity: 0 }}
