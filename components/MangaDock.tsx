@@ -38,6 +38,9 @@ const MANGA_PAGES = [
   { src: "/manga/planche-18.png", alt: "Manga page 18" },
   { src: "/manga/planche-19.png", alt: "Manga page 19" },
   { src: "/manga/planche-20.png", alt: "Manga page 20" },
+  { src: "/manga/planche-22.png", alt: "Manga page 22" },
+  { src: "/manga/planche-23.png", alt: "Manga page 23" },
+  { src: "/manga/planche-24.png", alt: "Manga page 24" },
 ];
 
 const ZOOM_STEPS = [0.75, 0.9, 1, 1.15, 1.35, 1.6, 1.9, 2.25];
