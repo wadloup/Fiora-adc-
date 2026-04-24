@@ -29,6 +29,25 @@ body {
   display: none;
 }
 
+.manga-page-scroll {
+  scrollbar-color: rgba(248, 113, 113, 0.55) rgba(255, 255, 255, 0.06);
+  scrollbar-width: thin;
+}
+
+.manga-page-scroll::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.manga-page-scroll::-webkit-scrollbar-track {
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.manga-page-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(255, 90, 120, 0.85), rgba(120, 0, 25, 0.75));
+}
+
 .music-select option {
   background: #140709;
   color: #ffffff;

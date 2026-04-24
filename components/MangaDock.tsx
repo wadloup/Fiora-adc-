@@ -79,7 +79,7 @@ type MangaDockProps = {
 
 export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const [open, setOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<MangaViewMode>("double");
+  const [viewMode, setViewMode] = useState<MangaViewMode>("single");
   const [activePageIndex, setActivePageIndex] = useState(0);
   const [zoomIndex, setZoomIndex] = useState(2);
   const [mangaPlaying, setMangaPlaying] = useState(false);
@@ -175,6 +175,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const openReader = () => {
     onOpen?.();
     pauseSiteMediaForManga();
+    setViewMode("single");
     setOpen(true);
 
     const audio = mangaAudioRef.current;
@@ -277,6 +278,22 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!open || viewMode !== "single" || typeof window === "undefined") {
+      return;
+    }
+
+    const nearbyPages = [
+      MANGA_PAGES[(activePageIndex - 1 + MANGA_PAGES.length) % MANGA_PAGES.length],
+      MANGA_PAGES[(activePageIndex + 1) % MANGA_PAGES.length],
+    ];
+
+    nearbyPages.forEach((page) => {
+      const image = new Image();
+      image.src = page.src;
+    });
+  }, [activePageIndex, open, viewMode]);
+
   const visiblePages =
     viewMode === "double" ? MANGA_PAGES : [MANGA_PAGES[activePageIndex]];
 
@@ -338,7 +355,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
       <AnimatePresence>
         {open ? (
           <motion.div
-            className="fixed inset-0 z-[95] bg-black/82 px-4 py-5 backdrop-blur-md md:px-8"
+            className="fixed inset-0 z-[95] overflow-hidden bg-black/82 px-3 py-3 backdrop-blur-md md:px-5 md:py-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -352,23 +369,23 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
               <X className="h-5 w-5" />
             </button>
 
-            <div className="mx-auto flex h-full max-w-[96rem] flex-col gap-3 lg:flex-row">
-              <aside className="hide-scrollbar shrink-0 overflow-y-auto rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.76)] p-3 text-white shadow-[0_0_26px_rgba(255,0,60,0.16)] lg:h-full lg:w-[18.5rem]">
+            <div className="mx-auto grid h-full max-h-[calc(100dvh-2rem)] max-w-[104rem] grid-cols-1 gap-3 lg:grid-cols-[17rem_minmax(0,1fr)]">
+              <aside className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.82)] p-3 text-white shadow-[0_0_26px_rgba(255,0,60,0.16)]">
                 <div className="rounded-2xl border border-white/10 bg-black/24 p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-red-300">
                     Manga board
                   </p>
-                  <h2 className="mt-1 text-2xl font-black uppercase tracking-[0.04em] text-white">
+                  <h2 className="mt-1 text-xl font-black uppercase tracking-[0.04em] text-white">
                     {viewMode === "double"
                       ? previewTitle
                       : `Page ${activePageIndex + 1}`}
                   </h2>
-                  <p className="mt-2 inline-flex rounded-2xl border border-red-400/25 bg-red-500/12 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-red-100">
+                  <p className="mt-2 inline-flex rounded-2xl border border-red-400/25 bg-red-500/12 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-red-100">
                     {pageCountLabel}
                   </p>
                 </div>
 
-                <div className="mt-3 space-y-3 rounded-2xl border border-white/10 bg-black/24 p-3">
+                <div className="mt-3 space-y-2.5 rounded-2xl border border-white/10 bg-black/24 p-2.5">
                   <div className="grid grid-cols-[2.5rem_1fr_2.5rem] gap-2">
                     <button
                       type="button"
@@ -471,16 +488,24 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                   </div>
                 </div>
 
-                <div className="mt-3 rounded-2xl border border-white/10 bg-black/24 p-3">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
-                    Pages
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/24 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+                      Pages
+                    </p>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-white/55">
+                      {viewMode === "single"
+                        ? `${activePageIndex + 1}/${MANGA_PAGES.length}`
+                        : "All"}
+                    </span>
+                  </div>
+                  <div className="manga-page-scroll min-h-0 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-5 gap-1.5">
                     <button
                       type="button"
                       onClick={() => setViewMode("double")}
                       className={cn(
-                        "inline-flex h-10 items-center justify-center gap-1.5 rounded-2xl border px-2 text-[10px] font-semibold uppercase tracking-[0.1em] transition",
+                        "col-span-5 inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl border px-2 text-[10px] font-semibold uppercase tracking-[0.1em] transition",
                         viewMode === "double"
                           ? "border-red-400/45 bg-red-500/16 text-red-100"
                           : "border-white/12 bg-white/[0.04] text-white/68 hover:text-white"
@@ -495,22 +520,28 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                         key={`single-page-${index}`}
                         type="button"
                         onClick={() => showSinglePage(index)}
+                        aria-current={
+                          viewMode === "single" && activePageIndex === index
+                            ? "page"
+                            : undefined
+                        }
                         className={cn(
-                          "inline-flex h-10 items-center justify-center gap-1.5 rounded-2xl border px-2 text-[10px] font-semibold uppercase tracking-[0.1em] transition",
+                          "inline-flex h-8 items-center justify-center gap-1 rounded-xl border px-1 text-[9px] font-black uppercase tracking-[0.08em] transition",
                           viewMode === "single" && activePageIndex === index
                             ? "border-red-400/45 bg-red-500/16 text-red-100"
                             : "border-white/12 bg-white/[0.04] text-white/68 hover:text-white"
                         )}
                       >
-                        <PanelTopOpen className="h-3.5 w-3.5" />
+                        <PanelTopOpen className="h-3 w-3" />
                         {index + 1}
                       </button>
                     ))}
+                    </div>
                   </div>
                 </div>
               </aside>
 
-              <div className="min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-black/36 p-3 md:p-4">
+              <div className="min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-black/36 p-3 pb-32 md:p-4 md:pb-32">
                 <div
                   className={cn(
                     "mx-auto grid w-max origin-top gap-4 transition-transform duration-200 ease-out",
@@ -550,7 +581,11 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
                           src={page.src}
                           alt={page.alt}
                           className="block w-full object-contain"
-                          loading="eager"
+                          loading={
+                            viewMode === "single" || realIndex < 2
+                              ? "eager"
+                              : "lazy"
+                          }
                           decoding="async"
                         />
                       </button>
