@@ -285,7 +285,7 @@ export default function MessageDock() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -18 }}
             transition={{ duration: 0.18 }}
-            className="relative w-[326px] overflow-hidden rounded-3xl border border-red-400/65 bg-[linear-gradient(180deg,rgba(28,10,16,0.99)_0%,rgba(12,8,12,0.99)_55%,rgba(8,8,10,0.99)_100%)] p-4 shadow-[0_0_44px_rgba(255,0,60,0.32)]"
+            className="relative w-[300px] overflow-hidden rounded-3xl border border-red-400/65 bg-[linear-gradient(180deg,rgba(28,10,16,0.99)_0%,rgba(12,8,12,0.99)_55%,rgba(8,8,10,0.99)_100%)] p-4 shadow-[0_0_44px_rgba(255,0,60,0.32)] min-[1900px]:w-[326px]"
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top,rgba(255,70,110,0.24),rgba(255,70,110,0)_72%)]" />
             <div className="pointer-events-none absolute left-0 top-6 bottom-6 w-[2px] rounded-full bg-gradient-to-b from-red-200/0 via-red-300/90 to-red-200/0 shadow-[0_0_20px_rgba(255,90,120,0.55)]" />
