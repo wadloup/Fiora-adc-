@@ -26,6 +26,7 @@ import {
   X,
 } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
+import FirstVisitIntro from "./components/FirstVisitIntro";
 import GuideProgress from "./components/GuideProgress";
 import GuideQuickStart from "./components/GuideQuickStart";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
@@ -166,6 +167,7 @@ const LAUNCH_SIDE_STICKERS = [
 const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
+const FIRST_VISIT_INTRO_STORAGE_KEY = "fiora-first-visit-intro-seen";
 type AdminPanelTab = "overview" | "visitors" | "inbox";
 type GuideMode = "support" | "adc" | "browse";
 
@@ -279,6 +281,8 @@ export default function App() {
   );
   const [messagesAdminInitialTab, setMessagesAdminInitialTab] =
     useState<AdminPanelTab>(initialAdminTab ?? "overview");
+  const [firstVisitIntroOpen, setFirstVisitIntroOpen] = useState(false);
+  const [mangaOpenRequest, setMangaOpenRequest] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
@@ -736,6 +740,21 @@ export default function App() {
       return;
     }
 
+    const forceIntro =
+      new URLSearchParams(window.location.search).get("intro") === "1";
+    const introAlreadySeen =
+      readBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY) === "1";
+
+    if (forceIntro || !introAlreadySeen) {
+      setFirstVisitIntroOpen(true);
+    }
+  }, [adminOnlyMode]);
+
+  useEffect(() => {
+    if (adminOnlyMode) {
+      return;
+    }
+
     trackGuidePageViewed(currentPage);
     logVisitorPageView(currentPage);
   }, [adminOnlyMode, currentPage]);
@@ -810,6 +829,11 @@ export default function App() {
     writeBrowserStorage(GUIDE_MODE_STORAGE_KEY, mode);
   }, []);
 
+  const closeFirstVisitIntro = useCallback(() => {
+    writeBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY, "1");
+    setFirstVisitIntroOpen(false);
+  }, []);
+
   const openSupportQuickStart = useCallback(() => {
     setGuideModeAndPersist("support");
 
@@ -834,6 +858,29 @@ export default function App() {
     setGuideModeAndPersist("browse");
     goPage("Why Fiora ADC Works");
   }, [goPage, setGuideModeAndPersist]);
+
+  const openIntroGuide = useCallback(() => {
+    closeFirstVisitIntro();
+    setGuideModeAndPersist("adc");
+    goPage("Why Fiora ADC Works");
+    void playBackgroundMusic();
+  }, [
+    closeFirstVisitIntro,
+    goPage,
+    playBackgroundMusic,
+    setGuideModeAndPersist,
+  ]);
+
+  const openIntroSupport = useCallback(() => {
+    closeFirstVisitIntro();
+    void playBackgroundMusic();
+    openSupportQuickStart();
+  }, [closeFirstVisitIntro, openSupportQuickStart, playBackgroundMusic]);
+
+  const openIntroManga = useCallback(() => {
+    closeFirstVisitIntro();
+    setMangaOpenRequest((current) => current + 1);
+  }, [closeFirstVisitIntro]);
 
   const resumeGuideProgress = useCallback(() => {
     if (lastVisitedPage) {
@@ -1008,6 +1055,17 @@ export default function App() {
       />
 
       <AnimatedBackground theme={currentTrack} />
+
+      <AnimatePresence>
+        {firstVisitIntroOpen ? (
+          <FirstVisitIntro
+            onClose={closeFirstVisitIntro}
+            onOpenGuide={openIntroGuide}
+            onOpenSupport={openIntroSupport}
+            onOpenManga={openIntroManga}
+          />
+        ) : null}
+      </AnimatePresence>
 
       <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">
@@ -1616,6 +1674,7 @@ export default function App() {
       <MangaDock
         onOpen={pauseSiteAudioForManga}
         onClose={resumeSiteAudioAfterManga}
+        openRequest={mangaOpenRequest}
       />
 
       <button

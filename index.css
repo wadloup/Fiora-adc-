@@ -48,6 +48,43 @@ body {
   background: linear-gradient(180deg, rgba(255, 90, 120, 0.85), rgba(120, 0, 25, 0.75));
 }
 
+.intro-cinematic-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.52) 72%);
+  background-size:
+    64px 64px,
+    64px 64px,
+    100% 100%;
+  -webkit-mask-image: radial-gradient(circle at center, black, transparent 78%);
+  mask-image: radial-gradient(circle at center, black, transparent 78%);
+  animation: intro-grid-drift 9s linear infinite;
+}
+
+.intro-scanline {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.04) 0,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+@keyframes intro-grid-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-64px, 64px, 0);
+  }
+}
+
 .music-select option {
   background: #140709;
   color: #ffffff;

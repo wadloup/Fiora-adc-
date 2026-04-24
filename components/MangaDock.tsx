@@ -75,9 +75,14 @@ type MangaViewMode = "single" | "double";
 type MangaDockProps = {
   onOpen?: () => void;
   onClose?: () => void;
+  openRequest?: number;
 };
 
-export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
+export default function MangaDock({
+  onOpen,
+  onClose,
+  openRequest = 0,
+}: MangaDockProps) {
   const [open, setOpen] = useState(false);
   const [viewMode, setViewMode] = useState<MangaViewMode>("single");
   const [activePageIndex, setActivePageIndex] = useState(0);
@@ -89,6 +94,8 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
   const pausedSiteMediaRef = useRef<HTMLMediaElement[]>([]);
   const pausedSpeechByMangaRef = useRef(false);
   const playAfterTrackChangeRef = useRef(false);
+  const handledOpenRequestRef = useRef(openRequest);
+  const openReaderRef = useRef<(() => void) | null>(null);
   const zoom = ZOOM_STEPS[zoomIndex];
   const activeTrack = MANGA_TRACKS[activeTrackIndex];
   const pageCountLabel = `${MANGA_PAGES.length} pages`;
@@ -192,6 +199,8 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
     void playMangaAudio();
   };
 
+  openReaderRef.current = openReader;
+
   const close = () => {
     pauseMangaAudio();
     resumeSiteMediaAfterManga();
@@ -277,6 +286,15 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
       resumeSiteMediaAfterManga();
     };
   }, []);
+
+  useEffect(() => {
+    if (!openRequest || openRequest === handledOpenRequestRef.current) {
+      return;
+    }
+
+    handledOpenRequestRef.current = openRequest;
+    openReaderRef.current?.();
+  }, [openRequest]);
 
   useEffect(() => {
     if (!open || viewMode !== "single" || typeof window === "undefined") {
