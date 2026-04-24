@@ -259,7 +259,7 @@ export default function SpeakableCard({
   return (
     <NeonCard
       className={cn(
-        "relative overflow-hidden transition duration-300",
+        "premium-card-3d scroll-reveal relative overflow-hidden transition duration-300",
         active
           ? "border-red-400/55 shadow-[0_0_34px_rgba(255,0,60,0.26)]"
           : "hover:border-red-500/35 hover:shadow-[0_0_18px_rgba(255,0,60,0.12)]",

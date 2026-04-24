@@ -36,7 +36,7 @@ export default function QuickAnswerAssistant({
   }
 
   return (
-    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(18,8,11,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
+    <div className="premium-surface scroll-reveal rounded-[1.7rem] border border-red-500/20 p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
@@ -71,7 +71,7 @@ export default function QuickAnswerAssistant({
                 type="button"
                 onClick={() => setSelectedScenarioId(scenario.id)}
                 className={cn(
-                  "rounded-2xl border px-3.5 py-3 text-left transition",
+                  "premium-card-3d rounded-2xl border px-3.5 py-3 text-left transition",
                   active
                     ? "border-red-400/38 bg-[linear-gradient(180deg,rgba(255,55,90,0.13),rgba(25,8,12,0.66))] shadow-[0_0_14px_rgba(255,0,60,0.1)]"
                     : "border-white/10 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
@@ -90,7 +90,7 @@ export default function QuickAnswerAssistant({
           })}
         </div>
 
-        <div className="rounded-[1.45rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.038),rgba(255,255,255,0.016))] p-4">
+        <div className="premium-card-3d rounded-[1.45rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.018))] p-4">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-red-300">
             <ShieldAlert className="h-3.5 w-3.5" />
             {selectedScenario.category}
@@ -116,7 +116,7 @@ export default function QuickAnswerAssistant({
           <button
             type="button"
             onClick={selectedScenario.onAction}
-            className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-red-400/30 bg-red-500/[0.12] px-4 py-2.5 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-red-100 transition hover:bg-red-500/[0.18]"
+            className="premium-cta mt-4 inline-flex items-center gap-2 rounded-2xl border border-red-400/30 bg-red-500/[0.12] px-4 py-2.5 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-red-100 transition hover:bg-red-500/[0.18]"
           >
             {selectedScenario.actionLabel}
             <ArrowRight className="h-3.5 w-3.5" />
