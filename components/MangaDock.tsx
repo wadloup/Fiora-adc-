@@ -282,7 +282,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
         onClick={openReader}
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
-        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[430px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block sm:right-5 md:right-6"
+        className="manga-dock-card fixed right-2 top-[24.7rem] z-[58] hidden w-[490px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block sm:right-3 md:right-4"
         aria-label="Open manga pages"
       >
         <audio
@@ -313,7 +313,7 @@ export default function MangaDock({ onOpen, onClose }: MangaDockProps) {
           <img
             src="/manga/planche-1-preview.jpg"
             alt="Manga page 1 preview"
-            className="h-[270px] w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
+            className="h-[310px] w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />
