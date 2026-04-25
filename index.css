@@ -20,6 +20,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root {
+  --manga-dock-width: 360px;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --manga-dock-width: 400px;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --manga-dock-width: 420px;
+  }
+}
+
+@media (min-width: 1900px) {
+  :root {
+    --manga-dock-width: 440px;
+  }
+}
+
+@media (min-width: 2150px) {
+  :root {
+    --manga-dock-width: 490px;
+  }
+}
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
