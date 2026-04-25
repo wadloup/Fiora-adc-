@@ -14,6 +14,36 @@ const INITIAL_COUNTS: VoteCounts = {
 };
 
 const VOTE_STORAGE_KEY = "report_vote_choice";
+const VOTE_BROWSER_TOKEN_STORAGE_KEY = "report_vote_browser_token";
+
+function createVoteBrowserToken() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  if (window.crypto?.getRandomValues) {
+    const values = new Uint32Array(4);
+    window.crypto.getRandomValues(values);
+    return Array.from(values, (value) => value.toString(16).padStart(8, "0")).join(
+      ""
+    );
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
+function getVoteBrowserToken() {
+  const savedToken = localStorage.getItem(VOTE_BROWSER_TOKEN_STORAGE_KEY);
+
+  if (savedToken) {
+    return savedToken;
+  }
+
+  const token = createVoteBrowserToken();
+  localStorage.setItem(VOTE_BROWSER_TOKEN_STORAGE_KEY, token);
+
+  return token;
+}
 
 const voteCards: Array<{
   key: VoteChoice;
@@ -63,6 +93,7 @@ export default function ReportVoteBlock({
   const [selected, setSelected] = useState<VoteChoice | null>(null);
   const [loading, setLoading] = useState(false);
   const [countsLoaded, setCountsLoaded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hasStartedBootstrapRef = useRef(false);
 
@@ -70,6 +101,7 @@ export default function ReportVoteBlock({
     const savedVote = localStorage.getItem(VOTE_STORAGE_KEY);
     if (savedVote === "up" || savedVote === "down" || savedVote === "poop") {
       setSelected(savedVote);
+      getVoteBrowserToken();
     }
   }, []);
 
@@ -94,7 +126,7 @@ export default function ReportVoteBlock({
         const response = await fetch("/api/report-vote", {
           method: "GET",
           credentials: "same-origin",
-          cache: "default",
+          cache: "no-store",
         });
 
         const payload = await response.json();
@@ -220,6 +252,7 @@ export default function ReportVoteBlock({
     }
 
     setLoading(true);
+    setErrorMessage("");
     try {
       const response = await fetch("/api/report-vote", {
         method: "POST",
@@ -227,7 +260,10 @@ export default function ReportVoteBlock({
           "Content-Type": "application/json",
         },
         credentials: "same-origin",
-        body: JSON.stringify({ choice }),
+        body: JSON.stringify({
+          choice,
+          voterToken: getVoteBrowserToken(),
+        }),
       });
 
       const payload = await response.json();
@@ -253,9 +289,10 @@ export default function ReportVoteBlock({
       localStorage.setItem(VOTE_STORAGE_KEY, selectedChoice);
     } catch (error) {
       console.error(error);
+      setErrorMessage("Vote unavailable. Try again in a bit.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const total = counts.up + counts.down + counts.poop;
@@ -314,30 +351,32 @@ export default function ReportVoteBlock({
           {voteCards.map((voteCard) => {
             const Icon = voteCard.icon;
             const isPoop = voteCard.key === "poop";
+            const isCurrentSelection = selected === voteCard.key;
+            const isDisabled = loading || !!selected;
 
             return (
               <button
                 key={voteCard.key}
                 type="button"
                 onClick={() => void handleVote(voteCard.key)}
-                disabled={!!selected || loading}
+                disabled={isDisabled}
                 className={`relative overflow-hidden rounded-xl border font-semibold transition ${
                   compact ? "min-h-[88px]" : "min-h-[112px]"
                 } ${
-                  selected === voteCard.key
+                  isCurrentSelection
                     ? voteCard.accent
                     : "border-white/15 bg-white/5 text-white hover:bg-white/10"
                 } ${
-                  selected === voteCard.key
+                  isCurrentSelection
                     ? "shadow-[0_0_18px_rgba(255,0,60,0.18)]"
                     : ""
-                } ${selected || loading ? "cursor-not-allowed opacity-80" : ""}`}
+                } ${isDisabled ? "cursor-not-allowed opacity-80" : ""}`}
                 style={{ perspective: "1200px" }}
               >
                 <motion.div
                   className="relative h-full w-full"
                   initial={false}
-                  animate={{ rotateY: selected === voteCard.key ? 180 : 0 }}
+                  animate={{ rotateY: isCurrentSelection ? 180 : 0 }}
                   transition={flipTransition}
                   style={{
                     minHeight: compact ? "88px" : "112px",
@@ -453,17 +492,31 @@ export default function ReportVoteBlock({
             Total votes: {total}
           </p>
 
-          {selected ? (
-            <p
-              className={
-                compact
-                  ? "rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[10px] text-red-300"
-                  : "rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[11px] text-red-300"
-              }
-            >
-              Your vote has been recorded.
-            </p>
-          ) : null}
+          <div className="flex flex-wrap justify-end gap-2">
+            {selected ? (
+              <p
+                className={
+                  compact
+                    ? "rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[10px] text-red-300"
+                    : "rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[11px] text-red-300"
+                }
+              >
+                Your vote is locked in.
+              </p>
+            ) : null}
+
+            {errorMessage ? (
+              <p
+                className={
+                  compact
+                    ? "rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[10px] text-red-300"
+                    : "rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[11px] text-red-300"
+                }
+              >
+                {errorMessage}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
     </NeonCard>

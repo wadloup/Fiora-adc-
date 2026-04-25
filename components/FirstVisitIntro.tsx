@@ -103,9 +103,9 @@ export default function FirstVisitIntro({
             initial={{ opacity: 0, letterSpacing: "0.42em" }}
             animate={{ opacity: 1, letterSpacing: "0.28em" }}
             transition={{ duration: 0.65, delay: 0.45 }}
-            className="text-[11px] font-black uppercase text-red-200"
+            className="max-w-3xl text-sm font-black tracking-[0.08em] text-red-200 md:text-base"
           >
-            First visit protocol
+            Oh, a new visitor. I hope your IQ is above two digits :)
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 28, filter: "blur(8px)" }}
@@ -121,7 +121,7 @@ export default function FirstVisitIntro({
             transition={{ duration: 0.52, delay: 1.15 }}
             className="mt-5 grid max-w-3xl gap-2 text-lg font-black uppercase tracking-[0.04em] text-red-100 md:text-2xl"
           >
-            <span className="text-white/92">Wrong lane.</span>
+            <span className="text-white/92">Surprise assurée.</span>
             <span className="text-red-200">Right pressure.</span>
             <span className="bg-gradient-to-r from-white via-red-100 to-cyan-100 bg-clip-text text-transparent">
               Pick your route.

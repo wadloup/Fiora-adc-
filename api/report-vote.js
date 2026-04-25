@@ -1,4 +1,5 @@
 import {
+  buildHashedValue,
   buildVisitorIdentity,
   hasTrustedRequestSource,
   isJsonRequest,
@@ -14,6 +15,29 @@ const EMPTY_COUNTS = {
   down: 0,
   poop: 0,
 };
+
+function normalizeChoice(value) {
+  const choice = sanitize(value || "", 12)?.toLowerCase() || null;
+
+  return choice && VALID_CHOICES.has(choice) ? choice : null;
+}
+
+function normalizeBrowserToken(value) {
+  const token = sanitize(value || "", 128);
+
+  return token && token.length >= 16 ? token : null;
+}
+
+function buildVoteVisitorKey(request, body, salt) {
+  const browserToken = normalizeBrowserToken(body.voterToken);
+  const browserKey = buildHashedValue(browserToken, salt, 32);
+
+  if (browserKey) {
+    return `browser:${browserKey}`;
+  }
+
+  return buildVisitorIdentity(request, salt).visitorKey;
+}
 
 function buildSupabaseHeaders(serviceRoleKey, extraHeaders = {}) {
   return {
@@ -56,16 +80,28 @@ function normalizeCounts(rows) {
   const counts = { ...EMPTY_COUNTS };
 
   for (const row of rows || []) {
-    if (!row?.option_key || typeof row.count !== "number") {
+    const count = Number(row?.count);
+
+    if (!row?.option_key || !Number.isFinite(count)) {
       continue;
     }
 
     if (row.option_key in counts) {
-      counts[row.option_key] = row.count;
+      counts[row.option_key] = count;
     }
   }
 
   return counts;
+}
+
+function normalizeRpcPayload(payload) {
+  const rawPayload = Array.isArray(payload) ? payload[0] : payload;
+
+  if (!rawPayload || typeof rawPayload !== "object") {
+    return null;
+  }
+
+  return rawPayload;
 }
 
 async function fetchVoteCounts(supabaseUrl, serviceRoleKey) {
@@ -100,16 +136,59 @@ async function callVoteRpc(supabaseUrl, serviceRoleKey, choice, visitorKey) {
     };
   }
 
+  const payload = normalizeRpcPayload(await response.json());
+
+  if (!payload) {
+    return {
+      ok: false,
+      errorText: "invalid_vote_rpc_payload",
+    };
+  }
+
   return {
     ok: true,
-    payload: await response.json(),
+    payload,
   };
 }
 
-async function legacyIncrementVote(supabaseUrl, serviceRoleKey, choice) {
-  const currentCounts = await fetchVoteCounts(supabaseUrl, serviceRoleKey);
-  const nextValue = (currentCounts[choice] || 0) + 1;
+async function fetchReceiptByVisitor(supabaseUrl, serviceRoleKey, visitorKey) {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/report_vote_receipts?select=selected_choice&visitor_key=eq.${encodeURIComponent(
+      visitorKey
+    )}&limit=1`,
+    {
+      headers: buildSupabaseHeaders(serviceRoleKey),
+    }
+  );
 
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const rows = await response.json();
+  const selectedChoice = normalizeChoice(rows?.[0]?.selected_choice);
+
+  return selectedChoice;
+}
+
+async function insertReceipt(supabaseUrl, serviceRoleKey, choice, visitorKey) {
+  const response = await fetch(`${supabaseUrl}/rest/v1/report_vote_receipts`, {
+    method: "POST",
+    headers: buildSupabaseHeaders(serviceRoleKey, {
+      Prefer: "return=minimal",
+    }),
+    body: JSON.stringify({
+      visitor_key: visitorKey,
+      selected_choice: choice,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+}
+
+async function setVoteCount(supabaseUrl, serviceRoleKey, choice, count) {
   const updateResponse = await fetch(
     `${supabaseUrl}/rest/v1/report_votes?option_key=eq.${choice}`,
     {
@@ -117,13 +196,39 @@ async function legacyIncrementVote(supabaseUrl, serviceRoleKey, choice) {
       headers: buildSupabaseHeaders(serviceRoleKey, {
         Prefer: "return=minimal",
       }),
-      body: JSON.stringify({ count: nextValue }),
+      body: JSON.stringify({ count }),
     }
   );
 
   if (!updateResponse.ok) {
     throw new Error(await updateResponse.text());
   }
+}
+
+async function legacyCastVote(supabaseUrl, serviceRoleKey, choice, visitorKey) {
+  const currentCounts = await fetchVoteCounts(supabaseUrl, serviceRoleKey);
+  const previousChoice = await fetchReceiptByVisitor(
+    supabaseUrl,
+    serviceRoleKey,
+    visitorKey
+  );
+
+  if (previousChoice) {
+    return {
+      applied: false,
+      selectedChoice: previousChoice,
+      counts: currentCounts,
+      protectionMode: "legacy",
+    };
+  }
+
+  await insertReceipt(supabaseUrl, serviceRoleKey, choice, visitorKey);
+  await setVoteCount(
+    supabaseUrl,
+    serviceRoleKey,
+    choice,
+    (currentCounts[choice] || 0) + 1
+  );
 
   const counts = await fetchVoteCounts(supabaseUrl, serviceRoleKey);
 
@@ -189,16 +294,16 @@ export default async function handler(request, response) {
   }
 
   const body = await readJsonBody(request);
-  const choice = sanitize(body.choice || "", 12)?.toLowerCase() || null;
+  const choice = normalizeChoice(body.choice);
 
-  if (!choice || !VALID_CHOICES.has(choice)) {
+  if (!choice) {
     return response.status(400).json({
       ok: false,
       reason: "invalid_vote_choice",
     });
   }
 
-  const { visitorKey } = buildVisitorIdentity(request, fingerprintSalt);
+  const visitorKey = buildVoteVisitorKey(request, body, fingerprintSalt);
 
   if (!visitorKey) {
     return response.status(400).json({
@@ -208,6 +313,24 @@ export default async function handler(request, response) {
   }
 
   try {
+    const existingChoice = await fetchReceiptByVisitor(
+      supabaseUrl,
+      serviceRoleKey,
+      visitorKey
+    );
+
+    if (existingChoice) {
+      const counts = await fetchVoteCounts(supabaseUrl, serviceRoleKey);
+
+      return response.status(200).json({
+        ok: true,
+        applied: false,
+        selectedChoice: existingChoice,
+        counts,
+        protectionMode: "receipt",
+      });
+    }
+
     const rpcResult = await callVoteRpc(
       supabaseUrl,
       serviceRoleKey,
@@ -216,6 +339,8 @@ export default async function handler(request, response) {
     );
 
     if (rpcResult.ok) {
+      const selectedChoice =
+        normalizeChoice(rpcResult.payload?.selected_choice) || choice;
       const counts = normalizeCounts(
         Object.entries(rpcResult.payload?.counts || {}).map(([optionKey, count]) => ({
           option_key: optionKey,
@@ -226,16 +351,17 @@ export default async function handler(request, response) {
       return response.status(200).json({
         ok: true,
         applied: Boolean(rpcResult.payload?.applied),
-        selectedChoice: sanitize(rpcResult.payload?.selected_choice || choice, 12),
+        selectedChoice,
         counts,
         protectionMode: "rpc",
       });
     }
 
-    const fallbackResult = await legacyIncrementVote(
+    const fallbackResult = await legacyCastVote(
       supabaseUrl,
       serviceRoleKey,
-      choice
+      choice,
+      visitorKey
     );
 
     return response.status(200).json({

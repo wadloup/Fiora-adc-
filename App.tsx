@@ -258,6 +258,19 @@ function getAdminPanelTabFromLocation(): AdminPanelTab | null {
   return null;
 }
 
+function shouldOpenFirstVisitIntro(initialAdminTab: AdminPanelTab | null) {
+  if (typeof window === "undefined" || initialAdminTab !== null) {
+    return false;
+  }
+
+  const forceIntro =
+    new URLSearchParams(window.location.search).get("intro") === "1";
+  const introAlreadySeen =
+    readBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY) === "1";
+
+  return forceIntro || !introAlreadySeen;
+}
+
 export default function App() {
   const initialAdminTab = getAdminPanelTabFromLocation();
   const [currentPage, setCurrentPage] = useState<PageName>("Home");
@@ -281,7 +294,9 @@ export default function App() {
   );
   const [messagesAdminInitialTab, setMessagesAdminInitialTab] =
     useState<AdminPanelTab>(initialAdminTab ?? "overview");
-  const [firstVisitIntroOpen, setFirstVisitIntroOpen] = useState(false);
+  const [firstVisitIntroOpen, setFirstVisitIntroOpen] = useState(() =>
+    shouldOpenFirstVisitIntro(initialAdminTab)
+  );
   const [mangaOpenRequest, setMangaOpenRequest] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
@@ -734,21 +749,6 @@ export default function App() {
       void playBackgroundMusic();
     }
   }, [selectedTrackId, playBackgroundMusic]);
-
-  useEffect(() => {
-    if (adminOnlyMode) {
-      return;
-    }
-
-    const forceIntro =
-      new URLSearchParams(window.location.search).get("intro") === "1";
-    const introAlreadySeen =
-      readBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY) === "1";
-
-    if (forceIntro || !introAlreadySeen) {
-      setFirstVisitIntroOpen(true);
-    }
-  }, [adminOnlyMode]);
 
   useEffect(() => {
     if (adminOnlyMode) {
