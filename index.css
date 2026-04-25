@@ -21,6 +21,7 @@ body {
 }
 
 :root {
+  --chat-dock-width: 300px;
   --manga-dock-width: 360px;
 }
 
@@ -38,6 +39,7 @@ body {
 
 @media (min-width: 1900px) {
   :root {
+    --chat-dock-width: 326px;
     --manga-dock-width: 440px;
   }
 }

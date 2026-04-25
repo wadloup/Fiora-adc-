@@ -1142,7 +1142,7 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-4 lg:mr-[calc(var(--manga-dock-width)+2rem)] lg:max-w-none xl:ml-5 2xl:ml-6 min-[1900px]:mr-[calc(var(--manga-dock-width)+3rem)]">
+      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+2rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+3rem)]">
         <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
             <div className="space-y-4">
