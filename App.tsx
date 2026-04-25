@@ -969,7 +969,7 @@ export default function App() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search page, matchup, rune, or lane concept"
-          className="w-full rounded-2xl border border-white/10 bg-black/34 py-3 pl-10 pr-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition placeholder:text-white/38 focus:border-red-200/28 focus:bg-black/48"
+          className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
         />
       </div>
       {query ? (
@@ -979,7 +979,7 @@ export default function App() {
               <button
                 key={entry.id}
                 onClick={() => entry.run()}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-3 text-left transition hover:border-red-200/22 hover:bg-white/[0.07]"
+                className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/20 bg-red-500/[0.08] px-3 py-3 text-left transition hover:border-red-400/32 hover:bg-red-500/[0.12]"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-red-100">
@@ -1078,8 +1078,8 @@ export default function App() {
         ) : null}
       </AnimatePresence>
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[rgba(5,5,7,0.72)] shadow-[0_14px_34px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-3.5 md:px-5">
+      <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">
             <div className="flex shrink-0 items-center gap-2">
               <div>
                 <p className="whitespace-nowrap text-sm font-black uppercase tracking-[0.18em] text-white">
@@ -1092,7 +1092,7 @@ export default function App() {
           </div>
 
           <nav className="hide-scrollbar hidden min-w-0 flex-1 overflow-x-auto xl:block">
-            <div className="flex w-max min-w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.025] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+            <div className="flex w-max min-w-full items-center justify-center gap-1 whitespace-nowrap rounded-[1.35rem] border border-white/10 bg-[rgba(255,255,255,0.035)] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               {pages.map((page) => (
                 <PageButton
                   key={page}
@@ -1105,7 +1105,7 @@ export default function App() {
           </nav>
 
           <button
-            className="rounded-xl border border-white/12 bg-white/[0.045] p-2 text-white/78 xl:hidden"
+            className="rounded-xl border border-red-500/30 p-2 xl:hidden"
             onClick={() => setMobileOpen((value) => !value)}
             aria-label="Toggle navigation"
           >
@@ -1142,16 +1142,16 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="app-main-shell">
-        <NeonCard noBlur className="hero-shell overflow-hidden p-5 md:p-7 lg:p-9">
+      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+2rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+3rem)]">
+        <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
-            <div className="flex min-h-[inherit] flex-col justify-between gap-7">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-white/52 md:text-xs">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
                     Draft read
                   </p>
-                  <h1 className="mt-3 max-w-[17ch] text-3xl font-black leading-[0.98] md:max-w-[19ch] md:text-[3.25rem] lg:text-[4.3rem]">
+                  <h1 className="mt-2 max-w-[16ch] text-2xl font-black leading-tight md:max-w-none md:text-[2.1rem]">
                     <>
                       Fiora ADC. No autopilot, no free lane.
                       <motion.span
@@ -1168,9 +1168,9 @@ export default function App() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                          className="mt-3 flex items-center gap-0.5 text-[clamp(2.2rem,5vw,3.75rem)] font-black uppercase leading-[0.9] tracking-[-0.035em] text-red-300 md:gap-1"
+                          className="mt-1 flex items-center gap-0.5 text-[clamp(2.2rem,5vw,3.25rem)] font-black uppercase leading-[0.92] tracking-[-0.035em] text-red-300 md:gap-1"
                       >
-                        <span className="bg-gradient-to-b from-[#ffe5e5] via-[#ff9aa8] to-[#ff4e6e] bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-b from-[#ffb6b6] via-[#ff7a7a] to-[#ff5858] bg-clip-text text-transparent">
                           SUPPORT CHECK BELOW
                         </span>
                         <motion.span
@@ -1180,7 +1180,7 @@ export default function App() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                            className="-ml-3 shrink-0 text-white/76 drop-shadow-[0_0_14px_rgba(255,110,110,0.28)] md:-ml-4 lg:-ml-5"
+                            className="-ml-3 shrink-0 text-white/90 drop-shadow-[0_0_16px_rgba(255,110,110,0.45)] md:-ml-4 lg:-ml-5"
                         >
                           <ArrowDown className="h-9 w-9 md:h-11 md:w-11" />
                         </motion.span>
@@ -1189,9 +1189,9 @@ export default function App() {
                   </h1>
                 </div>
 
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                   <div className="relative mx-auto flex items-center gap-1 lg:mx-0">
-                    <div className="pointer-events-none hidden items-center -space-x-3 text-white/26 md:flex">
+                    <div className="pointer-events-none flex items-center -space-x-1">
                       {[0, 1].map((index) => (
                         <motion.span
                           key={index}
@@ -1205,9 +1205,9 @@ export default function App() {
                             ease: "easeInOut",
                             delay: index * 0.16,
                           }}
-                          className="text-white/30 drop-shadow-[0_0_10px_rgba(255,70,70,0.16)]"
+                          className="text-red-200 drop-shadow-[0_0_12px_rgba(255,70,70,0.45)]"
                         >
-                          <ArrowRight className="h-12 w-12" />
+                          <ArrowRight className="h-20 w-20" />
                         </motion.span>
                       ))}
                     </div>
@@ -1219,7 +1219,7 @@ export default function App() {
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.94 }}
                       className={cn(
-                        "group relative flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full border border-slate-200/26 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.9)_0%,rgba(226,238,248,0.88)_16%,rgba(150,171,190,0.9)_36%,rgba(84,100,117,0.96)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.34),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]",
+                        "group relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-full border border-slate-200/30 bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.95)_0%,rgba(226,238,248,0.95)_16%,rgba(150,171,190,0.95)_36%,rgba(84,100,117,0.98)_66%,rgba(32,41,52,1)_100%)] shadow-[inset_0_12px_16px_rgba(255,255,255,0.42),inset_0_-14px_18px_rgba(0,0,0,0.42),0_16px_28px_rgba(0,0,0,0.28)]",
                         launchCooldown
                           ? "cursor-not-allowed opacity-70 saturate-75"
                           : "cursor-pointer"
@@ -1257,8 +1257,8 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="grid max-w-3xl gap-4">
-                <div className="min-w-0 opacity-90">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] lg:items-start">
+                <div className="min-w-0">
                   <Suspense
                     fallback={
                       <NeonCard className="p-4 md:p-[1.125rem]">
@@ -1269,6 +1269,18 @@ export default function App() {
                     <LazyReportVoteBlock compact />
                   </Suspense>
                 </div>
+                <MusicPlayer
+                  className="hidden lg:flex lg:w-full lg:max-w-none"
+                  tracks={musicThemes}
+                  currentTrackId={selectedTrackId}
+                  musicPlaying={musicPlaying}
+                  musicVolume={musicVolume}
+                  onToggle={() => void toggleBackgroundMusic()}
+                  onTrackChange={changeTrack}
+                  onVolumeChange={handleMusicVolumeChange}
+                  onPrevious={goToPreviousTrack}
+                  onNext={goToNextTrack}
+                />
               </div>
             </div>
           ) : (
@@ -1313,7 +1325,7 @@ export default function App() {
             <NeonCard className="overflow-hidden">
               <div ref={homeSupportSectionRef} />
               <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="relative min-h-[460px] overflow-hidden lg:min-h-[560px]">
+              <div className="relative min-h-[360px] overflow-hidden">
                 <img
                   src={homeHeroImage}
                   alt="Aggressive Fiora"
@@ -1324,13 +1336,13 @@ export default function App() {
                   onError={recoverImage}
                   style={{ objectPosition: "center 26%" }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/44 to-black/8" />
-                <div className="relative z-10 flex h-full flex-col justify-end p-7 md:p-10">
-                  <div className="max-w-3xl">
-                    <p className="text-xs font-bold uppercase tracking-[0.32em] text-white/58 md:text-sm">
+                <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
+                <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
+                  <div className="max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
+                    <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-300">
                       Draft priority
                     </p>
-                    <h2 className="mt-3 text-4xl font-black leading-[0.95] text-white md:text-6xl">
+                    <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
                       ARE YOU THE SUPPORT?
                       <br />
                       CLICK HERE BEFORE I REPORT YOU
@@ -1343,13 +1355,13 @@ export default function App() {
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                       <button
                         onClick={() => goPage("Fiora's Support")}
-                        className="w-full rounded-2xl border border-red-200/34 bg-red-500/[0.14] px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-100 shadow-[0_14px_34px_rgba(0,0,0,0.26)] transition hover:scale-[1.02] hover:border-red-100/48 hover:bg-red-500/[0.2] sm:w-auto"
+                        className="w-full rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20 sm:w-auto"
                       >
                         Go to Fiora's Support
                       </button>
                       <button
                         onClick={() => goLaneSection("support")}
-                        className="w-full rounded-2xl border border-white/18 bg-black/36 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/84 transition hover:border-white/30 hover:bg-white/[0.08] sm:w-auto"
+                        className="w-full rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10 sm:w-auto"
                       >
                         Open Lane Phase - Support
                       </button>
@@ -1363,7 +1375,7 @@ export default function App() {
           ) : null}
 
           {currentPage === "Home" ? (
-            <div className="grid gap-6 xl:grid-cols-[0.98fr_1.02fr]">
+            <div className="grid gap-3 xl:grid-cols-[0.98fr_1.02fr]">
               <GuideQuickStart
                 activeMode={guideMode}
                 resumePage={lastVisitedPage}
@@ -1386,13 +1398,13 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.14 }}
-            className="space-y-9"
+            className="space-y-6"
           >
             <Suspense
               fallback={
                 <NeonCard className="p-6 md:p-8">
                   <div className="space-y-4">
-                    <div className="h-6 w-40 animate-pulse rounded-full bg-white/[0.08]" />
+                    <div className="h-6 w-40 animate-pulse rounded-full bg-white/8" />
                     <div className="h-28 animate-pulse rounded-3xl bg-white/[0.03]" />
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="h-28 animate-pulse rounded-3xl bg-white/[0.03]" />
@@ -1566,17 +1578,17 @@ export default function App() {
 
       <button
         onClick={requestAllVoiceStop}
-        className="desktop-right-dock side-widget-card fixed top-20 z-[60] inline-flex min-h-[52px] max-w-[calc(100vw-2rem)] items-center gap-2.5 rounded-[1.15rem] px-3 py-2.5 text-left text-white transition hover:scale-[1.01] hover:border-red-200/24 sm:max-w-[calc(100vw-3rem)] xl:top-24"
+        className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-[rgba(8,8,10,0.94)] px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
         aria-label="Stop every voice"
       >
-        <span className="rounded-xl border border-white/10 bg-white/[0.055] p-2 text-white/68">
-          <VolumeX className="h-4 w-4" />
+        <span className="rounded-xl border border-red-400/35 bg-red-500/15 p-2.5 text-red-300">
+          <VolumeX className="h-5 w-5" />
         </span>
         <span className="flex flex-col">
-          <span className="text-[9px] font-semibold uppercase tracking-[0.24em] text-white/48">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
             Global mute
           </span>
-          <span className="text-xs font-black uppercase tracking-[0.08em] sm:text-sm">
+          <span className="text-sm font-black uppercase tracking-[0.08em] sm:text-base">
             Stop all voices
           </span>
         </span>
@@ -1593,17 +1605,17 @@ export default function App() {
         <MessageDock />
       )}
 
-      <div className="desktop-right-dock side-widget-card fixed top-[9.75rem] z-[59] hidden rounded-[1.35rem] p-3.5 xl:block">
+      <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] lg:block sm:right-5 md:right-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-white/50">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-red-300">
               Music control
             </p>
             <p className="mt-1 truncate text-sm font-bold text-white">
               {currentTrack.label}
             </p>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/[0.045] px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/48">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/55">
             {currentTrackIndex + 1}/{musicThemes.length}
           </span>
         </div>
@@ -1611,7 +1623,7 @@ export default function App() {
         <div className="mt-4 grid grid-cols-3 gap-2">
           <button
             onClick={goToPreviousTrack}
-            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-3 text-white/72 transition hover:border-white/20 hover:bg-white/[0.075] hover:text-white"
+            className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-3 py-3 text-white/85 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
             aria-label="Previous track"
           >
             <SkipBack className="h-4 w-4" />
@@ -1619,7 +1631,7 @@ export default function App() {
 
           <button
             onClick={() => void toggleBackgroundMusic()}
-            className="inline-flex items-center justify-center rounded-2xl border border-red-200/24 bg-red-500/[0.095] px-3 py-3 text-red-100 transition hover:bg-red-500/[0.14]"
+            className="inline-flex items-center justify-center rounded-2xl border border-red-500/35 bg-red-500/12 px-3 py-3 text-red-200 transition hover:bg-red-500/18"
             aria-label={musicPlaying ? "Pause music" : "Play music"}
           >
             {musicPlaying ? (
@@ -1631,7 +1643,7 @@ export default function App() {
 
           <button
             onClick={goToNextTrack}
-            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-3 text-white/72 transition hover:border-white/20 hover:bg-white/[0.075] hover:text-white"
+            className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-3 py-3 text-white/85 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
             aria-label="Next track"
           >
             <SkipForward className="h-4 w-4" />
@@ -1639,7 +1651,7 @@ export default function App() {
         </div>
 
         <div className="mt-4 flex items-center gap-3">
-          <Volume2 className="h-4 w-4 shrink-0 text-white/52" />
+          <Volume2 className="h-4 w-4 shrink-0 text-red-300" />
           <input
             type="range"
             min="0"

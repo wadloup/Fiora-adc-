@@ -261,8 +261,8 @@ export default function SpeakableCard({
       className={cn(
         "relative overflow-hidden transition duration-300",
         active
-          ? "border-red-300/36 shadow-[0_0_28px_rgba(255,0,60,0.16),0_24px_58px_rgba(0,0,0,0.36)]"
-          : "hover:border-white/18 hover:shadow-[0_24px_56px_rgba(0,0,0,0.34),0_0_14px_rgba(255,0,60,0.06)]",
+          ? "border-red-400/55 shadow-[0_0_34px_rgba(255,0,60,0.26)]"
+          : "hover:border-red-500/35 hover:shadow-[0_0_18px_rgba(255,0,60,0.12)]",
         className
       )}
     >
@@ -295,7 +295,7 @@ export default function SpeakableCard({
         <>
           <motion.span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,75,110,0.12),transparent_28%),radial-gradient(circle_at_78%_86%,rgba(255,40,90,0.1),transparent_30%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,75,110,0.18),transparent_28%),radial-gradient(circle_at_78%_86%,rgba(255,40,90,0.16),transparent_30%)]"
             initial={{ opacity: 0.38, scale: 0.98 }}
             animate={{ opacity: [0.34, 0.7, 0.42], scale: [0.985, 1.012, 0.99] }}
             transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
@@ -321,8 +321,8 @@ export default function SpeakableCard({
         <motion.span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute right-3 top-3 inline-flex rounded-full border bg-black/38 p-1.5 text-white/68 backdrop-blur-sm",
-            active ? "border-red-300/40 text-red-100" : "border-white/12"
+            "pointer-events-none absolute right-3 top-3 inline-flex rounded-full border bg-black/45 p-1.5 text-red-200 backdrop-blur-sm",
+            active ? "border-red-400/45" : "border-red-500/25"
           )}
           animate={
             active

@@ -26,11 +26,11 @@ export default function StatCard({
     <SpeakableCard
       text={`${label}. ${value}. ${text}`}
       audioSrc={audioSrc}
-      className={cn("premium-hover-card p-4 md:p-5", className)}
+      className={cn("p-4 md:p-5", className)}
     >
       <p
         className={cn(
-          "text-xs uppercase tracking-[0.18em] text-white/52 md:text-sm",
+          "text-xs uppercase tracking-[0.18em] text-red-300 md:text-sm",
           labelClassName
         )}
       >

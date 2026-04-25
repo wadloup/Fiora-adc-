@@ -15,10 +15,10 @@ export default function HomeSupportShowcase() {
         <SpeakableCard
           text="Auto win. Netanyahu certified. Support shell. Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core."
           audioSrc={homeSupportShellAudio}
-          className="premium-hover-card border-white/10 bg-[linear-gradient(180deg,rgba(15,15,18,0.82),rgba(8,8,10,0.72))] p-5 shadow-[0_18px_44px_rgba(0,0,0,0.24)] xl:p-6"
+          className="border-red-500/28 bg-[linear-gradient(180deg,rgba(18,6,10,0.86),rgba(10,4,8,0.76))] p-5 shadow-[0_0_20px_rgba(0,0,0,0.22)] xl:p-6"
         >
           <div className="inline-flex flex-col rounded-2xl border border-white/8 bg-black/26 px-3 py-2 shadow-[0_10px_28px_rgba(0,0,0,0.18)] backdrop-blur-sm">
-            <p className="text-xs uppercase tracking-[0.28em] text-white/58 drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]">
+            <p className="text-xs uppercase tracking-[0.28em] text-red-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]">
               AUTO WIN
             </p>
             <p className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-white drop-shadow-[0_1px_10px_rgba(0,0,0,0.72)]">
@@ -29,7 +29,7 @@ export default function HomeSupportShowcase() {
             <img
               src={heroCertifiedImage}
               alt="Certified badge"
-                className="h-[9.25rem] w-[9.25rem] shrink-0 rounded-2xl border border-white/12 object-cover shadow-[0_18px_34px_rgba(0,0,0,0.28)] xl:h-[10rem] xl:w-[10rem]"
+              className="h-[9.25rem] w-[9.25rem] shrink-0 rounded-2xl border border-red-500/30 object-cover shadow-[0_0_18px_rgba(255,0,60,0.2)] xl:h-[10rem] xl:w-[10rem]"
               loading="lazy"
               decoding="async"
               fetchPriority="low"
@@ -52,13 +52,13 @@ export default function HomeSupportShowcase() {
               key={support.name}
               text={`${support.name}. ${support.role}. ${support.text}`}
               audioSrc={support.audio}
-              className="premium-hover-card border-white/10 bg-[linear-gradient(180deg,rgba(14,14,17,0.74),rgba(8,8,10,0.68))] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.2)]"
+              className="border-red-500/20 bg-[linear-gradient(180deg,rgba(14,6,9,0.82),rgba(9,4,7,0.74))] p-3 shadow-[0_0_16px_rgba(0,0,0,0.16)]"
               contentClassName="flex items-center gap-3"
             >
               <img
                 src={support.image}
                 alt={support.name}
-                className="h-20 w-20 rounded-2xl border border-white/12 object-cover"
+                className="h-20 w-20 rounded-2xl border border-red-500/25 object-cover"
                 loading="lazy"
                 decoding="async"
                 fetchPriority="low"
@@ -69,7 +69,7 @@ export default function HomeSupportShowcase() {
                 <p className="text-base font-bold text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.7)]">
                   {support.name}
                 </p>
-                <p className="text-xs uppercase tracking-[0.16em] text-white/54 drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]">
+                <p className="text-xs uppercase tracking-[0.16em] text-red-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]">
                   {support.role}
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-white/72 drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]">

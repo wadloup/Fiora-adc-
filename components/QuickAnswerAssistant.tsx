@@ -36,17 +36,17 @@ export default function QuickAnswerAssistant({
   }
 
   return (
-    <div className="rounded-[1.65rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,15,18,0.7),rgba(8,8,10,0.62))] p-5 shadow-[0_22px_54px_rgba(0,0,0,0.28)] backdrop-blur-xl md:p-6">
+    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(18,8,11,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/52">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
             Quick answer
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-black text-white md:text-[1.55rem]">
               Need the fast path?
             </h2>
-            <span className="rounded-full border border-white/10 bg-white/[0.045] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/58">
+            <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/62">
               no blind scroll
             </span>
           </div>
@@ -55,7 +55,7 @@ export default function QuickAnswerAssistant({
           </p>
         </div>
 
-        <div className="hidden rounded-2xl border border-white/10 bg-white/[0.055] p-2.5 text-white/62 md:block">
+        <div className="hidden rounded-2xl border border-red-400/20 bg-red-500/10 p-2.5 text-red-200 md:block">
           <Radar className="h-4 w-4" />
         </div>
       </div>
@@ -73,8 +73,8 @@ export default function QuickAnswerAssistant({
                 className={cn(
                   "rounded-2xl border px-3.5 py-3 text-left transition",
                   active
-                    ? "border-red-200/24 bg-[linear-gradient(180deg,rgba(255,55,90,0.105),rgba(18,18,21,0.58))] shadow-[0_14px_32px_rgba(0,0,0,0.2)]"
-                    : "border-white/10 bg-white/[0.035] hover:border-white/18 hover:bg-white/[0.055]"
+                    ? "border-red-400/38 bg-[linear-gradient(180deg,rgba(255,55,90,0.13),rgba(25,8,12,0.66))] shadow-[0_0_14px_rgba(255,0,60,0.1)]"
+                    : "border-white/10 bg-white/[0.04] hover:border-red-500/20 hover:bg-red-500/[0.05]"
                 )}
               >
                 <div className="flex items-center justify-between gap-3">
@@ -90,8 +90,8 @@ export default function QuickAnswerAssistant({
           })}
         </div>
 
-        <div className="rounded-[1.45rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.044),rgba(255,255,255,0.018))] p-4">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/52">
+        <div className="rounded-[1.45rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.038),rgba(255,255,255,0.016))] p-4">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-red-300">
             <ShieldAlert className="h-3.5 w-3.5" />
             {selectedScenario.category}
           </div>
@@ -105,7 +105,7 @@ export default function QuickAnswerAssistant({
           </p>
 
           <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 px-3.5 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
               Target
             </p>
             <p className="mt-1.5 text-sm text-white/84">
@@ -116,7 +116,7 @@ export default function QuickAnswerAssistant({
           <button
             type="button"
             onClick={selectedScenario.onAction}
-            className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-red-200/28 bg-red-500/[0.105] px-4 py-2.5 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-red-100 transition hover:border-red-100/42 hover:bg-red-500/[0.16]"
+            className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-red-400/30 bg-red-500/[0.12] px-4 py-2.5 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-red-100 transition hover:bg-red-500/[0.18]"
           >
             {selectedScenario.actionLabel}
             <ArrowRight className="h-3.5 w-3.5" />

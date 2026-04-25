@@ -61,7 +61,7 @@ function formatMessageTime(value: string) {
 }
 
 export default function MessageDock() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [nickname, setNickname] = useState("");
   const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
@@ -276,7 +276,7 @@ export default function MessageDock() {
   const hasAdminReply = messages.some((entry) => entry.author === "admin");
 
   return (
-    <div className="desktop-left-dock fixed top-[10.35rem] z-[59] hidden xl:block">
+    <div className="fixed left-4 top-[10.35rem] z-[59] hidden lg:block xl:left-6">
       <AnimatePresence initial={false} mode="wait">
         {open ? (
           <motion.div
@@ -285,19 +285,20 @@ export default function MessageDock() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -18 }}
             transition={{ duration: 0.18 }}
-            className="message-panel-card side-widget-card relative overflow-hidden rounded-[1.35rem] p-4"
+            className="relative w-[300px] overflow-hidden rounded-3xl border border-red-400/65 bg-[linear-gradient(180deg,rgba(28,10,16,0.99)_0%,rgba(12,8,12,0.99)_55%,rgba(8,8,10,0.99)_100%)] p-4 shadow-[0_0_44px_rgba(255,0,60,0.32)] min-[1900px]:w-[326px]"
           >
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top,rgba(255,70,110,0.11),rgba(255,70,110,0)_72%)]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top,rgba(255,70,110,0.24),rgba(255,70,110,0)_72%)]" />
+            <div className="pointer-events-none absolute left-0 top-6 bottom-6 w-[2px] rounded-full bg-gradient-to-b from-red-200/0 via-red-300/90 to-red-200/0 shadow-[0_0_20px_rgba(255,90,120,0.55)]" />
 
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.055] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/66">
+                <p className="inline-flex items-center rounded-full border border-red-400/30 bg-red-500/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-red-100 shadow-[0_0_14px_rgba(255,0,60,0.12)]">
                   Chat
                 </p>
-                <p className="mt-2 text-base font-black leading-none text-white">
+                <p className="mt-2 text-lg font-black leading-none text-white">
                   Leave a note
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-white/58">
+                <p className="mt-1 text-[13px] leading-relaxed text-white/70">
                   Same browser = same conversation.
                 </p>
               </div>
@@ -305,7 +306,7 @@ export default function MessageDock() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-xl border border-white/14 bg-white/[0.06] p-2.5 text-white/72 transition hover:border-white/24 hover:bg-white/[0.09] hover:text-white"
+                className="rounded-xl border border-white/24 bg-white/10 p-2.5 text-white/85 transition hover:border-red-500/45 hover:bg-red-500/14 hover:text-red-100"
                 aria-label="Collapse chat"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -319,7 +320,7 @@ export default function MessageDock() {
                   setNickname(event.target.value.slice(0, MAX_NAME_LENGTH))
                 }
                 placeholder="Name (optional)"
-                className="w-full rounded-2xl border border-white/16 bg-white/[0.055] px-3 py-3 text-sm text-white placeholder:text-white/46 outline-none transition focus:border-red-300/32 focus:bg-white/[0.075] focus:shadow-[0_0_0_1px_rgba(255,80,110,0.09)]"
+                className="w-full rounded-2xl border border-white/28 bg-white/[0.1] px-3 py-3 text-sm text-white placeholder:text-white/65 outline-none transition focus:border-red-400/55 focus:bg-red-500/[0.1] focus:shadow-[0_0_0_1px_rgba(255,80,110,0.15)]"
               />
 
               <input
@@ -328,12 +329,12 @@ export default function MessageDock() {
                   setContact(event.target.value.slice(0, MAX_CONTACT_LENGTH))
                 }
                 placeholder="Discord / Insta / Email (optional)"
-                className="w-full rounded-2xl border border-white/16 bg-white/[0.055] px-3 py-3 text-sm text-white placeholder:text-white/46 outline-none transition focus:border-red-300/32 focus:bg-white/[0.075] focus:shadow-[0_0_0_1px_rgba(255,80,110,0.09)]"
+                className="w-full rounded-2xl border border-white/28 bg-white/[0.1] px-3 py-3 text-sm text-white placeholder:text-white/65 outline-none transition focus:border-red-400/55 focus:bg-red-500/[0.1] focus:shadow-[0_0_0_1px_rgba(255,80,110,0.15)]"
               />
 
-              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+              <div className="rounded-2xl border border-white/16 bg-black/22 p-3">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/58">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-red-200">
                     Conversation
                   </p>
                   <span
@@ -346,7 +347,7 @@ export default function MessageDock() {
                   </span>
                 </div>
 
-                <div className="hide-scrollbar max-h-[190px] min-h-[150px] space-y-2 overflow-y-auto pr-1">
+                <div className="hide-scrollbar max-h-[220px] min-h-[180px] space-y-2 overflow-y-auto pr-1">
                   {messages.length ? (
                     messages.map((entry) => (
                       <div
@@ -362,7 +363,7 @@ export default function MessageDock() {
                           className={cn(
                             "max-w-[86%] rounded-2xl px-3 py-2.5 text-sm shadow-[0_10px_20px_rgba(0,0,0,0.16)]",
                             entry.author === "visitor"
-                              ? "rounded-br-md border border-red-300/20 bg-[linear-gradient(180deg,rgba(255,55,85,0.18),rgba(120,0,16,0.18))] text-white"
+                              ? "rounded-br-md border border-red-300/28 bg-[linear-gradient(180deg,rgba(255,55,85,0.26),rgba(120,0,16,0.24))] text-white"
                               : "rounded-bl-md border border-white/12 bg-white/[0.08] text-white/92"
                           )}
                         >
@@ -377,7 +378,7 @@ export default function MessageDock() {
                       </div>
                     ))
                   ) : (
-                    <div className="flex h-[150px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.025] p-4 text-center text-sm text-white/42">
+                    <div className="flex h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-4 text-center text-sm text-white/45">
                       {conversationReady
                         ? "No messages yet in this conversation."
                         : "Start the conversation here."}
@@ -395,7 +396,7 @@ export default function MessageDock() {
                   }
                   placeholder="Write your message..."
                   rows={4}
-                  className="w-full resize-none rounded-2xl border border-white/16 bg-white/[0.055] px-3 py-3 text-sm text-white placeholder:text-white/46 outline-none transition focus:border-red-300/32 focus:bg-white/[0.075] focus:shadow-[0_0_0_1px_rgba(255,80,110,0.09)]"
+                  className="w-full resize-none rounded-2xl border border-white/28 bg-white/[0.1] px-3 py-3 text-sm text-white placeholder:text-white/65 outline-none transition focus:border-red-400/55 focus:bg-red-500/[0.1] focus:shadow-[0_0_0_1px_rgba(255,80,110,0.15)]"
                 />
 
                 <div className="flex items-center justify-between gap-3">
@@ -423,8 +424,8 @@ export default function MessageDock() {
                   className={cn(
                     "inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] transition",
                     canSubmit
-                      ? "border-red-200/36 bg-[linear-gradient(180deg,rgba(255,70,100,0.2),rgba(120,0,16,0.24))] text-white shadow-[0_14px_32px_rgba(0,0,0,0.26)] hover:border-red-100/46 hover:bg-red-500/[0.14]"
-                      : "cursor-not-allowed border-white/10 bg-white/[0.04] text-white/42"
+                      ? "border-red-300/60 bg-[linear-gradient(180deg,rgba(255,55,85,0.34),rgba(120,0,16,0.35))] text-white shadow-[0_0_24px_rgba(255,0,60,0.24)] hover:bg-[linear-gradient(180deg,rgba(255,70,95,0.42),rgba(140,0,18,0.4))]"
+                      : "cursor-not-allowed border-red-500/25 bg-red-500/[0.1] text-white/50"
                   )}
                 >
                   <SendHorizontal className="h-4 w-4" />
@@ -442,7 +443,7 @@ export default function MessageDock() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -14 }}
             transition={{ duration: 0.16 }}
-            className="group inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/12 bg-black/48 text-white/68 shadow-[0_18px_38px_rgba(0,0,0,0.34)] backdrop-blur-xl transition hover:scale-[1.03] hover:border-red-200/28 hover:bg-white/[0.08] hover:text-white"
+            className="inline-flex items-center gap-2 rounded-2xl border border-red-400/45 bg-[linear-gradient(180deg,rgba(20,10,14,0.98)_0%,rgba(10,8,12,0.98)_100%)] px-4 py-3.5 text-left text-white shadow-[0_0_34px_rgba(255,0,60,0.24)] transition hover:scale-[1.02] hover:bg-red-950/40"
             aria-label="Open chat"
           >
             <motion.span
@@ -458,14 +459,19 @@ export default function MessageDock() {
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className="rounded-full border border-white/10 bg-white/[0.055] p-2 text-white/72 group-hover:text-red-100"
+              className="rounded-xl border border-red-400/45 bg-red-500/18 p-2 text-red-200"
             >
               <MessageSquareMore className="h-4 w-4" />
             </motion.span>
-            <span className="pointer-events-none absolute left-full ml-3 hidden rounded-full border border-white/10 bg-black/70 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70 opacity-0 shadow-[0_16px_34px_rgba(0,0,0,0.34)] transition group-hover:opacity-100 2xl:block">
-              Chat
+            <span className="flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-red-200">
+                Chat
+              </span>
+              <span className="text-[13px] font-black uppercase tracking-[0.08em]">
+                Open box
+              </span>
             </span>
-            <ChevronRight className="sr-only" />
+            <ChevronRight className="h-4 w-4 text-white/60" />
           </motion.button>
         )}
       </AnimatePresence>

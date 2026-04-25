@@ -317,43 +317,34 @@ export default function MangaDock({
 
   return (
     <>
-      <audio
-        ref={mangaAudioRef}
-        src={activeTrack.src}
-        loop
-        preload="none"
-        onPlay={() => setMangaPlaying(true)}
-        onPause={() => setMangaPlaying(false)}
-        onEnded={() => setMangaPlaying(false)}
-        onError={() => setMangaPlaying(false)}
-      />
-      <motion.button
-        type="button"
-        onClick={openReader}
-        whileTap={{ scale: 0.96 }}
-        className="fixed bottom-20 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/12 bg-black/58 text-white/72 shadow-[0_18px_38px_rgba(0,0,0,0.34)] backdrop-blur-xl transition hover:border-red-200/28 hover:bg-white/[0.08] hover:text-red-100 xl:hidden"
-        aria-label="Open manga pages"
-      >
-        <BookOpen className="h-4 w-4" />
-      </motion.button>
       <motion.button
         type="button"
         onClick={openReader}
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
-        className="manga-dock-card desktop-right-dock side-widget-card fixed top-[23.3rem] z-[58] hidden rounded-[1.35rem] p-3.5 text-left text-white transition hover:border-white/18 hover:bg-white/[0.04] xl:block"
+        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[var(--manga-dock-width)] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block"
         aria-label="Open manga pages"
       >
+        <audio
+          ref={mangaAudioRef}
+          src={activeTrack.src}
+          loop
+          preload="none"
+          onPlay={() => setMangaPlaying(true)}
+          onPause={() => setMangaPlaying(false)}
+          onEnded={() => setMangaPlaying(false)}
+          onError={() => setMangaPlaying(false)}
+        />
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-white/50">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300">
               Read - Manga
             </p>
-            <p className="mt-1 truncate text-base font-black uppercase tracking-[0.06em] text-white">
+            <p className="mt-1 truncate text-xl font-black uppercase tracking-[0.06em] text-white">
               Just for my pleasure
             </p>
           </div>
-          <span className="rounded-2xl border border-white/10 bg-white/[0.055] p-2 text-white/70">
+          <span className="rounded-2xl border border-red-400/25 bg-red-500/12 p-2 text-red-200">
             <BookOpen className="h-4 w-4" />
           </span>
         </div>
@@ -362,17 +353,17 @@ export default function MangaDock({
           <img
             src="/manga/planche-1-preview.jpg"
             alt="Manga page 1 preview"
-            className="h-[150px] w-full object-cover object-top opacity-[0.86] transition duration-200 hover:opacity-100 min-[1536px]:h-[172px]"
+            className="h-[310px] w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-3 py-2">
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2">
           <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">
             {pageCountLabel}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-200">
             Open
             <Maximize2 className="h-3.5 w-3.5" />
           </span>
