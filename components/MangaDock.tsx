@@ -322,7 +322,7 @@ export default function MangaDock({
         onClick={openReader}
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
-        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[440px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] min-[1900px]:block min-[2150px]:w-[490px]"
+        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[400px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block xl:w-[440px] min-[2150px]:w-[490px]"
         aria-label="Open manga pages"
       >
         <audio
@@ -368,30 +368,6 @@ export default function MangaDock({
             <Maximize2 className="h-3.5 w-3.5" />
           </span>
         </div>
-      </motion.button>
-
-      <motion.button
-        type="button"
-        onClick={openReader}
-        whileHover={{ x: -4, scale: 1.02 }}
-        whileTap={{ scale: 0.96 }}
-        className="fixed right-4 top-[24.7rem] z-[58] hidden w-[142px] rounded-3xl border border-red-500/35 bg-[rgba(8,8,10,0.94)] p-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.2)] transition hover:border-red-400/55 hover:bg-[rgba(20,8,12,0.96)] lg:block min-[1900px]:hidden"
-        aria-label="Open manga pages"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
-            Manga
-          </span>
-          <span className="rounded-xl border border-red-400/25 bg-red-500/12 p-2 text-red-200">
-            <BookOpen className="h-3.5 w-3.5" />
-          </span>
-        </div>
-        <p className="mt-2 text-sm font-black uppercase leading-tight tracking-[0.06em] text-white">
-          Read board
-        </p>
-        <p className="mt-2 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-center text-[9px] font-black uppercase tracking-[0.14em] text-white/60">
-          {pageCountLabel}
-        </p>
       </motion.button>
 
       <AnimatePresence>
