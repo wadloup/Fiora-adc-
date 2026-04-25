@@ -68,17 +68,17 @@ export default function GuideQuickStart({
   };
 
   return (
-    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(20,8,12,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
+    <div className="rounded-[1.65rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,16,19,0.7),rgba(8,8,10,0.62))] p-5 shadow-[0_22px_54px_rgba(0,0,0,0.28)] backdrop-blur-xl md:p-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/52">
             Quick start
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-black text-white md:text-[1.55rem]">
               Pick your route
             </h2>
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/62">
+            <span className="rounded-full border border-white/10 bg-white/[0.045] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/58">
               fast entry
             </span>
           </div>
@@ -90,7 +90,7 @@ export default function GuideQuickStart({
 
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
           {activeMode ? (
-            <span className="inline-flex items-center gap-2 rounded-full border border-red-400/28 bg-red-500/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-100">
+            <span className="inline-flex items-center gap-2 rounded-full border border-red-200/24 bg-red-500/[0.075] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-100">
               <Compass className="h-3.5 w-3.5" />
               {activeMode} route
             </span>
@@ -100,7 +100,7 @@ export default function GuideQuickStart({
             <button
               type="button"
               onClick={onResume}
-              className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.05] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/82 transition hover:border-red-500/28 hover:bg-red-500/[0.08] hover:text-red-100"
+              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.045] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/76 transition hover:border-white/20 hover:bg-white/[0.075] hover:text-white"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               Resume {resumePage}
@@ -109,7 +109,7 @@ export default function GuideQuickStart({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2.5 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
         {QUICK_START_OPTIONS.map((option) => {
           const Icon = option.icon;
           const active = activeMode === option.id;
@@ -120,14 +120,14 @@ export default function GuideQuickStart({
               type="button"
               onClick={actionMap[option.id]}
               className={cn(
-                "group rounded-[1.4rem] border p-3.5 text-left transition duration-200",
+                "premium-hover-card group rounded-[1.35rem] border p-4 text-left transition duration-200",
                 active
-                  ? "border-red-400/40 bg-[linear-gradient(180deg,rgba(255,60,90,0.13),rgba(20,8,12,0.6))] shadow-[0_0_14px_rgba(255,0,60,0.12)]"
-                  : "border-white/10 bg-white/[0.04] hover:border-red-500/25 hover:bg-red-500/[0.05]"
+                  ? "border-red-200/28 bg-[linear-gradient(180deg,rgba(255,60,90,0.105),rgba(18,18,21,0.58))] shadow-[0_16px_38px_rgba(0,0,0,0.22)]"
+                  : "border-white/10 bg-white/[0.035] hover:border-white/18 hover:bg-white/[0.055]"
               )}
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="rounded-2xl border border-red-400/25 bg-red-500/10 p-2 text-red-200 transition group-hover:scale-[1.03]">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-2 text-white/66 transition group-hover:scale-[1.03] group-hover:text-red-100">
                   <Icon className="h-3.5 w-3.5" />
                 </div>
                 <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/66">
@@ -142,7 +142,7 @@ export default function GuideQuickStart({
                 {option.description}
               </p>
 
-              <div className="mt-4 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-200">
+              <div className="mt-4 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/68 group-hover:text-red-100">
                 <span>{option.cta}</span>
                 <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
               </div>

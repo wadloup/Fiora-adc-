@@ -59,7 +59,7 @@ export default function PageContent({
     <>
       {currentPage === "Home" ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {homeStatCards.map((card, index) => (
               <StatCard
                 key={card.title}
@@ -75,21 +75,21 @@ export default function PageContent({
             ))}
           </div>
 
-          <NeonCard className="p-5 md:p-6 lg:p-8">
+          <NeonCard className="p-6 md:p-7 lg:p-9">
             <SectionTitle
               icon={Flame}
               title="Welcome to the Fiora ADC lab"
               subtitle="Start with support sync, lock the lane plan, then stop guessing in draft."
             />
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="mt-7 grid gap-5 md:grid-cols-3">
               {homeFeatureCards.map((card) => (
                 <SpeakableCard
                   key={card.title}
                   text={`${card.title}. ${card.text}`}
                   audioSrc={card.audio}
-                  className="border-white/10 bg-white/5 p-4 md:p-5"
+                  className="premium-hover-card border-white/10 bg-white/[0.035] p-4 md:p-5"
                 >
-                  <p className="text-xs uppercase tracking-[0.16em] text-red-300 md:text-sm">
+                  <p className="text-xs uppercase tracking-[0.16em] text-white/52 md:text-sm">
                     {card.title}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-white/75 md:text-base">
@@ -110,12 +110,12 @@ export default function PageContent({
             subtitle="No theory essay. Just the reasons this lane gets ugly once Fiora gets to play her game."
           />
 
-          <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <SpeakableCard
-              className="p-5 md:p-6"
+              className="premium-hover-card p-5 md:p-6"
               text="Core concept. You win by forcing bad spacing and panic decisions. Fiora ADC does not work by pretending to be a marksman. The lane only makes sense when trades stay short, violent, and precise: one bad step, one wasted spell, one support opening, then full commit. It is still a technical pick, not something you blind for fun. But with the right draft read and support timing, it creates a kind of pressure standard bot lanes rarely practice against."
             >
-              <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
+              <div className="mb-4 inline-flex rounded-full border border-white/10 bg-white/[0.055] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/58">
                 Core concept
               </div>
               <h3 className="text-2xl font-black text-white md:text-3xl">
@@ -133,7 +133,7 @@ export default function PageContent({
                 <img
                   src={whyWorksVisualImage}
                   alt="Fiora visual"
-                  className="h-[260px] w-full rounded-2xl border border-red-500/25 object-cover"
+                  className="h-[260px] w-full rounded-2xl border border-white/10 object-cover"
                   loading="lazy"
                   decoding="async"
                   onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
@@ -142,11 +142,11 @@ export default function PageContent({
             </NeonCard>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {whyWorksPoints.map((point) => (
               <SpeakableCard
                 key={point.title}
-                className="p-5"
+                className="premium-hover-card p-5"
                 text={`${point.title}. ${point.text}`}
                 audioSrc={point.audio}
               >
@@ -168,23 +168,23 @@ export default function PageContent({
             subtitle="Pick how lane starts before minions even meet."
           />
 
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid gap-5 xl:grid-cols-2">
             {runePages.map((runePage) => (
               <SpeakableCard
                 key={runePage.key}
-                className="p-5"
+                className="premium-hover-card p-5"
                 contentClassName="space-y-4"
                 text={`${runePage.title}. ${runePage.bullets.map((bullet) => `${bullet.label} ${bullet.text}`).join(" ")}`}
                 audioSrc={runePage.audio}
               >
-                <p className="text-sm uppercase tracking-[0.16em] text-red-300">
+                <p className="text-sm uppercase tracking-[0.16em] text-white/52">
                   {runePage.title}
                 </p>
 
                 <img
                   src={runePage.image}
                   alt={runePage.title}
-                  className="w-full rounded-3xl border border-red-500/20 object-contain"
+                  className="w-full rounded-3xl border border-white/10 object-contain"
                   loading="lazy"
                   decoding="async"
                   onError={(event) =>
@@ -267,11 +267,11 @@ export default function PageContent({
             title="Skill Order"
             subtitle="Simple order, real purpose behind every early point."
           />
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             {skillOrderCards.map((card) => (
               <SpeakableCard
                 key={card.title}
-                className="p-5"
+                className="premium-hover-card p-5"
                 text={`${card.title}. ${card.text}`}
                 audioSrc={card.audio}
               >
@@ -290,18 +290,18 @@ export default function PageContent({
             title="Matchups"
             subtitle="The lanes that feel good, the lanes that feel awful, and why."
           />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {matchups.map((matchup) => (
               <SpeakableCard
                 key={matchup.name}
-                className="overflow-hidden p-4 transition hover:-translate-y-1"
+                className="premium-hover-card overflow-hidden p-4 transition hover:-translate-y-1"
                 text={`${matchup.name}. ${matchup.level}. Danger ${matchup.danger}. ${matchup.explanation}`}
                 audioSrc={matchup.audio}
               >
                 <img
                   src={matchup.image}
                   alt={matchup.name}
-                  className="h-44 w-full rounded-2xl border border-red-500/25 object-cover"
+                  className="h-44 w-full rounded-2xl border border-white/10 object-cover"
                   loading="lazy"
                   decoding="async"
                   onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
@@ -309,11 +309,11 @@ export default function PageContent({
                 />
                 <div className="mt-4 flex items-center justify-between">
                   <p className="text-xl font-bold text-white">{matchup.name}</p>
-                  <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
+                  <span className="rounded-full border border-red-200/22 bg-red-500/[0.08] px-3 py-1 text-xs text-red-100">
                     {matchup.danger}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-red-300">{matchup.level}</p>
+                <p className="mt-1 text-sm text-white/52">{matchup.level}</p>
                 <p className="mt-3 text-white/70">{matchup.explanation}</p>
               </SpeakableCard>
             ))}
@@ -339,14 +339,14 @@ export default function PageContent({
                     block: "start",
                   })
                 }
-                className="shrink-0 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/75 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200"
+                className="shrink-0 rounded-xl border border-white/12 bg-white/[0.045] px-4 py-2 text-sm text-white/72 transition hover:border-white/20 hover:bg-white/[0.075] hover:text-white"
               >
                 {section.title}
               </button>
             ))}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             <StatCard
               label="Primary goal"
               value="Preserve HP"
@@ -367,11 +367,11 @@ export default function PageContent({
             />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             {laneSections.map((section) => (
               <SpeakableCard
                 key={section.id}
-                className="p-5 md:p-6"
+                className="premium-hover-card p-5 md:p-6"
                 text={`${section.title}. ${section.summary}. ${section.points.join(" ")}`}
                 audioSrc={section.audio}
               >
@@ -381,7 +381,7 @@ export default function PageContent({
                   }}
                   className="scroll-mt-28"
                 >
-                  <p className="text-xs uppercase tracking-[0.2em] text-red-300">
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/52">
                     Lane read
                   </p>
                   <h3 className="mt-2 text-2xl font-black text-white">
@@ -394,7 +394,7 @@ export default function PageContent({
                     {section.points.map((point) => (
                       <div
                         key={point}
-                        className="rounded-2xl border border-red-500/20 bg-black/35 p-4 text-sm leading-relaxed text-white/75"
+                        className="rounded-2xl border border-white/10 bg-black/28 p-4 text-sm leading-relaxed text-white/75"
                       >
                         {point}
                       </div>
@@ -415,8 +415,8 @@ export default function PageContent({
             subtitle="How support turns this pick from joke to threat."
           />
 
-          <NeonCard className="p-5 md:p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-red-300">
+          <NeonCard className="p-6 md:p-7">
+            <p className="text-xs uppercase tracking-[0.2em] text-white/52">
               Read this first
             </p>
             <h3 className="mt-2 text-2xl font-black text-white">
@@ -428,58 +428,58 @@ export default function PageContent({
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 onClick={() => goLaneSection("early")}
-                className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+                className="rounded-2xl border border-red-200/24 bg-red-500/[0.09] px-4 py-2 text-sm font-semibold text-red-100 transition hover:bg-red-500/[0.14]"
               >
                 Read Lane Phase: Early
               </button>
               <button
                 onClick={() => goLaneSection("wave")}
-                className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+                className="rounded-2xl border border-red-200/24 bg-red-500/[0.09] px-4 py-2 text-sm font-semibold text-red-100 transition hover:bg-red-500/[0.14]"
               >
                 Read Lane Phase: Wave
               </button>
               <button
                 onClick={() => goLaneSection("support")}
-                className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
+                className="rounded-2xl border border-red-200/24 bg-red-500/[0.09] px-4 py-2 text-sm font-semibold text-red-100 transition hover:bg-red-500/[0.14]"
               >
                 Read Lane Phase: Support
               </button>
             </div>
           </NeonCard>
 
-          <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid items-end gap-5 md:grid-cols-2 xl:grid-cols-3">
             {supportProfiles.map((support) => (
               <SpeakableCard
                 key={support.name}
-                className="p-4 md:p-5"
+                className="premium-hover-card p-4 md:p-5"
                 text={`${support.name}. ${support.role}. ${support.text}`}
                 audioSrc={support.audio}
               >
                 <img
                   src={support.image}
                   alt={support.name}
-                  className={`w-full ${support.size} rounded-3xl border border-red-500/25 object-cover`}
+                  className={`w-full ${support.size} rounded-3xl border border-white/10 object-cover`}
                   loading="lazy"
                   decoding="async"
                   onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
                   style={{ objectPosition: support.position }}
                 />
                 <p className="mt-3 text-xl font-bold text-white">{support.name}</p>
-                <p className="text-sm text-red-300">{support.role}</p>
+                <p className="text-sm text-white/52">{support.role}</p>
                 <p className="mt-3 text-sm leading-relaxed text-white/75">{support.text}</p>
               </SpeakableCard>
             ))}
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-3">
+          <div className="grid gap-5 xl:grid-cols-3">
             {supportPrinciples.map((principle) => (
               <SpeakableCard
                 key={principle.title}
-                className="p-5"
+                className="premium-hover-card p-5"
                 text={`${principle.title}. ${principle.text}`}
                 audioSrc={principle.audio}
               >
-                <p className="mb-2 font-semibold text-red-300">{principle.title}</p>
+                <p className="mb-2 font-semibold text-white/72">{principle.title}</p>
                 <p className="text-sm leading-relaxed text-white/75">{principle.text}</p>
               </SpeakableCard>
             ))}
@@ -490,10 +490,10 @@ export default function PageContent({
             title="Support Clips"
             subtitle="Watch the angle, the trigger, and what happens right after contact."
           />
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {supportClips.map((clip) => (
               <NeonCard key={clip.url} className="overflow-hidden p-4 md:p-5">
-                <div className="overflow-hidden rounded-2xl border border-red-500/20 bg-black">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
                   <iframe
                     src={clip.embed}
                     title={clip.title}
@@ -506,7 +506,7 @@ export default function PageContent({
                 </div>
                 <div className="mt-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-red-200">
+                    <span className="rounded-full border border-red-200/22 bg-red-500/[0.08] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-red-100">
                       {clip.focus}
                     </span>
                     <p className="font-semibold text-white">{clip.title}</p>
@@ -521,7 +521,7 @@ export default function PageContent({
                     href={clip.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-3 inline-flex rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-200"
+                    className="mt-3 inline-flex rounded-xl border border-red-200/24 bg-red-500/[0.09] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-100 transition hover:bg-red-500/[0.14]"
                   >
                     Open on YouTube
                   </a>
@@ -539,11 +539,11 @@ export default function PageContent({
             title="Mid / Late Game"
             subtitle="Pick a job, take space, and cash out the lead."
           />
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             {midLateCards.map((card) => (
               <SpeakableCard
                 key={card.title}
-                className="p-5"
+                className="premium-hover-card p-5"
                 text={`${card.title}. ${card.text}`}
                 audioSrc={card.audio}
               >
@@ -553,7 +553,7 @@ export default function PageContent({
             ))}
           </div>
           <NeonCard className="p-6">
-            <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-red-300">
+            <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.16em] text-white/52">
               Coming next <ChevronRight className="h-4 w-4" /> Side pressure / vision setup / fight entry rules
             </div>
           </NeonCard>
@@ -567,11 +567,11 @@ export default function PageContent({
             title="Mechanical Tips"
             subtitle="Short reminders for the parts people actually mess up."
           />
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {mechanics.map((item) => (
               <SpeakableCard
                 key={item.title}
-                className="p-5"
+                className="premium-hover-card p-5"
                 text={`${item.title}. ${item.content}`}
                 audioSrc={item.audio}
               >
@@ -590,15 +590,15 @@ export default function PageContent({
             title="Videos / Clips"
             subtitle="Use clips to study the setup, not just the ego moment."
           />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {videoCards.map((videoCard) => (
               <SpeakableCard
                 key={videoCard.title}
-                className="overflow-hidden p-4 md:p-5"
+                className="premium-hover-card overflow-hidden p-4 md:p-5"
                 text={`${videoCard.title}. ${videoCard.description}. ${videoCard.note}`}
                 audioSrc={videoCard.audio}
               >
-                <div className="relative overflow-hidden rounded-2xl border border-red-500/25">
+                <div className="relative overflow-hidden rounded-2xl border border-white/10">
                   <img
                     src={videoCard.image}
                     alt={videoCard.title}
@@ -609,7 +609,7 @@ export default function PageContent({
                     style={{ objectPosition: videoCard.position }}
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4">
-                    <span className="inline-flex rounded-full border border-red-500/25 bg-black/50 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-red-200">
+                    <span className="inline-flex rounded-full border border-white/12 bg-black/50 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70">
                       {videoCard.label}
                     </span>
                     <p className="mt-2 text-lg font-semibold text-white">

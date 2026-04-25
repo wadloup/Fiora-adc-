@@ -23,38 +23,42 @@ body {
 
 :root {
   --dock-inset: 1rem;
-  --dock-gap: 1.5rem;
-  --chat-dock-width: 300px;
-  --manga-dock-width: 360px;
+  --dock-gap: 1.75rem;
+  --chat-dock-width: 3.75rem;
+  --chat-panel-width: 280px;
+  --side-rail-width: 292px;
+  --manga-dock-width: var(--side-rail-width);
 }
 
 @media (min-width: 1280px) {
   :root {
     --dock-inset: 1.5rem;
-    --dock-gap: 1.75rem;
-    --manga-dock-width: 400px;
+    --dock-gap: 2rem;
+    --side-rail-width: 300px;
   }
 }
 
 @media (min-width: 1536px) {
   :root {
-    --dock-gap: 2rem;
-    --manga-dock-width: 420px;
+    --chat-dock-width: 4.25rem;
+    --dock-gap: 2.35rem;
+    --side-rail-width: 316px;
   }
 }
 
 @media (min-width: 1900px) {
   :root {
     --dock-inset: 1.75rem;
-    --dock-gap: 2.25rem;
-    --chat-dock-width: 326px;
-    --manga-dock-width: 440px;
+    --dock-gap: 2.75rem;
+    --chat-dock-width: 4.5rem;
+    --chat-panel-width: 304px;
+    --side-rail-width: 340px;
   }
 }
 
 @media (min-width: 2150px) {
   :root {
-    --manga-dock-width: 490px;
+    --side-rail-width: 360px;
   }
 }
 
@@ -62,13 +66,13 @@ body {
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 80rem;
+  max-width: 74rem;
   margin-inline: auto;
-  padding: 1.75rem 1rem;
+  padding: 2rem 1rem 4rem;
 }
 
 .app-main-shell > * + * {
-  margin-top: 1.75rem;
+  margin-top: 2.25rem;
 }
 
 .desktop-left-dock {
@@ -80,21 +84,89 @@ body {
   right: var(--dock-inset);
 }
 
+.message-panel-card {
+  width: var(--chat-panel-width);
+}
+
+.side-widget-card {
+  border: 1px solid rgba(255, 255, 255, 0.105);
+  background:
+    linear-gradient(180deg, rgba(12, 12, 15, 0.88), rgba(7, 7, 9, 0.84)),
+    radial-gradient(circle at 12% 0%, rgba(255, 58, 92, 0.08), transparent 34%);
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.premium-hover-card {
+  transform: translateZ(0);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.hero-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(420px, 48vh, 620px);
+}
+
+.hero-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 70% 18%, rgba(255, 74, 112, 0.12), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 34%),
+    linear-gradient(180deg, rgba(5, 5, 6, 0), rgba(5, 5, 6, 0.34));
+  pointer-events: none;
+}
+
+.hero-shell::after {
+  content: "";
+  position: absolute;
+  inset: auto 2rem 0;
+  height: 1px;
+  z-index: -1;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  pointer-events: none;
+}
+
 @media (min-width: 768px) {
   .app-main-shell {
-    padding: 2.5rem 1.5rem;
+    padding: 3rem 1.5rem 5rem;
   }
 }
 
 @media (min-width: 1280px) {
   .app-main-shell {
-    max-width: none;
+    max-width: 76rem;
     margin-left: calc(var(--dock-inset) + var(--chat-dock-width) + var(--dock-gap));
     margin-right: calc(var(--dock-inset) + var(--manga-dock-width) + var(--dock-gap));
+    padding-top: 3.5rem;
   }
 
   .desktop-right-dock {
     width: var(--manga-dock-width);
+  }
+}
+
+@media (min-width: 1536px) {
+  .app-main-shell {
+    max-width: 84rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .premium-hover-card:hover {
+    transform: perspective(900px) translateY(-3px) rotateX(0.7deg);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.42),
+      0 0 22px rgba(255, 40, 88, 0.08);
   }
 }
 
@@ -171,69 +243,65 @@ body {
 .music-slider,
 .control-slider {
   appearance: none;
-  height: 0.38rem;
+  height: 0.32rem;
   border-radius: 9999px;
-  background: linear-gradient(90deg, rgba(255, 32, 85, 0.9), rgba(255, 255, 255, 0.82));
+  background: linear-gradient(90deg, rgba(255, 68, 105, 0.72), rgba(255, 255, 255, 0.64));
   outline: none;
 }
 
 .music-slider::-webkit-slider-thumb,
 .control-slider::-webkit-slider-thumb {
   appearance: none;
-  width: 1rem;
-  height: 1rem;
+  width: 0.86rem;
+  height: 0.86rem;
   border: 2px solid rgba(0, 0, 0, 0.55);
   border-radius: 9999px;
-  background: #ff1d46;
-  box-shadow: 0 0 18px rgba(255, 0, 60, 0.28);
+  background: #ff4969;
+  box-shadow: 0 0 12px rgba(255, 0, 60, 0.2);
   cursor: pointer;
 }
 
 .music-slider::-moz-range-thumb,
 .control-slider::-moz-range-thumb {
-  width: 1rem;
-  height: 1rem;
+  width: 0.86rem;
+  height: 0.86rem;
   border: 2px solid rgba(0, 0, 0, 0.55);
   border-radius: 9999px;
-  background: #ff1d46;
-  box-shadow: 0 0 18px rgba(255, 0, 60, 0.28);
+  background: #ff4969;
+  box-shadow: 0 0 12px rgba(255, 0, 60, 0.2);
   cursor: pointer;
 }
 
 .music-slider::-moz-range-track,
 .control-slider::-moz-range-track {
-  height: 0.38rem;
+  height: 0.32rem;
   border-radius: 9999px;
-  background: linear-gradient(90deg, rgba(255, 32, 85, 0.9), rgba(255, 255, 255, 0.82));
+  background: linear-gradient(90deg, rgba(255, 68, 105, 0.72), rgba(255, 255, 255, 0.64));
 }
 
 .manga-dock-card {
-  overflow: visible !important;
+  overflow: hidden !important;
   transform-origin: center;
-  animation: manga-aura-beat 2.7s ease-in-out infinite;
+  animation: none;
   box-shadow:
-    0 0 22px rgba(255, 0, 72, 0.24),
-    0 0 38px rgba(0, 220, 255, 0.16),
-    0 0 52px rgba(255, 208, 0, 0.1);
+    0 24px 56px rgba(0, 0, 0, 0.48),
+    0 0 20px rgba(255, 0, 72, 0.08);
   isolation: isolate;
-  will-change: box-shadow, filter, transform;
 }
 
 .manga-dock-card::after {
   content: "";
   position: absolute;
-  inset: -4px;
+  inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: transparent;
-  box-shadow:
-    0 0 18px rgba(255, 20, 88, 0.42),
-    0 0 34px rgba(0, 220, 255, 0.26),
-    0 0 52px rgba(255, 210, 0, 0.18),
-    0 0 70px rgba(170, 65, 255, 0.16);
-  opacity: 0.9;
+  background:
+    linear-gradient(135deg, rgba(255, 78, 118, 0.12), transparent 42%),
+    radial-gradient(circle at 84% 10%, rgba(255, 255, 255, 0.08), transparent 28%);
+  box-shadow: none;
+  opacity: 0.7;
   pointer-events: none;
-  animation: manga-frame-aura 2.7s ease-in-out infinite;
+  animation: none;
 }
 
 @keyframes manga-aura-beat {

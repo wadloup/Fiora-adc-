@@ -36,10 +36,10 @@ function MusicPlayer({
 
   if (mobile) {
     return (
-      <div className="fixed bottom-5 left-5 z-50 flex max-w-[calc(100vw-5.5rem)] items-center gap-2 rounded-2xl border border-red-500/35 bg-[rgba(8,8,10,0.92)] px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] lg:hidden">
+      <div className="fixed bottom-5 left-5 z-50 flex max-w-[calc(100vw-7.25rem)] items-center gap-2 rounded-full border border-white/12 bg-black/58 px-2.5 py-2 shadow-[0_18px_38px_rgba(0,0,0,0.34)] backdrop-blur-xl lg:hidden">
         <button
           onClick={onToggle}
-          className="text-red-300"
+          className="rounded-full border border-white/10 bg-white/[0.055] p-2 text-white/74"
           aria-label="Toggle background music"
         >
           {musicPlaying ? (
@@ -52,7 +52,7 @@ function MusicPlayer({
         {onPrevious ? (
           <button
             onClick={onPrevious}
-            className="rounded-xl border border-white/15 bg-white/5 p-1.5 text-white/80"
+            className="rounded-full border border-white/10 bg-white/[0.045] p-1.5 text-white/70"
             aria-label="Previous track"
           >
             <SkipBack className="h-4 w-4" />
@@ -64,7 +64,7 @@ function MusicPlayer({
           onChange={(event) =>
             onTrackChange(event.target.value as MusicTrackId)
           }
-          className="music-select min-w-0 flex-1 rounded-xl border border-red-500/30 bg-black/60 px-2 py-1 text-xs text-white outline-none"
+          className="music-select min-w-0 flex-1 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-xs text-white/82 outline-none"
           aria-label="Select music track"
         >
           {tracks.map((track) => (
@@ -81,7 +81,7 @@ function MusicPlayer({
         {onNext ? (
           <button
             onClick={onNext}
-            className="rounded-xl border border-white/15 bg-white/5 p-1.5 text-white/80"
+            className="rounded-full border border-white/10 bg-white/[0.045] p-1.5 text-white/70"
             aria-label="Next track"
           >
             <SkipForward className="h-4 w-4" />
@@ -97,7 +97,7 @@ function MusicPlayer({
           onInput={(event) =>
             onVolumeChange(Number((event.target as HTMLInputElement).value))
           }
-          className="music-slider w-16 shrink-0"
+          className="music-slider hidden w-14 shrink-0 sm:block"
           aria-label="Adjust music volume"
         />
       </div>
@@ -107,20 +107,20 @@ function MusicPlayer({
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col gap-3 rounded-3xl border border-red-500/25 bg-[rgba(18,7,10,0.76)] p-3.5 shadow-[0_0_24px_rgba(255,0,60,0.12)] md:p-4",
+        "flex shrink-0 flex-col gap-3 rounded-[1.35rem] border border-white/10 bg-[rgba(12,12,15,0.62)] p-3.5 shadow-[0_18px_44px_rgba(0,0,0,0.26)] backdrop-blur-xl md:p-4",
         compact ? "w-full max-w-[320px]" : "w-full max-w-[420px]",
         className
       )}
     >
       <div className="space-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-red-300/80">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-white/50">
           Music mood
         </p>
         <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
           <h3
             className={cn(
               "font-black uppercase leading-none text-white",
-              compact ? "text-xl tracking-[0.08em]" : "text-[1.7rem] tracking-[0.1em]"
+              compact ? "text-lg tracking-[0.08em]" : "text-[1.35rem] tracking-[0.09em]"
             )}
           >
             Choose your vibe
@@ -135,7 +135,7 @@ function MusicPlayer({
         <button
           onClick={onToggle}
           className={cn(
-            "rounded-xl border border-red-500/30 bg-red-500/10 text-white transition hover:bg-red-500/15",
+            "rounded-xl border border-white/12 bg-white/[0.055] text-white/84 transition hover:border-red-200/24 hover:bg-white/[0.08]",
             compact ? "px-2.5 py-2 text-[11px]" : "px-3 py-2 text-xs"
           )}
         >
@@ -151,7 +151,7 @@ function MusicPlayer({
 
         <div className="min-w-[120px] flex-1">
           <div className="mb-1 flex items-center justify-between gap-2">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-red-300">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/48">
               Volume
             </p>
             <span className="text-[10px] text-white/50">
@@ -175,14 +175,14 @@ function MusicPlayer({
 
       <div
         className={cn(
-          "min-w-0 rounded-2xl border border-red-500/30 bg-black/50",
+          "min-w-0 rounded-2xl border border-white/10 bg-black/30",
           compact ? "px-2.5 py-2" : "px-3 py-2"
         )}
       >
         <div className="flex items-center justify-between gap-2">
           <p
             className={cn(
-              "uppercase text-red-300",
+              "uppercase text-white/48",
               compact
                 ? "text-[9px] tracking-[0.16em]"
                 : "text-[10px] tracking-[0.18em]"
@@ -222,7 +222,7 @@ function MusicPlayer({
           <button
             onClick={onPrevious}
             className={cn(
-              "inline-flex items-center justify-center gap-1 rounded-xl border border-white/15 bg-white/5 text-white/85 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200",
+              "inline-flex items-center justify-center gap-1 rounded-xl border border-white/12 bg-white/[0.045] text-white/76 transition hover:border-white/20 hover:bg-white/[0.075] hover:text-white",
               compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"
             )}
           >
@@ -233,7 +233,7 @@ function MusicPlayer({
           <button
             onClick={onNext}
             className={cn(
-              "inline-flex items-center justify-center gap-1 rounded-xl border border-white/15 bg-white/5 text-white/85 transition hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-200",
+              "inline-flex items-center justify-center gap-1 rounded-xl border border-white/12 bg-white/[0.045] text-white/76 transition hover:border-white/20 hover:bg-white/[0.075] hover:text-white",
               compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"
             )}
           >

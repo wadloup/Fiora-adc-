@@ -16,9 +16,9 @@ export default function ItemPath({ title, items, text, audioSrc }: ItemPathProps
     <SpeakableCard
       text={`${title}. ${text}`}
       audioSrc={audioSrc}
-      className="p-4 md:p-5"
+      className="premium-hover-card p-4 md:p-5"
     >
-      <p className="text-xs uppercase tracking-[0.16em] text-red-300 md:text-sm">
+      <p className="text-xs uppercase tracking-[0.16em] text-white/52 md:text-sm">
         {title}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -27,11 +27,11 @@ export default function ItemPath({ title, items, text, audioSrc }: ItemPathProps
             <img
               src={item}
               alt="item"
-              className="h-12 w-12 rounded-lg border border-red-500/30 bg-black/40 object-cover"
+              className="h-12 w-12 rounded-lg border border-white/12 bg-black/40 object-cover"
               onError={(event) => recoverAssetImage(event, DEFAULT_ITEM_ICON)}
             />
             {index < items.length - 1 ? (
-              <span className="text-sm text-red-300">{">"}</span>
+              <span className="text-sm text-white/38">{">"}</span>
             ) : null}
           </div>
         ))}

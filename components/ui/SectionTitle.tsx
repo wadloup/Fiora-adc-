@@ -11,11 +11,11 @@ export default function SectionTitle({
 }) {
   return (
     <div className="space-y-4">
-      <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-red-200">
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.055] px-3 py-1 text-xs uppercase tracking-[0.16em] text-white/66">
         <Icon className="h-4 w-4" />
         Section
       </div>
-      <h2 className="text-2xl font-black tracking-tight text-white md:text-4xl">
+      <h2 className="text-2xl font-black leading-tight tracking-tight text-white md:text-4xl">
         {title}
       </h2>
       <p className="max-w-3xl text-sm leading-relaxed text-white/70 md:text-base">
