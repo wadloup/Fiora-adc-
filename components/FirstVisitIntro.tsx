@@ -121,7 +121,7 @@ export default function FirstVisitIntro({
             transition={{ duration: 0.52, delay: 1.15 }}
             className="mt-5 grid max-w-3xl gap-2 text-lg font-black uppercase tracking-[0.04em] text-red-100 md:text-2xl"
           >
-            <span className="text-white/92">Surprise assurée.</span>
+            <span className="text-white/92">Surprise guaranteed.</span>
             <span className="text-red-200">Right pressure.</span>
             <span className="bg-gradient-to-r from-white via-red-100 to-cyan-100 bg-clip-text text-transparent">
               Pick your route.
