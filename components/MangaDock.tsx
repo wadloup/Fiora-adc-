@@ -322,7 +322,7 @@ export default function MangaDock({
         onClick={openReader}
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
-        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[400px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block xl:w-[440px] min-[2150px]:w-[490px]"
+        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[440px] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block min-[2150px]:w-[490px]"
         aria-label="Open manga pages"
       >
         <audio
