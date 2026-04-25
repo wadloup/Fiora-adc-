@@ -12,6 +12,7 @@ body,
 
 html {
   color-scheme: dark;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -21,24 +22,31 @@ body {
 }
 
 :root {
+  --dock-inset: 1rem;
+  --dock-gap: 1.5rem;
   --chat-dock-width: 300px;
   --manga-dock-width: 360px;
 }
 
 @media (min-width: 1280px) {
   :root {
+    --dock-inset: 1.5rem;
+    --dock-gap: 1.75rem;
     --manga-dock-width: 400px;
   }
 }
 
 @media (min-width: 1536px) {
   :root {
+    --dock-gap: 2rem;
     --manga-dock-width: 420px;
   }
 }
 
 @media (min-width: 1900px) {
   :root {
+    --dock-inset: 1.75rem;
+    --dock-gap: 2.25rem;
     --chat-dock-width: 326px;
     --manga-dock-width: 440px;
   }
@@ -47,6 +55,46 @@ body {
 @media (min-width: 2150px) {
   :root {
     --manga-dock-width: 490px;
+  }
+}
+
+.app-main-shell {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: 1.75rem 1rem;
+}
+
+.app-main-shell > * + * {
+  margin-top: 1.75rem;
+}
+
+.desktop-left-dock {
+  left: var(--dock-inset);
+  width: var(--chat-dock-width);
+}
+
+.desktop-right-dock {
+  right: var(--dock-inset);
+}
+
+@media (min-width: 768px) {
+  .app-main-shell {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app-main-shell {
+    max-width: none;
+    margin-left: calc(var(--dock-inset) + var(--chat-dock-width) + var(--dock-gap));
+    margin-right: calc(var(--dock-inset) + var(--manga-dock-width) + var(--dock-gap));
+  }
+
+  .desktop-right-dock {
+    width: var(--manga-dock-width);
   }
 }
 

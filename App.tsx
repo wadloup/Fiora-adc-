@@ -1142,7 +1142,7 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+2rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+3rem)]">
+      <main className="app-main-shell">
         <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
             <div className="space-y-4">
@@ -1578,7 +1578,7 @@ export default function App() {
 
       <button
         onClick={requestAllVoiceStop}
-        className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-[rgba(8,8,10,0.94)] px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
+        className="desktop-right-dock fixed top-24 z-[60] inline-flex min-h-[64px] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl border border-red-400/45 bg-[rgba(8,8,10,0.94)] px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:max-w-[calc(100vw-3rem)] sm:px-5"
         aria-label="Stop every voice"
       >
         <span className="rounded-xl border border-red-400/35 bg-red-500/15 p-2.5 text-red-300">
@@ -1605,7 +1605,7 @@ export default function App() {
         <MessageDock />
       )}
 
-      <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] lg:block sm:right-5 md:right-6">
+      <div className="desktop-right-dock fixed top-[10.35rem] z-[59] hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] xl:block">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-red-300">
