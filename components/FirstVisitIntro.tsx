@@ -8,6 +8,7 @@ type FirstVisitIntroProps = {
   onOpenSupport: () => void;
   onOpenManga: () => void;
   onOpenIQTest: () => void;
+  musicSlot?: ReactNode;
   voteSlot?: ReactNode;
 };
 
@@ -48,6 +49,7 @@ export default function FirstVisitIntro({
   onOpenSupport,
   onOpenManga,
   onOpenIQTest,
+  musicSlot,
   voteSlot,
 }: FirstVisitIntroProps) {
   const runChoice = (action: (typeof introChoices)[number]["action"]) => {
@@ -105,6 +107,17 @@ export default function FirstVisitIntro({
       >
         <X className="h-5 w-5" />
       </button>
+
+      {musicSlot ? (
+        <motion.div
+          initial={{ opacity: 0, y: -12, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.42, ease: "easeOut", delay: 1.05 }}
+          className="absolute right-4 top-20 z-20 hidden w-[330px] md:block"
+        >
+          {musicSlot}
+        </motion.div>
+      ) : null}
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-8 md:px-8">
         <motion.div
@@ -192,6 +205,17 @@ export default function FirstVisitIntro({
             className="mt-5 w-full max-w-[56rem]"
           >
             {voteSlot}
+          </motion.div>
+        ) : null}
+
+        {musicSlot ? (
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut", delay: 2.22 }}
+            className="mt-5 w-full max-w-[330px] md:hidden"
+          >
+            {musicSlot}
           </motion.div>
         ) : null}
 

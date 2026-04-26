@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Brain, RotateCcw, Sparkles, X } from "lucide-react";
 import { cn } from "../utils/cn";
@@ -7,13 +7,14 @@ type IQOption = {
   text: string;
   score: number;
   caption: string;
+  math?: "solutionA" | "solutionB";
 };
 
 type IQQuestion = {
   title: string;
   prompt: string;
   caption: string;
-  equation?: string;
+  mathBlock?: "heatEquation";
   options: IQOption[];
 };
 
@@ -78,39 +79,19 @@ const questions: IQQuestion[] = [
     title: "Pure Intelligence",
     prompt: "Solve for ψ(x,t):",
     caption: "Five seconds of fake academia",
-    equation: `∂ψ/∂t = 4(∂²ψ/∂x²) - 3ψ
-+ 6e^(-19t) sin(2πx)
-- 10e^(-103t) sin(5πx)
-
-with:
-ψ(x,0) = 5sin(2πx) - 2sin(5πx)
-ψ(0,t) = 0, ψ(1,t) = 0
-
-with:
-ψ(x,0) = sin(πx)
-
-and:
-ψ(0,t) = 0, ψ(1,t) = 0`,
+    mathBlock: "heatEquation",
     options: [
       {
-        text: `ψ(x,t) =
-5 · exp(−(16π² + 3)t) · sin(2πx)
-− 2 · exp(−(100π² + 3)t) · sin(5πx)
-
-+ (6 / (16π² − 16)) · exp(−19t) · sin(2πx)
-− (10 / (100π² − 100)) · exp(−103t) · sin(5πx)`,
+        text: "Solution A",
         score: 52,
         caption: "Suspiciously serious. Borderline employable.",
+        math: "solutionA",
       },
       {
-        text: `ψ(x,t) =
-5 · exp(−(8π² + 3)t) · sin(2πx)
-− 2 · exp(−(50π² + 3)t) · sin(5πx)
-
-+ (6 / (8π² − 16)) · exp(−19t) · sin(2πx)
-− (10 / (50π² − 100)) · exp(−103t) · sin(5πx)`,
+        text: "Solution B",
         score: 17,
         caption: "Looks educated enough to be dangerous.",
+        math: "solutionB",
       },
       {
         text: "I don't know, asshole. You think I have time for this? Reported again.",
@@ -245,6 +226,117 @@ function loadStoredResult(): StoredIQResult | null {
   }
 
   return null;
+}
+
+function Fraction({ top, bottom }: { top: string; bottom: string }) {
+  return (
+    <span className="mx-1 inline-grid translate-y-[0.18em] grid-rows-2 items-center text-center text-[0.82em] leading-none">
+      <span className="border-b border-current px-1 pb-0.5">{top}</span>
+      <span className="px-1 pt-0.5">{bottom}</span>
+    </span>
+  );
+}
+
+function ExpTerm({ children }: { children: string }) {
+  return (
+    <span>
+      e<sup className="text-[0.72em]">{children}</sup>
+    </span>
+  );
+}
+
+function MathPanel({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-5 rounded-3xl border border-white/14 bg-[radial-gradient(circle_at_100%_0%,rgba(0,210,255,0.09),transparent_30%),rgba(0,0,0,0.42)] p-4 text-white shadow-[inset_0_0_24px_rgba(255,255,255,0.035)] md:p-5">
+      <div className="space-y-4 font-serif text-[1.05rem] leading-8 text-red-50/92 md:text-[1.18rem]">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function HeatEquationPanel() {
+  return (
+    <MathPanel>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <Fraction top="∂ψ" bottom="∂t" />
+        <span>=</span>
+        <span>4</span>
+        <Fraction top="∂²ψ" bottom="∂x²" />
+        <span>− 3ψ</span>
+        <span>+ 6</span>
+        <ExpTerm>-19t</ExpTerm>
+        <span>sin(2πx)</span>
+        <span>− 10</span>
+        <ExpTerm>-103t</ExpTerm>
+        <span>sin(5πx)</span>
+      </div>
+
+      <div className="grid gap-3 text-[0.95rem] text-white/78 md:grid-cols-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+          <p className="mb-2 font-sans text-[10px] font-black uppercase tracking-[0.22em] text-red-200">
+            Initial state
+          </p>
+          <p>ψ(x,0) = 5sin(2πx) − 2sin(5πx)</p>
+          <p>ψ(0,t) = 0, ψ(1,t) = 0</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+          <p className="mb-2 font-sans text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100">
+            Extra condition
+          </p>
+          <p>ψ(x,0) = sin(πx)</p>
+          <p>ψ(0,t) = 0, ψ(1,t) = 0</p>
+        </div>
+      </div>
+    </MathPanel>
+  );
+}
+
+function SolutionMath({ variant }: { variant: "solutionA" | "solutionB" }) {
+  const first = variant === "solutionA" ? "16π² + 3" : "8π² + 3";
+  const second = variant === "solutionA" ? "100π² + 3" : "50π² + 3";
+  const firstDenominator = variant === "solutionA" ? "16π² − 16" : "8π² − 16";
+  const secondDenominator = variant === "solutionA" ? "100π² − 100" : "50π² − 100";
+
+  return (
+    <div className="space-y-3 font-serif text-[1rem] leading-8 text-white md:text-[1.14rem]">
+      <div className="font-semibold">ψ(x,t) =</div>
+      <div className="pl-2">
+        <span>5</span>
+        <ExpTerm>{`−(${first})t`}</ExpTerm>
+        <span> sin(2πx)</span>
+      </div>
+      <div className="pl-2">
+        <span>− 2</span>
+        <ExpTerm>{`−(${second})t`}</ExpTerm>
+        <span> sin(5πx)</span>
+      </div>
+      <div className="pl-2">
+        <span>+</span>
+        <Fraction top="6" bottom={firstDenominator} />
+        <ExpTerm>-19t</ExpTerm>
+        <span> sin(2πx)</span>
+      </div>
+      <div className="pl-2">
+        <span>−</span>
+        <Fraction top="10" bottom={secondDenominator} />
+        <ExpTerm>-103t</ExpTerm>
+        <span> sin(5πx)</span>
+      </div>
+    </div>
+  );
+}
+
+function OptionContent({ option }: { option: IQOption }) {
+  if (option.math) {
+    return <SolutionMath variant={option.math} />;
+  }
+
+  return (
+    <span className="whitespace-pre-wrap text-base font-black leading-6 text-white md:text-lg">
+      {option.text}
+    </span>
+  );
 }
 
 export default function IQTest({ open, onClose }: IQTestProps) {
@@ -389,8 +481,7 @@ export default function IQTest({ open, onClose }: IQTestProps) {
                     </div>
 
                     <p className="mt-5 max-w-sm text-sm leading-6 text-white/68">
-                      Determine your IQ with terrifying precision using fake science,
-                      bot lane trauma, and one equation nobody asked for.
+                      Determine your IQ with terrifying precision.
                     </p>
 
                     <div className="mt-7 overflow-hidden rounded-full border border-white/10 bg-white/[0.05] p-1">
@@ -552,10 +643,8 @@ export default function IQTest({ open, onClose }: IQTestProps) {
                           {currentQuestion.prompt}
                         </p>
 
-                        {currentQuestion.equation ? (
-                          <pre className="mt-5 max-h-[260px] overflow-auto rounded-3xl border border-white/12 bg-black/46 p-4 text-xs leading-6 text-red-50/86 shadow-[inset_0_0_24px_rgba(255,255,255,0.03)] md:text-sm">
-                            {currentQuestion.equation}
-                          </pre>
+                        {currentQuestion.mathBlock === "heatEquation" ? (
+                          <HeatEquationPanel />
                         ) : null}
 
                         <div className="mt-6 grid gap-3">
@@ -589,21 +678,7 @@ export default function IQTest({ open, onClose }: IQTestProps) {
                                     {optionIndex + 1}
                                   </span>
                                   <span className="min-w-0">
-                                    <span className="whitespace-pre-wrap text-base font-black leading-6 text-white md:text-lg">
-                                      {option.text}
-                                    </span>
-                                    <AnimatePresence>
-                                      {selected ? (
-                                        <motion.span
-                                          className="mt-3 block rounded-2xl border border-white/10 bg-black/32 px-3 py-2 text-sm font-semibold text-red-100/82"
-                                          initial={{ opacity: 0, y: 8 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          exit={{ opacity: 0, y: 8 }}
-                                        >
-                                          {option.caption}
-                                        </motion.span>
-                                      ) : null}
-                                    </AnimatePresence>
+                                    <OptionContent option={option} />
                                   </span>
                                 </span>
                               </motion.button>

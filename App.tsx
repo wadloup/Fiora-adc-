@@ -60,6 +60,7 @@ import { trackGuidePageViewed } from "./utils/analytics";
 import {
   requestAllVoiceStop,
   requestNarrationStart,
+  requestNarrationStop,
   requestSiteAudioPause,
   requestSiteAudioResume,
 } from "./utils/audioControl";
@@ -669,6 +670,12 @@ export default function App() {
   }, [launchCooldown, playBackgroundMusic, triggerLaunchFx]);
 
   useEffect(() => {
+    if (firstVisitIntroOpen || iqTestOpen) {
+      requestNarrationStop();
+    }
+  }, [firstVisitIntroOpen, iqTestOpen]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) {
       return;
@@ -867,6 +874,7 @@ export default function App() {
     setGuideModeAndPersist("adc");
     goPage("Why Fiora ADC Works");
     void playBackgroundMusic();
+    requestNarrationStart();
   }, [
     closeFirstVisitIntro,
     goPage,
@@ -877,6 +885,7 @@ export default function App() {
   const openIntroSupport = useCallback(() => {
     closeFirstVisitIntro();
     void playBackgroundMusic();
+    requestNarrationStart();
     openSupportQuickStart();
   }, [closeFirstVisitIntro, openSupportQuickStart, playBackgroundMusic]);
 
@@ -1084,6 +1093,20 @@ export default function App() {
             onOpenSupport={openIntroSupport}
             onOpenManga={openIntroManga}
             onOpenIQTest={() => setIqTestOpen(true)}
+            musicSlot={
+              <MusicPlayer
+                dock
+                tracks={musicThemes}
+                currentTrackId={selectedTrackId}
+                musicPlaying={musicPlaying}
+                musicVolume={musicVolume}
+                onToggle={() => void toggleBackgroundMusic()}
+                onTrackChange={changeTrack}
+                onVolumeChange={handleMusicVolumeChange}
+                onPrevious={goToPreviousTrack}
+                onNext={goToNextTrack}
+              />
+            }
             voteSlot={
               <Suspense
                 fallback={
