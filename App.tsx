@@ -1416,15 +1416,19 @@ export default function App() {
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                       <button
                         onClick={() => goPage("Fiora's Support")}
-                        className="w-full rounded-2xl border border-red-400/40 bg-red-500/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-red-200 transition hover:scale-[1.02] hover:bg-red-500/20 sm:w-auto"
+                        className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border border-red-200/55 bg-gradient-to-r from-red-500/35 via-red-500/18 to-white/[0.06] px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_0_28px_rgba(244,63,94,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-red-100/80 hover:from-red-500/48 hover:shadow-[0_0_42px_rgba(244,63,94,0.34)] focus:outline-none focus:ring-2 focus:ring-red-200/60 sm:w-auto"
                       >
-                        Go to Fiora's Support
+                        <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/18 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
+                        <span className="relative">Go to Fiora's Support</span>
+                        <ArrowRight className="relative h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
                       </button>
                       <button
                         onClick={() => goLaneSection("support")}
-                        className="w-full rounded-2xl border border-white/25 bg-black/45 px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/90 transition hover:bg-white/10 sm:w-auto"
+                        className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border border-cyan-100/45 bg-gradient-to-r from-cyan-300/16 via-black/55 to-white/[0.05] px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_0_24px_rgba(125,211,252,0.14)] transition duration-200 hover:-translate-y-0.5 hover:border-cyan-100/75 hover:bg-cyan-300/12 hover:shadow-[0_0_38px_rgba(125,211,252,0.22)] focus:outline-none focus:ring-2 focus:ring-cyan-100/55 sm:w-auto"
                       >
-                        Open Lane Phase - Support
+                        <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/14 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
+                        <span className="relative">Open Lane Phase - Support</span>
+                        <ArrowRight className="relative h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
                       </button>
                     </div>
                   </div>
