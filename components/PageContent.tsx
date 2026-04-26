@@ -4,6 +4,7 @@ import {
   Crosshair,
   Flame,
   HeartHandshake,
+  Clock3,
   PlayCircle,
   Shield,
   Sword,
@@ -41,6 +42,90 @@ import {
   recoverAssetImage,
   recoverImage,
 } from "../utils/imageFallback";
+
+const supportPickGuide = [
+  {
+    name: "Alistar",
+    tier: "Best default",
+    why: "Point-click access turns Fiora ADC from theory into a real lane.",
+    how: "Hold WQ until Fiora can follow with Q. Do not spend engage just to look busy.",
+    avoid: "Engaging through a huge wave while Fiora is still walking from Narnia.",
+  },
+  {
+    name: "Braum",
+    tier: "Safe brawler",
+    why: "He lets Fiora enter, survive contact, and keep punching after the first trade.",
+    how: "Stand where Fiora wants to fight. Passive stacks make short trades scary fast.",
+    avoid: "Playing ten screens behind her like you queued spectator mode.",
+  },
+  {
+    name: "Yuumi",
+    tier: "Special case",
+    why: "Sustain and chase help Fiora survive until repeated entries become disgusting.",
+    how: "Keep Fiora healthy, speed the re-entry, and respect the early lane.",
+    avoid: "AFK attaching while the lane bleeds out before level 3.",
+  },
+];
+
+const supportSecondaryPicks = [
+  {
+    name: "Rakan",
+    tag: "Fast access",
+    text: "Clean engage and exit. Go only when Fiora can Q in.",
+  },
+  {
+    name: "Sona",
+    tag: "Sustain scale",
+    text: "Good if the lane stays calm. Bad if you cosplay frontline.",
+  },
+  {
+    name: "Taric",
+    tag: "Anti-dive",
+    text: "Turns enemy all-ins into a very expensive mistake.",
+  },
+];
+
+const supportFirstMinutes = [
+  {
+    time: "Wave 1",
+    title: "Protect HP first",
+    text: "Do not donate Fiora's health for a fake level 1 ego trade. Brush control matters, but HP matters more.",
+  },
+  {
+    time: "Level 2",
+    title: "Respect the spike",
+    text: "If enemy lane hits level 2 first, back up. If you hit it first, posture, ping, and force them to panic.",
+  },
+  {
+    time: "Level 3",
+    title: "First real threat",
+    text: "Fiora now has the short-burst tools. Your job is to give access, not to start a fight she cannot reach.",
+  },
+  {
+    time: "First crash",
+    title: "Crash or kill",
+    text: "After contact, choose immediately: kill, crash wave, or reset. Floating around is how the lane becomes comedy.",
+  },
+];
+
+const supportDoDont = [
+  {
+    label: "Do",
+    items: [
+      "Ping your engage before you press it.",
+      "Hold CC until the target is actually reachable.",
+      "Fight from brush or wave advantage.",
+    ],
+  },
+  {
+    label: "Do not",
+    items: [
+      "Burn every spell while Fiora is last-hitting.",
+      "Force into double range poke with no HP.",
+      "Roam before the wave state lets Fiora breathe.",
+    ],
+  },
+];
 
 type PageContentProps = {
   currentPage: PageName;
@@ -416,36 +501,199 @@ export default function PageContent({
           />
 
           <NeonCard className="p-5 md:p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-red-300">
-              Read this first
-            </p>
-            <h3 className="mt-2 text-2xl font-black text-white">
-              Supports must read Lane Phase too
-            </h3>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/75 md:text-base">
-              Read this with Lane Phase or the whole lane turns into fake engage after fake engage.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                onClick={() => goLaneSection("early")}
-                className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-              >
-                Read Lane Phase: Early
-              </button>
-              <button
-                onClick={() => goLaneSection("wave")}
-                className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-              >
-                Read Lane Phase: Wave
-              </button>
-              <button
-                onClick={() => goLaneSection("support")}
-                className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200"
-              >
-                Read Lane Phase: Support
-              </button>
+            <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr] xl:items-start">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-red-300">
+                  Support quick read
+                </p>
+                <h3 className="mt-2 max-w-xl text-3xl font-black leading-tight text-white md:text-4xl">
+                  Pick access. Give timing. Stop inventing random engages.
+                </h3>
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/72 md:text-base">
+                  Fiora ADC does not need a motivational speech. She needs a support who creates a reachable target, protects the first step, and knows when the wave says no.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => goLaneSection("early")}
+                    className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
+                  >
+                    Early lane
+                  </button>
+                  <button
+                    onClick={() => goLaneSection("wave")}
+                    className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
+                  >
+                    Wave / brush
+                  </button>
+                  <button
+                    onClick={() => goLaneSection("support")}
+                    className="rounded-2xl border border-red-500/35 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
+                  >
+                    Support sync
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
+                <div className="rounded-3xl border border-red-400/25 bg-black/35 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-200">
+                    Pick
+                  </p>
+                  <p className="mt-2 text-lg font-black text-white">Hard access or protection</p>
+                  <p className="mt-2 text-sm leading-relaxed text-white/62">
+                    Core: Alistar, Braum, Yuumi. Situational: Rakan, Sona, Taric.
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-cyan-200/20 bg-cyan-300/[0.055] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-100">
+                    Goal
+                  </p>
+                  <p className="mt-2 text-lg font-black text-white">Make the first touch real</p>
+                  <p className="mt-2 text-sm leading-relaxed text-white/62">
+                    Fiora wants short, violent trades. You make them reachable.
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-white/12 bg-white/[0.035] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/50">
+                    Rule
+                  </p>
+                  <p className="mt-2 text-lg font-black text-white">No follow-up, no engage</p>
+                  <p className="mt-2 text-sm leading-relaxed text-white/62">
+                    If Fiora cannot touch the target, your engage is just fan fiction.
+                  </p>
+                </div>
+              </div>
             </div>
           </NeonCard>
+
+          <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <NeonCard className="overflow-hidden p-5 md:p-6">
+              <div className="flex items-center gap-3">
+                <span className="rounded-2xl border border-red-300/25 bg-red-500/12 p-3 text-red-100">
+                  <Shield className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-red-300">
+                    What should I play?
+                  </p>
+                  <h3 className="text-2xl font-black text-white">Support pick logic</h3>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-3">
+                {supportPickGuide.map((support) => (
+                  <div
+                    key={support.name}
+                    className="rounded-3xl border border-white/10 bg-black/32 p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-xl font-black text-white">{support.name}</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-200">
+                          {support.tier}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-red-400/25 bg-red-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-red-100">
+                        Support approved
+                      </span>
+                    </div>
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/45">
+                          Why
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-white/72">{support.why}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/45">
+                          How
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-white/72">{support.how}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300">
+                          Avoid
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-white/72">{support.avoid}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="mr-1 text-[10px] font-black uppercase tracking-[0.22em] text-white/45">
+                    Also playable
+                  </p>
+                  {supportSecondaryPicks.map((support) => (
+                    <div
+                      key={support.name}
+                      className="group min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/28 px-3 py-2 transition hover:border-red-300/35 hover:bg-red-500/10 sm:min-w-[9rem]"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-black text-white">{support.name}</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.16em] text-red-200">
+                          {support.tag}
+                        </p>
+                      </div>
+                      <p className="mt-1 text-xs leading-relaxed text-white/58">{support.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </NeonCard>
+
+            <NeonCard className="p-5 md:p-6">
+              <div className="flex items-center gap-3">
+                <span className="rounded-2xl border border-cyan-200/25 bg-cyan-300/10 p-3 text-cyan-100">
+                  <Clock3 className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-100">
+                    First 3 minutes
+                  </p>
+                  <h3 className="text-2xl font-black text-white">Lane timeline</h3>
+                </div>
+              </div>
+              <div className="mt-5 space-y-3">
+                {supportFirstMinutes.map((step, index) => (
+                  <div
+                    key={step.title}
+                    className="relative rounded-3xl border border-white/10 bg-white/[0.035] p-4 pl-14"
+                  >
+                    <span className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-2xl border border-red-300/30 bg-red-500/12 text-xs font-black text-red-100">
+                      {index + 1}
+                    </span>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-red-200">
+                      {step.time}
+                    </p>
+                    <p className="mt-1 text-lg font-black text-white">{step.title}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-white/66">{step.text}</p>
+                  </div>
+                ))}
+              </div>
+            </NeonCard>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {supportDoDont.map((block) => (
+              <NeonCard key={block.label} className="p-5 md:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-red-300">
+                  {block.label}
+                </p>
+                <div className="mt-4 grid gap-3">
+                  {block.items.map((item) => (
+                    <div
+                      key={item}
+                      className="flex gap-3 rounded-2xl border border-white/10 bg-black/28 p-3"
+                    >
+                      <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
+                      <p className="text-sm leading-relaxed text-white/74">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </NeonCard>
+            ))}
+          </div>
 
           <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-3">
             {supportProfiles.map((support) => (
