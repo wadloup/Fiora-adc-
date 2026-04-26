@@ -219,14 +219,6 @@ export default function FirstVisitIntro({
           </motion.div>
         ) : null}
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2.35, duration: 0.45 }}
-          className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-white/40"
-        >
-          Plays once. Add ?intro=1 to replay.
-        </motion.p>
       </div>
     </motion.div>
   );

@@ -170,7 +170,6 @@ const LAUNCH_SIDE_STICKERS = [
 const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
-const FIRST_VISIT_INTRO_STORAGE_KEY = "fiora-first-visit-intro-seen";
 type AdminPanelTab = "overview" | "visitors" | "inbox";
 type GuideMode = "support" | "adc" | "browse";
 
@@ -266,12 +265,7 @@ function shouldOpenFirstVisitIntro(initialAdminTab: AdminPanelTab | null) {
     return false;
   }
 
-  const forceIntro =
-    new URLSearchParams(window.location.search).get("intro") === "1";
-  const introAlreadySeen =
-    readBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY) === "1";
-
-  return forceIntro || !introAlreadySeen;
+  return true;
 }
 
 export default function App() {
@@ -840,7 +834,6 @@ export default function App() {
   }, []);
 
   const closeFirstVisitIntro = useCallback(() => {
-    writeBrowserStorage(FIRST_VISIT_INTRO_STORAGE_KEY, "1");
     setFirstVisitIntroOpen(false);
   }, []);
 
