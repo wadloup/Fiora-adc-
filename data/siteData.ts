@@ -23,8 +23,7 @@ export type NarrationEntry = {
 
 export const heroCertifiedImage = "/netanyahu.png";
 export const homeSupportShellAudio = "/voices/blocks/home-support-shell.wav";
-export const homeHeroImage =
-  "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_0.jpg";
+export const homeHeroImage = "/duelist-hero.jpg";
 export const whyWorksVisualImage =
   "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg";
 
