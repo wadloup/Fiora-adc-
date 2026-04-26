@@ -14,7 +14,7 @@ type FirstVisitIntroProps = {
 
 const introChoices = [
   {
-    label: "I play Fiora",
+    label: "Home Page",
     kicker: "ADC route",
     description: "Open the pressure logic, runes, and lane setup first.",
     icon: Swords,

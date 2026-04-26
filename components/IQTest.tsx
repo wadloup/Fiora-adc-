@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Brain, RotateCcw, Sparkles, X } from "lucide-react";
+import { Brain, Home, RotateCcw, Sparkles, X } from "lucide-react";
 import { cn } from "../utils/cn";
 
 type IQOption = {
@@ -26,6 +26,7 @@ type StoredIQResult = {
 type IQTestProps = {
   open: boolean;
   onClose: () => void;
+  onGoHome: () => void;
   musicSlot?: ReactNode;
 };
 
@@ -340,7 +341,7 @@ function OptionContent({ option }: { option: IQOption }) {
   );
 }
 
-export default function IQTest({ open, onClose, musicSlot }: IQTestProps) {
+export default function IQTest({ open, onClose, onGoHome, musicSlot }: IQTestProps) {
   const [answers, setAnswers] = useState<Array<number | null>>(
     Array.from({ length: questions.length }, () => null)
   );
@@ -605,7 +606,18 @@ export default function IQTest({ open, onClose, musicSlot }: IQTestProps) {
                           ))}
                         </div>
 
-                        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <div className="mt-8 flex flex-col gap-3">
+                          <button
+                            type="button"
+                            onClick={onGoHome}
+                            className="inline-flex min-h-[3.65rem] items-center justify-center gap-3 rounded-2xl border border-red-200/55 bg-gradient-to-r from-red-500/24 via-red-400/18 to-cyan-300/12 px-6 py-4 text-base font-black uppercase tracking-[0.18em] text-white shadow-[0_0_34px_rgba(255,40,85,0.2)] transition hover:scale-[1.01] hover:border-red-100 hover:bg-red-500/28"
+                          >
+                            <Home className="h-5 w-5" />
+                            Go to Home Page
+                          </button>
+                        </div>
+
+                        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                           <button
                             type="button"
                             onClick={retry}

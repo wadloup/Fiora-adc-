@@ -1124,6 +1124,12 @@ export default function App() {
       <IQTest
         open={iqTestOpen}
         onClose={() => setIqTestOpen(false)}
+        onGoHome={() => {
+          setIqTestOpen(false);
+          closeFirstVisitIntro();
+          goPage("Home");
+          void playBackgroundMusic();
+        }}
         musicSlot={musicControlDock}
       />
 
