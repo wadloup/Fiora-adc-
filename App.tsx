@@ -26,7 +26,6 @@ import {
   X,
 } from "lucide-react";
 import AnimatedBackground from "./components/AnimatedBackground";
-import AnnotationMode from "./components/AnnotationMode";
 import FirstVisitIntro from "./components/FirstVisitIntro";
 import GuideProgress from "./components/GuideProgress";
 import GuideQuickStart from "./components/GuideQuickStart";
@@ -1696,8 +1695,6 @@ export default function App() {
       >
         <ArrowUp className="h-5 w-5" />
       </button>
-
-      <AnnotationMode />
 
       <Analytics />
     </div>
