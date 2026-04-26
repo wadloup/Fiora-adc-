@@ -1011,6 +1011,21 @@ export default function App() {
     </div>
   );
 
+  const musicControlDock = (
+    <MusicPlayer
+      dock
+      tracks={musicThemes}
+      currentTrackId={selectedTrackId}
+      musicPlaying={musicPlaying}
+      musicVolume={musicVolume}
+      onToggle={() => void toggleBackgroundMusic()}
+      onTrackChange={changeTrack}
+      onVolumeChange={handleMusicVolumeChange}
+      onPrevious={goToPreviousTrack}
+      onNext={goToNextTrack}
+    />
+  );
+
   const iqTestTrigger = (
     <motion.button
       type="button"
@@ -1090,20 +1105,7 @@ export default function App() {
             onOpenSupport={openIntroSupport}
             onOpenManga={openIntroManga}
             onOpenIQTest={() => setIqTestOpen(true)}
-            musicSlot={
-              <MusicPlayer
-                dock
-                tracks={musicThemes}
-                currentTrackId={selectedTrackId}
-                musicPlaying={musicPlaying}
-                musicVolume={musicVolume}
-                onToggle={() => void toggleBackgroundMusic()}
-                onTrackChange={changeTrack}
-                onVolumeChange={handleMusicVolumeChange}
-                onPrevious={goToPreviousTrack}
-                onNext={goToNextTrack}
-              />
-            }
+            musicSlot={musicControlDock}
             voteSlot={
               <Suspense
                 fallback={
@@ -1119,7 +1121,11 @@ export default function App() {
         ) : null}
       </AnimatePresence>
 
-      <IQTest open={iqTestOpen} onClose={() => setIqTestOpen(false)} />
+      <IQTest
+        open={iqTestOpen}
+        onClose={() => setIqTestOpen(false)}
+        musicSlot={musicControlDock}
+      />
 
       <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">

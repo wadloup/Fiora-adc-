@@ -26,6 +26,7 @@ type StoredIQResult = {
 type IQTestProps = {
   open: boolean;
   onClose: () => void;
+  musicSlot?: ReactNode;
 };
 
 const STORAGE_KEY = "fiora-adc-iq-test-v1";
@@ -339,7 +340,7 @@ function OptionContent({ option }: { option: IQOption }) {
   );
 }
 
-export default function IQTest({ open, onClose }: IQTestProps) {
+export default function IQTest({ open, onClose, musicSlot }: IQTestProps) {
   const [answers, setAnswers] = useState<Array<number | null>>(
     Array.from({ length: questions.length }, () => null)
   );
@@ -483,6 +484,12 @@ export default function IQTest({ open, onClose }: IQTestProps) {
                     <p className="mt-5 max-w-sm text-sm leading-6 text-white/68">
                       Determine your IQ with terrifying precision.
                     </p>
+
+                    {musicSlot ? (
+                      <div className="mt-5">
+                        {musicSlot}
+                      </div>
+                    ) : null}
 
                     <div className="mt-7 overflow-hidden rounded-full border border-white/10 bg-white/[0.05] p-1">
                       <motion.div
