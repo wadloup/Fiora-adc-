@@ -870,7 +870,7 @@ export default function App() {
   const openIntroGuide = useCallback(() => {
     closeFirstVisitIntro();
     setGuideModeAndPersist("adc");
-    goPage("Why Fiora ADC Works");
+    goPage("Home");
     void playBackgroundMusic();
   }, [
     closeFirstVisitIntro,
