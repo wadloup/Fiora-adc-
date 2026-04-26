@@ -77,7 +77,7 @@ export default function FirstVisitIntro({
       aria-modal="true"
       aria-label="Fiora ADC intro"
       className="fixed inset-0 z-[140] overflow-x-hidden overflow-y-auto bg-black text-white"
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.28 }}

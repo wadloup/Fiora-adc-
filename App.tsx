@@ -295,6 +295,7 @@ export default function App() {
     shouldOpenFirstVisitIntro(initialAdminTab)
   );
   const [iqTestOpen, setIqTestOpen] = useState(false);
+  const [mangaReaderOpen, setMangaReaderOpen] = useState(false);
   const [mangaOpenRequest, setMangaOpenRequest] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
@@ -530,6 +531,9 @@ export default function App() {
   }, []);
 
   const pauseSiteAudioForManga = useCallback(() => {
+    setMangaReaderOpen(true);
+    requestNarrationStop();
+
     const audio = audioRef.current;
     mangaPausedMusicRef.current = Boolean(audio && !audio.paused && !audio.ended);
 
@@ -542,6 +546,7 @@ export default function App() {
   }, []);
 
   const resumeSiteAudioAfterManga = useCallback(() => {
+    setMangaReaderOpen(false);
     requestSiteAudioResume();
 
     if (mangaPausedMusicRef.current) {
@@ -867,7 +872,6 @@ export default function App() {
     setGuideModeAndPersist("adc");
     goPage("Why Fiora ADC Works");
     void playBackgroundMusic();
-    requestNarrationStart();
   }, [
     closeFirstVisitIntro,
     goPage,
@@ -878,11 +882,11 @@ export default function App() {
   const openIntroSupport = useCallback(() => {
     closeFirstVisitIntro();
     void playBackgroundMusic();
-    requestNarrationStart();
     openSupportQuickStart();
   }, [closeFirstVisitIntro, openSupportQuickStart, playBackgroundMusic]);
 
   const openIntroManga = useCallback(() => {
+    setMangaReaderOpen(true);
     closeFirstVisitIntro();
     setMangaOpenRequest((current) => current + 1);
   }, [closeFirstVisitIntro]);
@@ -1434,7 +1438,9 @@ export default function App() {
             </div>
           ) : null}
 
-          <NarrationPanel page={currentPage} />
+          {!firstVisitIntroOpen && !iqTestOpen && !mangaReaderOpen ? (
+            <NarrationPanel page={currentPage} />
+          ) : null}
 
         <AnimatePresence mode="sync">
           <motion.div
