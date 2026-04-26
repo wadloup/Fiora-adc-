@@ -566,6 +566,44 @@ export default function PageContent({
             </div>
           </NeonCard>
 
+          <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {supportProfiles.map((support) => (
+              <SpeakableCard
+                key={support.name}
+                className="p-4 md:p-5"
+                text={`${support.name}. ${support.role}. ${support.text}`}
+                audioSrc={support.audio}
+              >
+                <img
+                  src={support.image}
+                  alt={support.name}
+                  className={`w-full ${support.size} rounded-3xl border border-red-500/25 object-cover`}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
+                  style={{ objectPosition: support.position }}
+                />
+                <p className="mt-3 text-xl font-bold text-white">{support.name}</p>
+                <p className="text-sm text-red-300">{support.role}</p>
+                <p className="mt-3 text-sm leading-relaxed text-white/75">{support.text}</p>
+              </SpeakableCard>
+            ))}
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-3">
+            {supportPrinciples.map((principle) => (
+              <SpeakableCard
+                key={principle.title}
+                className="p-5"
+                text={`${principle.title}. ${principle.text}`}
+                audioSrc={principle.audio}
+              >
+                <p className="mb-2 font-semibold text-red-300">{principle.title}</p>
+                <p className="text-sm leading-relaxed text-white/75">{principle.text}</p>
+              </SpeakableCard>
+            ))}
+          </div>
+
           <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
             <NeonCard className="overflow-hidden p-5 md:p-6">
               <div className="flex items-center gap-3">
@@ -692,44 +730,6 @@ export default function PageContent({
                   ))}
                 </div>
               </NeonCard>
-            ))}
-          </div>
-
-          <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {supportProfiles.map((support) => (
-              <SpeakableCard
-                key={support.name}
-                className="p-4 md:p-5"
-                text={`${support.name}. ${support.role}. ${support.text}`}
-                audioSrc={support.audio}
-              >
-                <img
-                  src={support.image}
-                  alt={support.name}
-                  className={`w-full ${support.size} rounded-3xl border border-red-500/25 object-cover`}
-                  loading="lazy"
-                  decoding="async"
-                  onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
-                  style={{ objectPosition: support.position }}
-                />
-                <p className="mt-3 text-xl font-bold text-white">{support.name}</p>
-                <p className="text-sm text-red-300">{support.role}</p>
-                <p className="mt-3 text-sm leading-relaxed text-white/75">{support.text}</p>
-              </SpeakableCard>
-            ))}
-          </div>
-
-          <div className="grid gap-4 xl:grid-cols-3">
-            {supportPrinciples.map((principle) => (
-              <SpeakableCard
-                key={principle.title}
-                className="p-5"
-                text={`${principle.title}. ${principle.text}`}
-                audioSrc={principle.audio}
-              >
-                <p className="mb-2 font-semibold text-red-300">{principle.title}</p>
-                <p className="text-sm leading-relaxed text-white/75">{principle.text}</p>
-              </SpeakableCard>
             ))}
           </div>
 
