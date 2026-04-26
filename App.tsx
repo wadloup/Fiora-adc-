@@ -15,6 +15,7 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
+  Brain,
   Menu,
   Pause,
   Play,
@@ -30,6 +31,7 @@ import FirstVisitIntro from "./components/FirstVisitIntro";
 import GuideProgress from "./components/GuideProgress";
 import GuideQuickStart from "./components/GuideQuickStart";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
+import IQTest from "./components/IQTest";
 import MangaDock from "./components/MangaDock";
 import MessageDock from "./components/MessageDock";
 import MusicPlayer from "./components/MusicPlayer";
@@ -297,6 +299,7 @@ export default function App() {
   const [firstVisitIntroOpen, setFirstVisitIntroOpen] = useState(() =>
     shouldOpenFirstVisitIntro(initialAdminTab)
   );
+  const [iqTestOpen, setIqTestOpen] = useState(false);
   const [mangaOpenRequest, setMangaOpenRequest] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
@@ -1002,6 +1005,23 @@ export default function App() {
     </div>
   );
 
+  const iqTestTrigger = (
+    <motion.button
+      type="button"
+      onClick={() => setIqTestOpen(true)}
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
+      className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-red-300/32 bg-red-500/[0.11] px-4 py-3 text-sm font-black uppercase tracking-[0.15em] text-red-100 shadow-[0_0_20px_rgba(255,30,80,0.08)] transition hover:border-red-200/55 hover:bg-red-500/[0.16] sm:w-auto"
+    >
+      <span className="absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-red-100/70 to-transparent opacity-0 transition group-hover:opacity-100" />
+      <Brain className="h-4 w-4" />
+      Test your IQ
+      <span className="rounded-full border border-white/10 bg-black/34 px-2 py-0.5 text-[9px] text-white/52">
+        5Q
+      </span>
+    </motion.button>
+  );
+
   if (adminOnlyMode) {
     return (
       <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,rgba(145,10,36,0.18),transparent_34%),linear-gradient(180deg,#09090b_0%,#050507_100%)] text-white">
@@ -1063,6 +1083,7 @@ export default function App() {
             onOpenGuide={openIntroGuide}
             onOpenSupport={openIntroSupport}
             onOpenManga={openIntroManga}
+            onOpenIQTest={() => setIqTestOpen(true)}
             voteSlot={
               <Suspense
                 fallback={
@@ -1077,6 +1098,8 @@ export default function App() {
           />
         ) : null}
       </AnimatePresence>
+
+      <IQTest open={iqTestOpen} onClose={() => setIqTestOpen(false)} />
 
       <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">
@@ -1187,6 +1210,9 @@ export default function App() {
                       </motion.span>
                     </>
                   </h1>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {iqTestTrigger}
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -1298,6 +1324,9 @@ export default function App() {
                       </span>
                     </>
                   </h1>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {iqTestTrigger}
+                  </div>
                 </div>
               </div>
 

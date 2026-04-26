@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Shield, Swords, X } from "lucide-react";
+import { BookOpen, Brain, Shield, Swords, X } from "lucide-react";
 
 type FirstVisitIntroProps = {
   onClose: () => void;
   onOpenGuide: () => void;
   onOpenSupport: () => void;
   onOpenManga: () => void;
+  onOpenIQTest: () => void;
   voteSlot?: ReactNode;
 };
 
@@ -26,6 +27,13 @@ const introChoices = [
     action: "support" as const,
   },
   {
+    label: "Test your IQ",
+    kicker: "Fake science",
+    description: "Five questions, one number, and no emotional refund.",
+    icon: Brain,
+    action: "iq" as const,
+  },
+  {
     label: "Read manga",
     kicker: "Manga board",
     description: "Open the reader and let the manga soundtrack take over.",
@@ -39,6 +47,7 @@ export default function FirstVisitIntro({
   onOpenGuide,
   onOpenSupport,
   onOpenManga,
+  onOpenIQTest,
   voteSlot,
 }: FirstVisitIntroProps) {
   const runChoice = (action: (typeof introChoices)[number]["action"]) => {
@@ -49,6 +58,11 @@ export default function FirstVisitIntro({
 
     if (action === "support") {
       onOpenSupport();
+      return;
+    }
+
+    if (action === "iq") {
+      onOpenIQTest();
       return;
     }
 
@@ -133,7 +147,7 @@ export default function FirstVisitIntro({
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: "easeOut", delay: 1.65 }}
-          className="mt-8 grid gap-3 md:grid-cols-3"
+          className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4"
         >
           {introChoices.map((choice, index) => {
             const Icon = choice.icon;
