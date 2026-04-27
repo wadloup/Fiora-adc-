@@ -35,7 +35,7 @@ const introChoices = [
     action: "iq" as const,
   },
   {
-    label: "Read manga",
+    label: "Read Fiora's Manga",
     kicker: "Manga board",
     description: "Open the reader and let the manga soundtrack take over.",
     icon: BookOpen,
