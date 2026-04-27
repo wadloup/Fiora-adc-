@@ -180,21 +180,54 @@ function calculateIQ(answers: number[]) {
   return clamp(base + optionScore + jitter + comboBonus, 12, 189);
 }
 
+function pickVerdict(options: string[], iq: number, answers: number[]) {
+  return options[(signatureHash(answers) + iq) % options.length];
+}
+
 function getVerdict(iq: number, answers: number[]) {
   if (answers[0] === 2) {
-    return "Your draft process is medically fascinating and legally useless.";
+    return pickVerdict(
+      [
+        "Your draft process is medically fascinating and legally useless.",
+        "Your brain saw the correct answer and flashed away from it.",
+      ],
+      iq,
+      answers
+    );
   }
 
   if (answers[2] === 0 && iq > 130) {
-    return "Disgustingly functional. You might actually deserve oxygen in champ select.";
+    return pickVerdict(
+      [
+        "Disgustingly functional. You might actually deserve oxygen in champ select.",
+        "Violently competent. You probably ping cooldowns before people invent excuses.",
+      ],
+      iq,
+      answers
+    );
   }
 
   if (iq < 45) {
-    return "Your brain is not AFK. It disconnected from the server.";
+    return pickVerdict(
+      [
+        "Your brain is not AFK. It disconnected from the server.",
+        "Your decision-making has the structural integrity of a level 1 tower dive.",
+        "Not human. More like a corrupted bot trained on surrender votes and bad pings.",
+      ],
+      iq,
+      answers
+    );
   }
 
   if (iq < 75) {
-    return "You are not stupid. You are just aggressively unfinished.";
+    return pickVerdict(
+      [
+        "You are not stupid. You are just aggressively unfinished.",
+        "You are the reason surrender votes have a cooldown.",
+      ],
+      iq,
+      answers
+    );
   }
 
   if (iq < 105) {
@@ -202,10 +235,24 @@ function getVerdict(iq: number, answers: number[]) {
   }
 
   if (iq < 135) {
-    return "You might actually track cooldowns. Suspicious behavior.";
+    return pickVerdict(
+      [
+        "You might actually track cooldowns. Suspicious behavior.",
+        "High IQ, hostile aura. You read the lane and still choose violence.",
+      ],
+      iq,
+      answers
+    );
   }
 
-  return "Too smart for bot lane, too damaged for peace.";
+  return pickVerdict(
+    [
+      "Too smart for bot lane, too damaged for peace.",
+      "Sharp enough to play the map, toxic enough to make it entertaining.",
+    ],
+    iq,
+    answers
+  );
 }
 
 function loadStoredResult(): StoredIQResult | null {
