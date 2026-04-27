@@ -96,10 +96,12 @@ export default function MangaDock({
   const playAfterTrackChangeRef = useRef(false);
   const handledOpenRequestRef = useRef(openRequest);
   const openReaderRef = useRef<(() => void) | null>(null);
+  const closeReaderRef = useRef<(() => void) | null>(null);
   const zoom = ZOOM_STEPS[zoomIndex];
   const activeTrack = MANGA_TRACKS[activeTrackIndex];
   const pageCountLabel = `${MANGA_PAGES.length} pages`;
   const previewTitle = `${MANGA_PAGES.length}-page preview`;
+  const readerProgress = ((activePageIndex + 1) / MANGA_PAGES.length) * 100;
 
   const playMangaAudio = async () => {
     const audio = mangaAudioRef.current;
@@ -208,6 +210,8 @@ export default function MangaDock({
     onClose?.();
   };
 
+  closeReaderRef.current = close;
+
   const showSinglePage = (index: number) => {
     setActivePageIndex(index);
     setViewMode("single");
@@ -312,6 +316,49 @@ export default function MangaDock({
     });
   }, [activePageIndex, open, viewMode]);
 
+  useEffect(() => {
+    if (!open || typeof window === "undefined") {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeReaderRef.current?.();
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        previousMangaPage();
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        nextMangaPage();
+        return;
+      }
+
+      if (event.key === "+" || event.key === "=") {
+        zoomIn();
+        return;
+      }
+
+      if (event.key === "-") {
+        zoomOut();
+        return;
+      }
+
+      if (event.key === "0") {
+        resetZoom();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activePageIndex, open, viewMode, zoomIndex]);
+
   const visiblePages =
     viewMode === "double" ? MANGA_PAGES : [MANGA_PAGES[activePageIndex]];
 
@@ -373,22 +420,80 @@ export default function MangaDock({
       <AnimatePresence>
         {open ? (
           <motion.div
-            className="fixed inset-0 z-[95] overflow-hidden bg-black/82 px-3 py-3 backdrop-blur-md md:px-5 md:py-4"
+            className="fixed inset-0 z-[95] overflow-hidden bg-[radial-gradient(circle_at_16%_12%,rgba(255,24,82,0.2),transparent_30%),radial-gradient(circle_at_82%_10%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(135deg,rgba(12,2,6,0.96),rgba(0,0,0,0.9)_52%,rgba(4,12,16,0.95))] px-3 py-3 text-white backdrop-blur-xl md:px-5 md:py-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <button
-              type="button"
-              onClick={close}
-              className="fixed right-5 top-5 z-[96] rounded-2xl border border-white/15 bg-black/65 p-3 text-white/88 transition hover:border-red-400/40 hover:text-red-100"
-              aria-label="Close manga pages"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="intro-cinematic-grid pointer-events-none fixed inset-0 opacity-25" />
+            <div className="pointer-events-none fixed inset-x-0 top-0 h-28 bg-gradient-to-b from-white/[0.07] to-transparent" />
 
-            <div className="mx-auto grid h-full max-h-[calc(100dvh-2rem)] max-w-[104rem] grid-cols-1 gap-3 lg:grid-cols-[17rem_minmax(0,1fr)]">
-              <aside className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.82)] p-3 text-white shadow-[0_0_26px_rgba(255,0,60,0.16)]">
+            <div className="mx-auto flex h-full max-h-[calc(100dvh-2rem)] max-w-[104rem] flex-col gap-3">
+              <div className="relative z-[96] overflow-hidden rounded-3xl border border-white/12 bg-black/58 px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+                <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-red-400/70 via-cyan-200/70 to-transparent" />
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-300">
+                      Fiora manga reader
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-end gap-x-4 gap-y-1">
+                      <h2 className="text-2xl font-black uppercase tracking-[0.04em] md:text-3xl">
+                        Just for my pleasure
+                      </h2>
+                      <p className="pb-1 text-xs font-black uppercase tracking-[0.18em] text-white/48">
+                        {viewMode === "double"
+                          ? previewTitle
+                          : `Page ${activePageIndex + 1} / ${MANGA_PAGES.length}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={previousMangaPage}
+                      className="inline-flex min-w-[7.25rem] items-center justify-center gap-2.5 rounded-[1.15rem] border border-white/24 bg-white/[0.065] px-4 py-3 text-[11px] font-black uppercase tracking-[0.16em] text-white/82 shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:border-red-200/65 hover:bg-red-500/14 hover:text-red-50 md:min-w-[8.5rem] md:px-5 md:py-3.5 md:text-xs"
+                      aria-label="Previous manga page"
+                    >
+                      <SkipBack className="h-5 w-5" />
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextMangaPage}
+                      className="inline-flex min-w-[7.25rem] items-center justify-center gap-2.5 rounded-[1.15rem] border border-red-200/65 bg-red-500/18 px-4 py-3 text-[11px] font-black uppercase tracking-[0.16em] text-red-50 shadow-[0_12px_34px_rgba(0,0,0,0.32),0_0_28px_rgba(255,0,72,0.25)] transition hover:-translate-y-0.5 hover:border-white/80 hover:bg-red-500/26 md:min-w-[8.5rem] md:px-5 md:py-3.5 md:text-xs"
+                      aria-label="Next manga page"
+                    >
+                      Next
+                      <SkipForward className="h-5 w-5" />
+                    </button>
+                    <span className="rounded-2xl border border-white/12 bg-white/[0.055] px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100">
+                      {activeTrack.title}
+                    </span>
+                    <span className="rounded-2xl border border-red-300/25 bg-red-500/12 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-red-100">
+                      {Math.round(zoom * 100)}% zoom
+                    </span>
+                    <button
+                      type="button"
+                      onClick={close}
+                      className="rounded-2xl border border-white/15 bg-black/55 p-3 text-white/88 transition hover:border-red-400/50 hover:text-red-100"
+                      aria-label="Close manga pages"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-red-500 via-red-200 to-cyan-200 shadow-[0_0_18px_rgba(255,70,110,0.55)]"
+                    style={{ width: viewMode === "double" ? "100%" : `${readerProgress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[17rem_minmax(0,1fr)]">
+              <aside className="flex max-h-[34dvh] min-h-0 shrink-0 flex-col overflow-hidden rounded-3xl border border-red-500/24 bg-[rgba(12,5,8,0.72)] p-3 text-white shadow-[0_0_32px_rgba(255,0,60,0.16)] backdrop-blur-2xl lg:max-h-none">
                 <div className="rounded-2xl border border-white/10 bg-black/24 p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-red-300">
                     Manga board
@@ -559,7 +664,12 @@ export default function MangaDock({
                 </div>
               </aside>
 
-              <div className="min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-black/36 p-3 pb-32 md:p-4 md:pb-32">
+              <div className="relative min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.075),transparent_24%),rgba(0,0,0,0.48)] p-3 shadow-[inset_0_0_44px_rgba(255,255,255,0.035)] md:p-4">
+                <div className="pointer-events-none sticky top-0 z-10 mb-4 flex justify-center">
+                  <div className="rounded-full border border-white/10 bg-black/62 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/55 backdrop-blur-xl">
+                    Arrow keys navigate. Escape closes. +/- zoom.
+                  </div>
+                </div>
                 <div
                   className={cn(
                     "mx-auto grid w-max origin-top gap-4 transition-transform duration-200 ease-out",
@@ -612,25 +722,6 @@ export default function MangaDock({
                 </div>
               </div>
 
-              <div className="pointer-events-none fixed bottom-8 right-8 z-[96] flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={previousMangaPage}
-                  className="pointer-events-auto inline-flex min-w-[168px] items-center justify-center gap-4 rounded-[1.65rem] border-2 border-white/40 bg-black px-8 py-5 text-lg font-black uppercase tracking-[0.18em] text-white shadow-[0_20px_60px_rgba(0,0,0,0.9),0_0_28px_rgba(255,255,255,0.18)] ring-1 ring-white/20 backdrop-blur-xl transition hover:scale-[1.03] hover:border-red-200/80 hover:bg-red-950 hover:text-red-50 hover:shadow-[0_22px_70px_rgba(0,0,0,0.95),0_0_36px_rgba(255,80,120,0.34)]"
-                  aria-label="Previous manga page"
-                >
-                  <SkipBack className="h-7 w-7" />
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextMangaPage}
-                  className="pointer-events-auto inline-flex min-w-[168px] items-center justify-center gap-4 rounded-[1.65rem] border-2 border-red-200/80 bg-red-950 px-8 py-5 text-lg font-black uppercase tracking-[0.18em] text-red-50 shadow-[0_20px_60px_rgba(0,0,0,0.86),0_0_42px_rgba(255,0,72,0.5)] ring-1 ring-red-200/30 backdrop-blur-xl transition hover:scale-[1.03] hover:border-white/85 hover:bg-red-900 hover:shadow-[0_22px_70px_rgba(0,0,0,0.94),0_0_54px_rgba(255,40,100,0.68)]"
-                  aria-label="Next manga page"
-                >
-                  Next
-                  <SkipForward className="h-7 w-7" />
-                </button>
               </div>
             </div>
           </motion.div>

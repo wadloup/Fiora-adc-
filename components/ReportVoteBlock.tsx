@@ -7,6 +7,12 @@ type VoteChoice = "up" | "down" | "poop";
 
 type VoteCounts = Record<VoteChoice, number>;
 
+type VotePayload = {
+  counts?: Partial<VoteCounts>;
+  selectedChoice?: string;
+  reason?: string;
+};
+
 const INITIAL_COUNTS: VoteCounts = {
   up: 0,
   down: 0,
@@ -43,6 +49,16 @@ function getVoteBrowserToken() {
   localStorage.setItem(VOTE_BROWSER_TOKEN_STORAGE_KEY, token);
 
   return token;
+}
+
+async function readVotePayload(response: Response): Promise<VotePayload> {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!contentType.includes("application/json")) {
+    throw new Error("vote_api_unavailable");
+  }
+
+  return (await response.json()) as VotePayload;
 }
 
 const voteCards: Array<{
@@ -129,7 +145,7 @@ export default function ReportVoteBlock({
           cache: "no-store",
         });
 
-        const payload = await response.json();
+        const payload = await readVotePayload(response);
 
         if (!response.ok || !payload?.counts) {
           throw new Error("vote_counts_unavailable");
@@ -145,8 +161,7 @@ export default function ReportVoteBlock({
           poop: Number(payload.counts.poop) || 0,
         });
         setCountsLoaded(true);
-      } catch (error) {
-        console.error(error);
+      } catch {
         hasStartedBootstrapRef.current = false;
       }
     };
@@ -266,7 +281,7 @@ export default function ReportVoteBlock({
         }),
       });
 
-      const payload = await response.json();
+      const payload = await readVotePayload(response);
 
       if (!response.ok || !payload?.counts) {
         throw new Error(payload?.reason || "vote_request_failed");
@@ -287,8 +302,7 @@ export default function ReportVoteBlock({
 
       setSelected(selectedChoice);
       localStorage.setItem(VOTE_STORAGE_KEY, selectedChoice);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setErrorMessage("Vote unavailable. Try again in a bit.");
     } finally {
       setLoading(false);
