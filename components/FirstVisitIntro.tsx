@@ -29,7 +29,7 @@ const introChoices = [
   },
   {
     label: "Test your IQ",
-    kicker: "Fake science",
+    kicker: "100% reliable",
     description: "Five questions, one number, and no emotional refund.",
     icon: Brain,
     action: "iq" as const,
