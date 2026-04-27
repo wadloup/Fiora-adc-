@@ -1197,11 +1197,11 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+2rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+3rem)]">
+      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+1rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+2rem)]">
         <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
           {currentPage === "Home" ? (
             <div className="space-y-4">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
                     Draft read
@@ -1247,8 +1247,8 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                  <div className="relative mx-auto flex items-center gap-1 lg:mx-0">
+                <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-center">
+                  <div className="relative mx-auto flex items-center gap-1 2xl:mx-0">
                     <div className="pointer-events-none flex items-center -space-x-1">
                       {[0, 1].map((index) => (
                         <motion.span

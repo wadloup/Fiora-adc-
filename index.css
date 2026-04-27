@@ -22,31 +22,31 @@ body {
 
 :root {
   --chat-dock-width: 300px;
-  --manga-dock-width: 360px;
+  --manga-dock-width: 300px;
 }
 
 @media (min-width: 1280px) {
   :root {
-    --manga-dock-width: 400px;
+    --manga-dock-width: 320px;
   }
 }
 
 @media (min-width: 1536px) {
   :root {
-    --manga-dock-width: 420px;
+    --manga-dock-width: 360px;
   }
 }
 
 @media (min-width: 1900px) {
   :root {
     --chat-dock-width: 326px;
-    --manga-dock-width: 440px;
+    --manga-dock-width: 400px;
   }
 }
 
 @media (min-width: 2150px) {
   :root {
-    --manga-dock-width: 490px;
+    --manga-dock-width: 440px;
   }
 }
 

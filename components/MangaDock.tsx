@@ -665,11 +665,6 @@ export default function MangaDock({
               </aside>
 
               <div className="relative min-h-0 flex-1 overflow-auto rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.075),transparent_24%),rgba(0,0,0,0.48)] p-3 shadow-[inset_0_0_44px_rgba(255,255,255,0.035)] md:p-4">
-                <div className="pointer-events-none sticky top-0 z-10 mb-4 flex justify-center">
-                  <div className="rounded-full border border-white/10 bg-black/62 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/55 backdrop-blur-xl">
-                    Arrow keys navigate. Escape closes. +/- zoom.
-                  </div>
-                </div>
                 <div
                   className={cn(
                     "mx-auto grid w-max origin-top gap-4 transition-transform duration-200 ease-out",
