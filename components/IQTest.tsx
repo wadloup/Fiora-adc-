@@ -39,7 +39,7 @@ const questions: IQQuestion[] = [
     caption: "Draft sanity scan",
     options: [
       {
-        text: "Pick Alistar and become useful",
+        text: "Pick Alistar supp and become useful",
         score: 29,
         caption: "Rare support behavior. The lab is concerned.",
       },
