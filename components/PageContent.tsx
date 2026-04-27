@@ -16,6 +16,7 @@ import NeonCard from "./ui/NeonCard";
 import SpeakableCard from "./ui/SpeakableCard";
 import StatCard from "./ui/StatCard";
 import ItemPath from "./ui/ItemPath";
+import SupportCompatibilityScanner from "./SupportCompatibilityScanner";
 import {
   homeFeatureCards,
   homeStatCards,
@@ -732,6 +733,8 @@ export default function PageContent({
               </NeonCard>
             ))}
           </div>
+
+          <SupportCompatibilityScanner />
 
           <SectionTitle
             icon={PlayCircle}
