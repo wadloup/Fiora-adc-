@@ -36,9 +36,6 @@ import MangaDock from "./components/MangaDock";
 import MessageDock from "./components/MessageDock";
 import MusicPlayer from "./components/MusicPlayer";
 import NarrationPanel from "./components/NarrationPanel";
-import QuickAnswerAssistant, {
-  type QuickAnswerScenario,
-} from "./components/QuickAnswerAssistant";
 import NeonCard from "./components/ui/NeonCard";
 import PageButton from "./components/ui/PageButton";
 import {
@@ -862,11 +859,6 @@ export default function App() {
     goPage("Why Fiora ADC Works");
   }, [goPage, setGuideModeAndPersist]);
 
-  const openBrowseQuickStart = useCallback(() => {
-    setGuideModeAndPersist("browse");
-    goPage("Why Fiora ADC Works");
-  }, [goPage, setGuideModeAndPersist]);
-
   const openIntroGuide = useCallback(() => {
     closeFirstVisitIntro();
     setGuideModeAndPersist("adc");
@@ -908,62 +900,6 @@ export default function App() {
       goPage(nextGuidePage);
     }
   }, [goPage, nextGuidePage]);
-
-  const quickAnswerScenarios = useMemo<QuickAnswerScenario[]>(
-    () => [
-      {
-        id: "support-autofill",
-        label: "I got support autofill",
-        category: "Role path",
-        answer:
-          "Start with support timing first. If the support side is wrong, Fiora ADC never gets a real window no matter how good the rune page looks.",
-        target: "Home support draft block, then Fiora's Support.",
-        actionLabel: "Open support route",
-        onAction: openSupportQuickStart,
-      },
-      {
-        id: "double-range",
-        label: "Enemy double range",
-        category: "Lane pressure",
-        answer:
-          "Protect health first, respect level 2 timing, and use the level 2 W / level 3 burst plan instead of trying to brute-force lane early.",
-        target: "Skill Order and Early Lane plan.",
-        actionLabel: "Open level plan",
-        onAction: () => goPage("Skill Order"),
-      },
-      {
-        id: "hook-lane",
-        label: "Enemy hook lane",
-        category: "Support sync",
-        answer:
-          "You need support spacing and commit discipline more than greed. This is a support-sync problem before it is a mechanics problem.",
-        target: "Lane Phase support section.",
-        actionLabel: "Open support timing",
-        onAction: () => goLaneSection("support"),
-      },
-      {
-        id: "safe-setup",
-        label: "I need the safe setup",
-        category: "Setup",
-        answer:
-          "Take the route that stabilizes lane first: runes, build pivots, then the safer short-trade logic instead of chasing heroic all-ins.",
-        target: "Runes and Build.",
-        actionLabel: "Open setup",
-        onAction: () => goPage("Build"),
-      },
-      {
-        id: "matchup-check",
-        label: "I need a matchup read",
-        category: "Draft read",
-        answer:
-          "Open the matchup page before lane starts so you know whether this is a patience lane, a punish lane, or a do-not-ego lane.",
-        target: "Matchups.",
-        actionLabel: "Open matchups",
-        onAction: () => goPage("Matchups"),
-      },
-    ],
-    [goLaneSection, goPage, openSupportQuickStart]
-  );
 
   const searchBlock = (
     <div
@@ -1242,9 +1178,6 @@ export default function App() {
                       </motion.span>
                     </>
                   </h1>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {iqTestTrigger}
-                  </div>
                 </div>
 
                 <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-center">
@@ -1440,18 +1373,15 @@ export default function App() {
           ) : null}
 
           {currentPage === "Home" ? (
-            <div className="grid gap-3 xl:grid-cols-[0.98fr_1.02fr]">
-              <GuideQuickStart
-                activeMode={guideMode}
-                resumePage={lastVisitedPage}
-                onChooseSupport={openSupportQuickStart}
-                onChooseAdc={openAdcQuickStart}
-                onChooseBrowse={openBrowseQuickStart}
-                onResume={resumeGuideProgress}
-              />
-
-              <QuickAnswerAssistant scenarios={quickAnswerScenarios} />
-            </div>
+            <GuideQuickStart
+              activeMode={guideMode}
+              resumePage={lastVisitedPage}
+              onChooseSupport={openSupportQuickStart}
+              onChooseAdc={openAdcQuickStart}
+              onOpenIQTest={() => setIqTestOpen(true)}
+              onOpenManga={openIntroManga}
+              onResume={resumeGuideProgress}
+            />
           ) : null}
 
           {!firstVisitIntroOpen && !iqTestOpen && !mangaReaderOpen ? (

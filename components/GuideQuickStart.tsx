@@ -1,7 +1,8 @@
 import {
   ArrowRight,
+  BookOpen,
+  Brain,
   Compass,
-  Eye,
   HeartHandshake,
   RotateCcw,
   Swords,
@@ -15,12 +16,14 @@ type GuideQuickStartProps = {
   resumePage: string | null;
   onChooseSupport: () => void;
   onChooseAdc: () => void;
-  onChooseBrowse: () => void;
+  onOpenIQTest: () => void;
+  onOpenManga: () => void;
   onResume: () => void;
 };
 
 const QUICK_START_OPTIONS: Array<{
-  id: GuideMode;
+  id: "adc" | "support" | "iq" | "manga";
+  guideMode?: GuideMode;
   label: string;
   title: string;
   description: string;
@@ -28,28 +31,38 @@ const QUICK_START_OPTIONS: Array<{
   icon: typeof HeartHandshake;
 }> = [
   {
+    id: "adc",
+    guideMode: "adc",
+    label: "Fiora route",
+    title: "I play Fiora",
+    description: "Runes, build, lane logic, and why this crime can work.",
+    cta: "Start the guide",
+    icon: Swords,
+  },
+  {
     id: "support",
-    label: "Support route",
-    title: "I am the support",
-    description: "Go straight to timing, peel, wave sync, and engage setup.",
+    guideMode: "support",
+    label: "Support check",
+    title: "I am support",
+    description: "Timing, peel, engage rules, and who is allowed to breathe.",
     cta: "Open support",
     icon: HeartHandshake,
   },
   {
-    id: "adc",
-    label: "ADC route",
-    title: "I play Fiora",
-    description: "Jump to rune page, early spikes, burst windows, and setup.",
-    cta: "Open ADC",
-    icon: Swords,
+    id: "iq",
+    label: "100% reliable",
+    title: "I came for the IQ test",
+    description: "Five questions, one number, no appeal process.",
+    cta: "Test me",
+    icon: Brain,
   },
   {
-    id: "browse",
-    label: "Browse route",
-    title: "I want the full lab",
-    description: "Read the guide in order without forcing a role-first path.",
-    cta: "Explore all",
-    icon: Eye,
+    id: "manga",
+    label: "Manga board",
+    title: "I came for manga",
+    description: "Open Fiora's manga reader and let the soundtrack take over.",
+    cta: "Read manga",
+    icon: BookOpen,
   },
 ];
 
@@ -58,33 +71,35 @@ export default function GuideQuickStart({
   resumePage,
   onChooseSupport,
   onChooseAdc,
-  onChooseBrowse,
+  onOpenIQTest,
+  onOpenManga,
   onResume,
 }: GuideQuickStartProps) {
-  const actionMap: Record<GuideMode, () => void> = {
-    support: onChooseSupport,
+  const actionMap: Record<(typeof QUICK_START_OPTIONS)[number]["id"], () => void> = {
     adc: onChooseAdc,
-    browse: onChooseBrowse,
+    support: onChooseSupport,
+    iq: onOpenIQTest,
+    manga: onOpenManga,
   };
 
   return (
-    <div className="rounded-[1.7rem] border border-red-500/20 bg-[rgba(20,8,12,0.68)] p-4 shadow-[0_0_16px_rgba(255,0,60,0.08)]">
+    <div className="rounded-[1.7rem] border border-red-500/20 bg-[linear-gradient(135deg,rgba(20,8,12,0.82),rgba(5,8,10,0.72))] p-4 shadow-[0_0_18px_rgba(255,0,60,0.09)]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
-            Quick start
+            Home routing
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-black text-white md:text-[1.55rem]">
-              Pick your route
+            <h2 className="text-2xl font-black text-white md:text-[1.8rem]">
+              Choose your route
             </h2>
             <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/62">
-              fast entry
+              four clean doors
             </span>
           </div>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/66">
-            Support-first, ADC-first, or full browse. We keep the last route so
-            coming back feels instant.
+            Same site, less wandering. Pick why you came here and land in the
+            right part without playing menu roulette.
           </p>
         </div>
 
@@ -109,10 +124,10 @@ export default function GuideQuickStart({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2.5 md:grid-cols-3">
+      <div className="mt-4 grid gap-2.5 md:grid-cols-2 xl:grid-cols-4">
         {QUICK_START_OPTIONS.map((option) => {
           const Icon = option.icon;
-          const active = activeMode === option.id;
+          const active = option.guideMode ? activeMode === option.guideMode : false;
 
           return (
             <button
