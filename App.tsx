@@ -294,6 +294,7 @@ export default function App() {
   const [iqTestOpen, setIqTestOpen] = useState(false);
   const [mangaReaderOpen, setMangaReaderOpen] = useState(false);
   const [mangaOpenRequest, setMangaOpenRequest] = useState(0);
+  const [mangaAutoOpenRequest, setMangaAutoOpenRequest] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const homeSupportSectionRef = useRef<HTMLDivElement | null>(null);
   const resumeOnTrackChangeRef = useRef(false);
@@ -877,11 +878,21 @@ export default function App() {
     openSupportQuickStart();
   }, [closeFirstVisitIntro, openSupportQuickStart, playBackgroundMusic]);
 
-  const openIntroManga = useCallback(() => {
+  const openMangaReader = useCallback(() => {
     setMangaReaderOpen(true);
     closeFirstVisitIntro();
     setMangaOpenRequest((current) => current + 1);
   }, [closeFirstVisitIntro]);
+
+  const openIntroManga = useCallback(() => {
+    closeFirstVisitIntro();
+    goPage("Home");
+    void playBackgroundMusic();
+
+    window.setTimeout(() => {
+      setMangaAutoOpenRequest((current) => current + 1);
+    }, 260);
+  }, [closeFirstVisitIntro, goPage, playBackgroundMusic]);
 
   const resumeGuideProgress = useCallback(() => {
     if (lastVisitedPage) {
@@ -1382,7 +1393,7 @@ export default function App() {
               onChooseSupport={openSupportQuickStart}
               onChooseAdc={openAdcQuickStart}
               onOpenIQTest={() => setIqTestOpen(true)}
-              onOpenManga={openIntroManga}
+              onOpenManga={openMangaReader}
               onResume={resumeGuideProgress}
             />
           ) : null}
@@ -1686,6 +1697,7 @@ export default function App() {
         onOpen={pauseSiteAudioForManga}
         onClose={resumeSiteAudioAfterManga}
         openRequest={mangaOpenRequest}
+        autoOpenRequest={mangaAutoOpenRequest}
       />
 
       <button

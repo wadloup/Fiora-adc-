@@ -76,12 +76,14 @@ type MangaDockProps = {
   onOpen?: () => void;
   onClose?: () => void;
   openRequest?: number;
+  autoOpenRequest?: number;
 };
 
 export default function MangaDock({
   onOpen,
   onClose,
   openRequest = 0,
+  autoOpenRequest = 0,
 }: MangaDockProps) {
   const [open, setOpen] = useState(false);
   const [viewMode, setViewMode] = useState<MangaViewMode>("single");
@@ -90,11 +92,18 @@ export default function MangaDock({
   const [mangaPlaying, setMangaPlaying] = useState(false);
   const [mangaVolume, setMangaVolume] = useState(0.42);
   const [activeTrackIndex, setActiveTrackIndex] = useState(DEFAULT_MANGA_TRACK_INDEX);
+  const [autoOpening, setAutoOpening] = useState(false);
+  const [autoOpeningExpanding, setAutoOpeningExpanding] = useState(false);
+  const dockButtonRef = useRef<HTMLButtonElement | null>(null);
   const mangaAudioRef = useRef<HTMLAudioElement | null>(null);
   const pausedSiteMediaRef = useRef<HTMLMediaElement[]>([]);
   const pausedSpeechByMangaRef = useRef(false);
   const playAfterTrackChangeRef = useRef(false);
   const handledOpenRequestRef = useRef(openRequest);
+  const handledAutoOpenRequestRef = useRef(autoOpenRequest);
+  const autoOpenExpandTimeoutRef = useRef<number | null>(null);
+  const autoOpenClickTimeoutRef = useRef<number | null>(null);
+  const autoOpenResetTimeoutRef = useRef<number | null>(null);
   const openReaderRef = useRef<(() => void) | null>(null);
   const closeReaderRef = useRef<(() => void) | null>(null);
   const zoom = ZOOM_STEPS[zoomIndex];
@@ -287,6 +296,15 @@ export default function MangaDock({
     const audio = mangaAudioRef.current;
     return () => {
       audio?.pause();
+      if (autoOpenExpandTimeoutRef.current) {
+        window.clearTimeout(autoOpenExpandTimeoutRef.current);
+      }
+      if (autoOpenClickTimeoutRef.current) {
+        window.clearTimeout(autoOpenClickTimeoutRef.current);
+      }
+      if (autoOpenResetTimeoutRef.current) {
+        window.clearTimeout(autoOpenResetTimeoutRef.current);
+      }
       resumeSiteMediaAfterManga();
     };
   }, []);
@@ -299,6 +317,51 @@ export default function MangaDock({
     handledOpenRequestRef.current = openRequest;
     openReaderRef.current?.();
   }, [openRequest]);
+
+  useEffect(() => {
+    if (
+      !autoOpenRequest ||
+      autoOpenRequest === handledAutoOpenRequestRef.current
+    ) {
+      return;
+    }
+
+    handledAutoOpenRequestRef.current = autoOpenRequest;
+
+    if (open) {
+      return;
+    }
+
+    if (autoOpenClickTimeoutRef.current) {
+      window.clearTimeout(autoOpenClickTimeoutRef.current);
+    }
+    if (autoOpenExpandTimeoutRef.current) {
+      window.clearTimeout(autoOpenExpandTimeoutRef.current);
+    }
+    if (autoOpenResetTimeoutRef.current) {
+      window.clearTimeout(autoOpenResetTimeoutRef.current);
+    }
+
+    setAutoOpening(true);
+    setAutoOpeningExpanding(false);
+    dockButtonRef.current?.focus({ preventScroll: true });
+
+    autoOpenExpandTimeoutRef.current = window.setTimeout(() => {
+      setAutoOpeningExpanding(true);
+      autoOpenExpandTimeoutRef.current = null;
+    }, 380);
+
+    autoOpenClickTimeoutRef.current = window.setTimeout(() => {
+      openReaderRef.current?.();
+      autoOpenClickTimeoutRef.current = null;
+    }, 750);
+
+    autoOpenResetTimeoutRef.current = window.setTimeout(() => {
+      setAutoOpening(false);
+      setAutoOpeningExpanding(false);
+      autoOpenResetTimeoutRef.current = null;
+    }, 900);
+  }, [autoOpenRequest, open]);
 
   useEffect(() => {
     if (!open || viewMode !== "single" || typeof window === "undefined") {
@@ -364,14 +427,77 @@ export default function MangaDock({
 
   return (
     <>
-      <motion.button
-        type="button"
-        onClick={openReader}
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        className="manga-dock-card fixed right-4 top-[24.7rem] z-[58] hidden w-[var(--manga-dock-width)] overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] lg:block"
-        aria-label="Open manga pages"
+      <AnimatePresence>
+        {autoOpeningExpanding ? (
+          <motion.div
+            className="pointer-events-none fixed right-4 top-[24.7rem] z-[57] h-[25rem] w-[var(--manga-dock-width)] rounded-3xl border border-cyan-100/45 bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.16),rgba(125,211,252,0.13)_34%,rgba(244,63,94,0.13)_62%,transparent_76%)] shadow-[0_0_46px_rgba(125,211,252,0.38),0_0_86px_rgba(244,63,94,0.26)]"
+            initial={{ opacity: 0.36, scale: 1, filter: "blur(0px)" }}
+            animate={{
+              opacity: [0.36, 0.3, 0],
+              scale: [1, 1.55, 2.6],
+              filter: ["blur(0px)", "blur(3px)", "blur(16px)"],
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.2, 0.86, 0.22, 1] }}
+          />
+        ) : null}
+      </AnimatePresence>
+
+      <motion.div
+        animate={
+          autoOpeningExpanding
+            ? {
+                scale: [1.04, 1.32, 1.18],
+                y: [-4, -18, -8],
+              }
+            : autoOpening
+            ? {
+                scale: [1, 1.07, 1.03],
+                y: [0, -7, -2],
+              }
+            : { scale: 1, y: 0 }
+        }
+        transition={{
+          duration: autoOpeningExpanding ? 0.34 : autoOpening ? 0.38 : 0.18,
+          ease: "easeInOut",
+        }}
+        className={cn(
+          "fixed right-4 top-[24.7rem] z-[58] w-[var(--manga-dock-width)] origin-center",
+          autoOpening ? "block" : "hidden lg:block"
+        )}
       >
+        <motion.button
+          ref={dockButtonRef}
+          type="button"
+          onClick={openReader}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className={cn(
+            "manga-dock-card relative w-full overflow-hidden rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-5 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.18)] transition hover:border-red-400/45 hover:bg-[rgba(20,8,12,0.96)] focus:outline-none focus:ring-2 focus:ring-cyan-100/70",
+            autoOpening ? "border-cyan-100/70" : ""
+          )}
+          aria-label="Open manga pages"
+        >
+        <AnimatePresence>
+          {autoOpening ? (
+            <>
+              <motion.span
+                className="pointer-events-none absolute -inset-2 rounded-[2rem] border border-cyan-100/70 shadow-[0_0_34px_rgba(125,211,252,0.42),0_0_58px_rgba(244,63,94,0.36)]"
+                initial={{ opacity: 0, scale: 0.94 }}
+                animate={{ opacity: [0, 1, 0.68], scale: [0.94, 1.04, 1.01] }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.65, ease: "easeInOut" }}
+              />
+              <motion.span
+                className="pointer-events-none absolute inset-0 z-10 rounded-3xl bg-[linear-gradient(115deg,transparent_0%,rgba(255,255,255,0.04)_34%,rgba(255,255,255,0.38)_48%,rgba(125,211,252,0.22)_54%,transparent_70%)]"
+                initial={{ x: "-115%", opacity: 0 }}
+                animate={{ x: ["-115%", "120%", "120%"], opacity: [0, 1, 0] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.2, 0.85, 0.2, 1] }}
+              />
+            </>
+          ) : null}
+        </AnimatePresence>
         <audio
           ref={mangaAudioRef}
           src={activeTrack.src}
@@ -424,7 +550,8 @@ export default function MangaDock({
             <Maximize2 className="h-3.5 w-3.5" />
           </span>
         </div>
-      </motion.button>
+        </motion.button>
+      </motion.div>
 
       <AnimatePresence>
         {open ? (
