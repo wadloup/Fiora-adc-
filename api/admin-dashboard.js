@@ -523,9 +523,14 @@ function aggregateVisitors(visitRows, threadRows) {
 
 function buildOverview(visitRows, visitors, threads) {
   const now = Date.now();
+  const activeVisitorCutoff = now - 5 * 60 * 1000;
   const visits24h = visitRows.filter((row) => {
     const timestamp = Date.parse(row.visited_at || "");
     return Number.isFinite(timestamp) && now - timestamp <= DAY_MS;
+  });
+  const activeVisitorsNow = visitors.filter((visitor) => {
+    const timestamp = Date.parse(visitor.last_seen_at || "");
+    return Number.isFinite(timestamp) && timestamp >= activeVisitorCutoff;
   });
   const visitorKeys24h = new Set(visits24h.map(buildVisitorKey));
   const activeCountries = new Set(
@@ -551,6 +556,7 @@ function buildOverview(visitRows, visitors, threads) {
     visit_events: visitRows.length,
     unique_visitors: visitors.length,
     unique_visitors_24h: visitorKeys24h.size,
+    active_visitors_now: activeVisitorsNow.length,
     active_countries: activeCountries.size,
     total_duration_seconds: totalDurationSeconds,
     average_duration_seconds: averageDurationSeconds,

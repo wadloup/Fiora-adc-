@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart3,
   Clock3,
+  Download,
   Globe2,
   Inbox,
   LayoutDashboard,
@@ -9,6 +10,7 @@ import {
   MapPin,
   MessageSquareText,
   RefreshCw,
+  Search,
   SendHorizontal,
   Shield,
   UserRound,
@@ -28,6 +30,8 @@ import { cn } from "../utils/cn";
 const ADMIN_KEY_STORAGE_KEY = "fiora-message-admin-key";
 const THREADS_REFRESH_MS = 12_000;
 const MAX_ADMIN_REPLY_LENGTH = 280;
+const LIVE_VISITOR_WINDOW_MS = 5 * 60 * 1000;
+const WARM_VISITOR_WINDOW_MS = 30 * 60 * 1000;
 const DATE_RANGE_OPTIONS: Array<{ value: DateRangeFilter; label: string }> = [
   { value: "all", label: "All time" },
   { value: "24h", label: "Last 24h" },
@@ -43,6 +47,8 @@ type ThreadStatusFilter =
   | "handled"
   | "archived"
   | "needs_reply";
+type VisitorSortMode = "active" | "recent" | "duration" | "visits";
+type ThreadSortMode = "priority" | "recent" | "oldest" | "name";
 
 type DashboardMetric = {
   label: string;
@@ -93,6 +99,7 @@ type DashboardOverview = {
   visit_events: number;
   unique_visitors: number;
   unique_visitors_24h: number;
+  active_visitors_now: number;
   active_countries: number;
   total_duration_seconds: number;
   average_duration_seconds: number;
@@ -188,6 +195,20 @@ type ThreadDeletePayload = {
 };
 
 type LoadState = "idle" | "loading" | "ready" | "error";
+
+const VISITOR_SORT_OPTIONS: Array<{ value: VisitorSortMode; label: string }> = [
+  { value: "active", label: "Live first" },
+  { value: "recent", label: "Most recent" },
+  { value: "duration", label: "Longest duration" },
+  { value: "visits", label: "Most visits" },
+];
+
+const THREAD_SORT_OPTIONS: Array<{ value: ThreadSortMode; label: string }> = [
+  { value: "priority", label: "Needs reply first" },
+  { value: "recent", label: "Most recent" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "name", label: "Name A-Z" },
+];
 
 const EMPTY_DASHBOARD_TREND_POINTS: DashboardTrendPoint[] = [];
 const EMPTY_DASHBOARD_VISITORS: DashboardVisitor[] = [];
@@ -322,6 +343,86 @@ function formatDuration(seconds: number | null | undefined) {
 function formatPercentage(value: number | null | undefined) {
   const safeValue = Number(value || 0);
   return `${Number.isFinite(safeValue) ? Math.max(0, safeValue) : 0}%`;
+}
+
+function getVisitorAgeMs(visitor: DashboardVisitor, nowMs: number) {
+  const timestamp = Date.parse(visitor.last_seen_at || "");
+
+  if (!Number.isFinite(timestamp)) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  return Math.max(0, nowMs - timestamp);
+}
+
+function getVisitorPresence(visitor: DashboardVisitor, nowMs: number) {
+  const ageMs = getVisitorAgeMs(visitor, nowMs);
+
+  if (ageMs <= LIVE_VISITOR_WINDOW_MS) {
+    return {
+      label: "Live",
+      tone: "live" as const,
+      detail: "Active under 5m",
+    };
+  }
+
+  if (ageMs <= WARM_VISITOR_WINDOW_MS) {
+    return {
+      label: "Warm",
+      tone: "warm" as const,
+      detail: "Seen under 30m",
+    };
+  }
+
+  return {
+    label: "Cold",
+    tone: "cold" as const,
+    detail: "Older session",
+  };
+}
+
+function normalizeSearchTerm(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function matchesSearch(values: Array<string | null | undefined>, search: string) {
+  if (!search) {
+    return true;
+  }
+
+  return values.some((value) => (value || "").toLowerCase().includes(search));
+}
+
+function escapeCsvCell(value: string | number | boolean | null | undefined) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function downloadCsv(
+  filename: string,
+  rows: Array<Record<string, string | number | boolean | null | undefined>>
+) {
+  if (typeof window === "undefined" || !rows.length) {
+    return false;
+  }
+
+  const headers = Object.keys(rows[0]);
+  const csv = [
+    headers.map(escapeCsvCell).join(","),
+    ...rows.map((row) => headers.map((header) => escapeCsvCell(row[header])).join(",")),
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
+
+  return true;
 }
 
 function threadNeedsReply(thread: ChatThread) {
@@ -592,6 +693,34 @@ function DashboardFilterSelect({
           </option>
         ))}
       </select>
+    </label>
+  );
+}
+
+function DashboardSearchInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+        Search
+      </span>
+      <span className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-red-300/65" />
+        <input
+          type="search"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          className="w-full rounded-2xl border border-white/12 bg-white/[0.05] py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-red-500/35 focus:bg-red-500/[0.05]"
+        />
+      </span>
     </label>
   );
 }
@@ -910,6 +1039,10 @@ export default function MessagesAdminPanel({
   });
   const [inboxStatusFilter, setInboxStatusFilter] =
     useState<ThreadStatusFilter>("all");
+  const [adminSearch, setAdminSearch] = useState("");
+  const [visitorSort, setVisitorSort] = useState<VisitorSortMode>("active");
+  const [threadSort, setThreadSort] = useState<ThreadSortMode>("priority");
+  const [exportStatus, setExportStatus] = useState("");
   const [activeTab, setActiveTab] = useState<AdminTab>(
     requestedTab ?? initialTab
   );
@@ -1253,6 +1386,8 @@ export default function MessagesAdminPanel({
     setThreadLoadState("idle");
     setThreadActionState("idle");
     setReplyDraft("");
+    setAdminSearch("");
+    setExportStatus("");
     setStatusMessage("Admin dashboard locked.");
   };
 
@@ -1442,6 +1577,14 @@ export default function MessagesAdminPanel({
   const voteOverview = dashboardData?.voteOverview;
   const voteBreakdown = dashboardData?.voteBreakdown ?? EMPTY_DASHBOARD_METRICS;
   const recentVotes = dashboardData?.recentVotes ?? EMPTY_DASHBOARD_VOTES;
+  const dashboardNowMs = useMemo(() => {
+    const generatedAt = Date.parse(dashboardData?.generatedAt || "");
+    return Number.isFinite(generatedAt) ? generatedAt : Date.now();
+  }, [dashboardData?.generatedAt]);
+  const normalizedAdminSearch = useMemo(
+    () => normalizeSearchTerm(adminSearch),
+    [adminSearch]
+  );
   const visitorAnalytics = useMemo(() => {
     const visitEvents = dashboardOverview?.visit_events ?? 0;
     const uniqueVisitors = dashboardOverview?.unique_visitors ?? 0;
@@ -1580,9 +1723,69 @@ export default function MessagesAdminPanel({
       ],
     };
   }, [dashboardOverview, voteBreakdown, voteOverview]);
-  const filteredThreads = useMemo(
+  const liveVisitorCount = useMemo(
     () =>
-      threads.filter((thread) => {
+      recentVisitors.filter(
+        (visitor) => getVisitorAgeMs(visitor, dashboardNowMs) <= LIVE_VISITOR_WINDOW_MS
+      ).length,
+    [dashboardNowMs, recentVisitors]
+  );
+  const filteredVisitors = useMemo(() => {
+    const searchedVisitors = recentVisitors.filter((visitor) =>
+      matchesSearch(
+        [
+          formatVisitorLocation(visitor),
+          visitor.latest_guide_page,
+          visitor.latest_pathname,
+          visitor.latest_referrer_label,
+          visitor.latest_referrer,
+          visitor.latest_user_agent,
+        ],
+        normalizedAdminSearch
+      )
+    );
+
+    return [...searchedVisitors].sort((first, second) => {
+      if (visitorSort === "duration") {
+        return (
+          second.total_duration_seconds - first.total_duration_seconds ||
+          new Date(second.last_seen_at).getTime() -
+            new Date(first.last_seen_at).getTime()
+        );
+      }
+
+      if (visitorSort === "visits") {
+        return (
+          second.visit_count - first.visit_count ||
+          new Date(second.last_seen_at).getTime() -
+            new Date(first.last_seen_at).getTime()
+        );
+      }
+
+      if (visitorSort === "active") {
+        return (
+          getVisitorAgeMs(first, dashboardNowMs) -
+            getVisitorAgeMs(second, dashboardNowMs) ||
+          second.visit_count - first.visit_count
+        );
+      }
+
+      return (
+        new Date(second.last_seen_at).getTime() -
+        new Date(first.last_seen_at).getTime()
+      );
+    });
+  }, [dashboardNowMs, normalizedAdminSearch, recentVisitors, visitorSort]);
+  const filteredVotes = useMemo(
+    () =>
+      recentVotes.filter((vote) =>
+        matchesSearch([vote.label, vote.selected_choice], normalizedAdminSearch)
+      ),
+    [normalizedAdminSearch, recentVotes]
+  );
+  const filteredThreads = useMemo(
+    () => {
+      const filtered = threads.filter((thread) => {
         if (
           filters.country &&
           (thread.country || "Unknown") !== filters.country
@@ -1610,9 +1813,55 @@ export default function MessagesAdminPanel({
           return false;
         }
 
-        return true;
-      }),
-    [filters.country, filters.dateRange, inboxStatusFilter, threads]
+        return matchesSearch(
+          [
+            thread.nickname,
+            thread.contact,
+            formatLocation(thread),
+            thread.last_message_preview,
+            thread.status,
+          ],
+          normalizedAdminSearch
+        );
+      });
+
+      return filtered.sort((first, second) => {
+        if (threadSort === "oldest") {
+          return (
+            new Date(first.updated_at).getTime() -
+            new Date(second.updated_at).getTime()
+          );
+        }
+
+        if (threadSort === "name") {
+          return (first.nickname || "Anonymous").localeCompare(
+            second.nickname || "Anonymous"
+          );
+        }
+
+        if (threadSort === "priority") {
+          const firstNeedsReply = threadNeedsReply(first) ? 1 : 0;
+          const secondNeedsReply = threadNeedsReply(second) ? 1 : 0;
+
+          if (firstNeedsReply !== secondNeedsReply) {
+            return secondNeedsReply - firstNeedsReply;
+          }
+        }
+
+        return (
+          new Date(second.updated_at).getTime() -
+          new Date(first.updated_at).getTime()
+        );
+      });
+    },
+    [
+      filters.country,
+      filters.dateRange,
+      inboxStatusFilter,
+      normalizedAdminSearch,
+      threadSort,
+      threads,
+    ]
   );
   const priorityThreads = useMemo(
     () => threads.filter(threadNeedsReply).slice(0, 6),
@@ -1622,6 +1871,69 @@ export default function MessagesAdminPanel({
     () => threads.filter(threadNeedsReply).length,
     [threads]
   );
+  const handleExportVisitors = useCallback(() => {
+    const exported = downloadCsv(
+      `fiora-visitors-${new Date().toISOString().slice(0, 10)}.csv`,
+      filteredVisitors.map((visitor) => {
+        const presence = getVisitorPresence(visitor, dashboardNowMs);
+
+        return {
+          location: formatVisitorLocation(visitor),
+          presence: presence.label,
+          last_seen_at: visitor.last_seen_at,
+          first_seen_at: visitor.first_seen_at,
+          visits: visitor.visit_count,
+          total_duration: formatDuration(visitor.total_duration_seconds),
+          latest_page: visitor.latest_guide_page,
+          latest_path: visitor.latest_pathname,
+          referrer: visitor.latest_referrer_label,
+          has_conversation: visitor.has_conversation,
+          needs_reply: visitor.needs_reply,
+          user_agent: visitor.latest_user_agent || "Unknown",
+        };
+      })
+    );
+
+    setExportStatus(exported ? "Visitors CSV exported." : "No visitors to export.");
+  }, [dashboardNowMs, filteredVisitors]);
+  const handleExportThreads = useCallback(() => {
+    const exported = downloadCsv(
+      `fiora-threads-${new Date().toISOString().slice(0, 10)}.csv`,
+      filteredThreads.map((thread) => ({
+        nickname: thread.nickname?.trim() || "Anonymous",
+        contact: thread.contact || "",
+        location: formatLocation(thread),
+        status: thread.status || "open",
+        needs_reply: threadNeedsReply(thread),
+        updated_at: thread.updated_at,
+        created_at: thread.created_at,
+        preview: thread.last_message_preview || "",
+      }))
+    );
+
+    setExportStatus(exported ? "Inbox CSV exported." : "No threads to export.");
+  }, [filteredThreads]);
+  const handleExportVotes = useCallback(() => {
+    const exported = downloadCsv(
+      `fiora-votes-${new Date().toISOString().slice(0, 10)}.csv`,
+      [
+        ...voteBreakdown.map((vote) => ({
+          type: "summary",
+          vote: vote.label,
+          count: vote.count,
+          created_at: "",
+        })),
+        ...filteredVotes.map((vote) => ({
+          type: "receipt",
+          vote: vote.label,
+          count: 1,
+          created_at: vote.created_at,
+        })),
+      ]
+    );
+
+    setExportStatus(exported ? "Votes CSV exported." : "No votes to export.");
+  }, [filteredVotes, voteBreakdown]);
   useEffect(() => {
     if (activeTab !== "inbox") {
       return;
@@ -1853,10 +2165,14 @@ export default function MessagesAdminPanel({
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-            <div className="mb-3 grid grid-cols-2 gap-2">
+            <div className="mb-3 grid grid-cols-3 gap-2">
               <MetricCard
                 label="Visitors"
                 value={dashboardOverview?.unique_visitors ?? 0}
+              />
+              <MetricCard
+                label="Live"
+                value={dashboardOverview?.active_visitors_now ?? liveVisitorCount}
               />
               <MetricCard
                 label="Need reply"
@@ -1941,13 +2257,21 @@ export default function MessagesAdminPanel({
                   </div>
                 )
               ) : activeTab === "visitors" ? (
-                recentVisitors.length ? (
+                filteredVisitors.length ? (
                   <div className="space-y-2">
-                    {recentVisitors.slice(0, 10).map((visitor) => (
+                    {filteredVisitors.slice(0, 10).map((visitor) => {
+                      const presence = getVisitorPresence(visitor, dashboardNowMs);
+
+                      return (
                       <motion.div
                         key={visitor.visitor_key}
                         layout
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
+                        className={cn(
+                          "rounded-2xl border p-3",
+                          presence.tone === "live"
+                            ? "border-emerald-300/30 bg-emerald-300/[0.07]"
+                            : "border-white/8 bg-white/[0.04]"
+                        )}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -1966,18 +2290,19 @@ export default function MessagesAdminPanel({
                             </p>
                           </div>
                           <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
-                            {visitor.visit_count} visits
+                            {presence.label}
                           </span>
                         </div>
                         <p className="mt-3 truncate text-xs text-white/62">
                           {visitor.latest_referrer_label}
                         </p>
                       </motion.div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-center text-sm text-white/45">
-                    No visitor data yet.
+                    No visitor matches.
                   </div>
                 )
               ) : activeTab === "votes" ? (
@@ -2189,7 +2514,7 @@ export default function MessagesAdminPanel({
           {activeTab !== "inbox" ? (
             <div className="border-b border-white/8 px-6 py-4">
               {activeTab === "votes" ? (
-                <div className="grid gap-3 md:grid-cols-[minmax(0,280px)_160px]">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,220px)_minmax(0,1fr)_150px_150px]">
                   <DashboardFilterSelect
                     label="Date"
                     value={filters.dateRange}
@@ -2200,6 +2525,11 @@ export default function MessagesAdminPanel({
                         dateRange: value as DateRangeFilter,
                       }))
                     }
+                  />
+                  <DashboardSearchInput
+                    value={adminSearch}
+                    onChange={setAdminSearch}
+                    placeholder="Search vote receipts"
                   />
                   <button
                     type="button"
@@ -2213,9 +2543,24 @@ export default function MessagesAdminPanel({
                   >
                     Reset date
                   </button>
+                  <button
+                    type="button"
+                    onClick={handleExportVotes}
+                    className="inline-flex items-center justify-center gap-2 self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Export
+                  </button>
                 </div>
               ) : (
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <div
+                  className={cn(
+                    "grid gap-3 md:grid-cols-2",
+                    activeTab === "visitors"
+                      ? "xl:grid-cols-4 2xl:grid-cols-7"
+                      : "xl:grid-cols-5"
+                  )}
+                >
                   <DashboardFilterSelect
                     label="Country"
                     value={filters.country}
@@ -2254,6 +2599,23 @@ export default function MessagesAdminPanel({
                       }))
                     }
                   />
+                  {activeTab === "visitors" ? (
+                    <>
+                      <DashboardSearchInput
+                        value={adminSearch}
+                        onChange={setAdminSearch}
+                        placeholder="Search visitor, page, referrer"
+                      />
+                      <DashboardFilterSelect
+                        label="Sort"
+                        value={visitorSort}
+                        options={VISITOR_SORT_OPTIONS}
+                        onChange={(value) =>
+                          setVisitorSort(value as VisitorSortMode)
+                        }
+                      />
+                    </>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() =>
@@ -2268,12 +2630,27 @@ export default function MessagesAdminPanel({
                   >
                     Reset filters
                   </button>
+                  {activeTab === "visitors" ? (
+                    <button
+                      type="button"
+                      onClick={handleExportVisitors}
+                      className="inline-flex items-center justify-center gap-2 self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Export
+                    </button>
+                  ) : null}
                 </div>
               )}
+              {exportStatus ? (
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+                  {exportStatus}
+                </p>
+              ) : null}
             </div>
           ) : (
             <div className="border-b border-white/8 px-6 py-4">
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
                 <DashboardFilterSelect
                   label="Country"
                   value={filters.country}
@@ -2307,7 +2684,31 @@ export default function MessagesAdminPanel({
                     setInboxStatusFilter(value as ThreadStatusFilter)
                   }
                 />
+                <DashboardSearchInput
+                  value={adminSearch}
+                  onChange={setAdminSearch}
+                  placeholder="Search inbox"
+                />
+                <DashboardFilterSelect
+                  label="Sort"
+                  value={threadSort}
+                  options={THREAD_SORT_OPTIONS}
+                  onChange={(value) => setThreadSort(value as ThreadSortMode)}
+                />
+                <button
+                  type="button"
+                  onClick={handleExportThreads}
+                  className="inline-flex items-center justify-center gap-2 self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export
+                </button>
               </div>
+              {exportStatus ? (
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+                  {exportStatus}
+                </p>
+              ) : null}
             </div>
           )}
 
@@ -2342,6 +2743,10 @@ export default function MessagesAdminPanel({
                   <MetricCard
                     label="Visitors 24h"
                     value={dashboardOverview?.unique_visitors_24h ?? 0}
+                  />
+                  <MetricCard
+                    label="Live now"
+                    value={dashboardOverview?.active_visitors_now ?? liveVisitorCount}
                   />
                   <MetricCard
                     label="Active countries"
@@ -2583,13 +2988,38 @@ export default function MessagesAdminPanel({
                   </div>
                 ) : null}
 
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <MetricCard
+                    label="Live now"
+                    value={dashboardOverview?.active_visitors_now ?? liveVisitorCount}
+                  />
+                  <MetricCard
+                    label="Matched visitors"
+                    value={filteredVisitors.length}
+                  />
+                  <MetricCard
+                    label="Repeat shown"
+                    value={
+                      filteredVisitors.filter((visitor) => visitor.visit_count > 1)
+                        .length
+                    }
+                  />
+                  <MetricCard
+                    label="Linked chats"
+                    value={
+                      filteredVisitors.filter((visitor) => visitor.has_conversation)
+                        .length
+                    }
+                  />
+                </div>
+
                 <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                   <VisitorFunnelChart items={visitorAnalytics.flow} />
                   <VisitorTranscriptPanel lines={visitorAnalytics.readout} />
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                  <VisitorEngagementChart visitors={recentVisitors} />
+                  <VisitorEngagementChart visitors={filteredVisitors} />
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
                     <MiniTrendChart
                       title="Visitor timeline"
@@ -2615,11 +3045,19 @@ export default function MessagesAdminPanel({
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-2">
-                  {recentVisitors.length ? (
-                    recentVisitors.map((visitor) => (
+                  {filteredVisitors.length ? (
+                    filteredVisitors.map((visitor) => {
+                      const presence = getVisitorPresence(visitor, dashboardNowMs);
+
+                      return (
                       <div
                         key={`visitor-card-${visitor.visitor_key}`}
-                        className="rounded-2xl border border-white/10 bg-white/[0.045] p-4"
+                        className={cn(
+                          "rounded-2xl border p-4",
+                          presence.tone === "live"
+                            ? "border-emerald-300/28 bg-emerald-300/[0.06]"
+                            : "border-white/10 bg-white/[0.045]"
+                        )}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -2635,6 +3073,18 @@ export default function MessagesAdminPanel({
                           </div>
 
                           <div className="flex shrink-0 items-center gap-2">
+                            <span
+                              className={cn(
+                                "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                                presence.tone === "live"
+                                  ? "border-emerald-300/30 bg-emerald-300/12 text-emerald-100"
+                                  : presence.tone === "warm"
+                                    ? "border-amber-300/25 bg-amber-300/12 text-amber-100"
+                                    : "border-white/10 bg-white/[0.06] text-white/62"
+                              )}
+                            >
+                              {presence.label}
+                            </span>
                             {visitor.needs_reply ? (
                               <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
                                 Needs reply
@@ -2697,10 +3147,11 @@ export default function MessagesAdminPanel({
                           </p>
                         </div>
                       </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="col-span-full flex min-h-[260px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-sm text-white/45">
-                      No visitor data available yet.
+                      No visitor matches the current filters.
                     </div>
                   )}
                 </div>
@@ -2763,13 +3214,13 @@ export default function MessagesAdminPanel({
                       Recent vote receipts
                     </p>
                     <span className="text-xs text-white/45">
-                      {recentVotes.length} shown
+                      {filteredVotes.length} shown
                     </span>
                   </div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    {recentVotes.length ? (
-                      recentVotes.map((vote) => (
+                    {filteredVotes.length ? (
+                      filteredVotes.map((vote) => (
                         <div
                           key={`recent-vote-${vote.id}`}
                           className="rounded-2xl border border-white/8 bg-black/20 p-4"
@@ -2789,7 +3240,7 @@ export default function MessagesAdminPanel({
                       ))
                     ) : (
                       <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-black/15 px-4 py-8 text-center text-sm text-white/45">
-                        No vote receipts available for this date filter.
+                        No vote receipts match the current search.
                       </div>
                     )}
                   </div>
