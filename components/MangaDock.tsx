@@ -396,11 +396,20 @@ export default function MangaDock({
           </span>
         </div>
 
-        <div className="mt-3 aspect-[1055/1491] overflow-hidden rounded-2xl border border-white/10 bg-red-950/10">
+        <div className="relative mt-3 aspect-square overflow-hidden rounded-2xl border border-white/10 bg-red-950/10">
+          <img
+            src="/manga/last-rebirth-cover-preview.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full scale-110 object-cover object-center opacity-45 blur-md"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-black/10" />
           <img
             src="/manga/last-rebirth-cover-preview.jpg"
             alt="The World's Last Rebirth Fiora cover preview"
-            className="h-full w-full object-cover object-center opacity-95 transition duration-200 hover:opacity-100"
+            className="relative h-full w-full object-contain object-center opacity-95 drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)] transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />

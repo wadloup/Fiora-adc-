@@ -1318,8 +1318,7 @@ export default function App() {
           {currentPage === "Home" ? (
             <NeonCard className="overflow-hidden">
               <div ref={homeSupportSectionRef} />
-              <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="relative min-h-[360px] overflow-hidden">
+              <div className="relative overflow-hidden min-[1500px]:grid min-[1500px]:grid-cols-[1.15fr_0.85fr]">
                 <img
                   src={homeHeroImage}
                   alt="Aggressive Fiora"
@@ -1330,44 +1329,48 @@ export default function App() {
                   onError={recoverImage}
                   style={{ objectPosition: "center 26%" }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
-                <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
-                  <div className="max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
-                    <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-300">
-                      Draft priority
-                    </p>
-                    <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
-                      ARE YOU THE SUPPORT?
-                      <br />
-                      CLICK HERE BEFORE I REPORT YOU
-                    </h2>
-                    <p className="mt-4 max-w-2xl text-white/75">
-                      If you are the support, start here: engage timing, lane
-                      sync, wave pressure, brush control, and the exact moments
-                      Fiora can really go in.
-                    </p>
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                      <button
-                        onClick={() => goPage("Fiora's Support")}
-                        className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border border-red-200/55 bg-gradient-to-r from-red-500/35 via-red-500/18 to-white/[0.06] px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_0_28px_rgba(244,63,94,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-red-100/80 hover:from-red-500/48 hover:shadow-[0_0_42px_rgba(244,63,94,0.34)] focus:outline-none focus:ring-2 focus:ring-red-200/60 sm:w-auto"
-                      >
-                        <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/18 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
-                        <span className="relative">Go to Fiora's Support</span>
-                        <ArrowRight className="relative h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
-                      </button>
-                      <button
-                        onClick={() => goLaneSection("support")}
-                        className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border border-cyan-100/45 bg-gradient-to-r from-cyan-300/16 via-black/55 to-white/[0.05] px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_0_24px_rgba(125,211,252,0.14)] transition duration-200 hover:-translate-y-0.5 hover:border-cyan-100/75 hover:bg-cyan-300/12 hover:shadow-[0_0_38px_rgba(125,211,252,0.22)] focus:outline-none focus:ring-2 focus:ring-cyan-100/55 sm:w-auto"
-                      >
-                        <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/14 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
-                        <span className="relative">Open Lane Phase - Support</span>
-                        <ArrowRight className="relative h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
-                      </button>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/82 via-black/30 to-black/16" />
+                <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-gradient-to-l from-black/22 via-transparent to-transparent min-[1500px]:block" />
+                <div className="relative z-10 min-h-[360px] overflow-hidden">
+                  <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
+                    <div className="max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
+                      <p className="text-sm font-bold uppercase tracking-[0.3em] text-red-300">
+                        Draft priority
+                      </p>
+                      <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-5xl">
+                        ARE YOU THE SUPPORT?
+                        <br />
+                        CLICK HERE BEFORE I REPORT YOU
+                      </h2>
+                      <p className="mt-4 max-w-2xl text-white/75">
+                        If you are the support, start here: engage timing, lane
+                        sync, wave pressure, brush control, and the exact moments
+                        Fiora can really go in.
+                      </p>
+                      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                        <button
+                          onClick={() => goPage("Fiora's Support")}
+                          className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border border-red-200/55 bg-gradient-to-r from-red-500/35 via-red-500/18 to-white/[0.06] px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_0_28px_rgba(244,63,94,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-red-100/80 hover:from-red-500/48 hover:shadow-[0_0_42px_rgba(244,63,94,0.34)] focus:outline-none focus:ring-2 focus:ring-red-200/60 sm:w-auto"
+                        >
+                          <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/18 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
+                          <span className="relative">Go to Fiora's Support</span>
+                          <ArrowRight className="relative h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
+                        </button>
+                        <button
+                          onClick={() => goLaneSection("support")}
+                          className="group relative inline-flex w-full cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border border-cyan-100/45 bg-gradient-to-r from-cyan-300/16 via-black/55 to-white/[0.05] px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white shadow-[0_0_24px_rgba(125,211,252,0.14)] transition duration-200 hover:-translate-y-0.5 hover:border-cyan-100/75 hover:bg-cyan-300/12 hover:shadow-[0_0_38px_rgba(125,211,252,0.22)] focus:outline-none focus:ring-2 focus:ring-cyan-100/55 sm:w-auto"
+                        >
+                          <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/14 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
+                          <span className="relative">Open Lane Phase - Support</span>
+                          <ArrowRight className="relative h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-                <HomeSupportShowcase />
+                <div className="relative z-10 hidden min-[1500px]:block">
+                  <HomeSupportShowcase />
+                </div>
               </div>
             </NeonCard>
           ) : null}

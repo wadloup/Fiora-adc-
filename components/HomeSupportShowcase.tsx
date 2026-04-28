@@ -15,7 +15,7 @@ export default function HomeSupportShowcase() {
         <SpeakableCard
           text="Auto win. Netanyahu certified. Support shell. Alistar, Braum, and Yuumi are showcased here as the safest auto-win support core."
           audioSrc={homeSupportShellAudio}
-          className="border-red-500/28 bg-[linear-gradient(180deg,rgba(18,6,10,0.86),rgba(10,4,8,0.76))] p-5 shadow-[0_0_20px_rgba(0,0,0,0.22)] xl:p-6"
+          className="border-red-500/22 bg-[linear-gradient(180deg,rgba(18,6,10,0.56),rgba(10,4,8,0.42))] p-5 shadow-[0_0_20px_rgba(0,0,0,0.18)] backdrop-blur-[2px] xl:p-6"
         >
           <div className="inline-flex flex-col rounded-2xl border border-white/8 bg-black/26 px-3 py-2 shadow-[0_10px_28px_rgba(0,0,0,0.18)] backdrop-blur-sm">
             <p className="text-xs uppercase tracking-[0.28em] text-red-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]">
@@ -52,7 +52,7 @@ export default function HomeSupportShowcase() {
               key={support.name}
               text={`${support.name}. ${support.role}. ${support.text}`}
               audioSrc={support.audio}
-              className="border-red-500/20 bg-[linear-gradient(180deg,rgba(14,6,9,0.82),rgba(9,4,7,0.74))] p-3 shadow-[0_0_16px_rgba(0,0,0,0.16)]"
+              className="border-red-500/18 bg-[linear-gradient(180deg,rgba(14,6,9,0.54),rgba(9,4,7,0.42))] p-3 shadow-[0_0_16px_rgba(0,0,0,0.14)] backdrop-blur-[2px]"
               contentClassName="flex items-center gap-3"
             >
               <img
