@@ -1322,7 +1322,7 @@ export default function App() {
                 <img
                   src={homeHeroImage}
                   alt="Aggressive Fiora"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full -scale-x-100 object-cover"
                   fetchPriority="high"
                   loading="eager"
                   decoding="async"
