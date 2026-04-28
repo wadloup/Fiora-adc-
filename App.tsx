@@ -167,7 +167,7 @@ const LAUNCH_SIDE_STICKERS = [
 const LAUNCH_SPAM_LIMIT = 5;
 const LAUNCH_SPAM_COOLDOWN_MS = 1800;
 const LAUNCH_SPAM_IDLE_RESET_MS = 2600;
-type AdminPanelTab = "overview" | "visitors" | "inbox";
+type AdminPanelTab = "overview" | "visitors" | "votes" | "inbox";
 type GuideMode = "support" | "adc" | "browse";
 
 const GUIDE_MODE_STORAGE_KEY = "fiora-guide-mode";
@@ -248,6 +248,10 @@ function getAdminPanelTabFromLocation(): AdminPanelTab | null {
 
   if (adminView === "visitors") {
     return "visitors";
+  }
+
+  if (adminView === "votes") {
+    return "votes";
   }
 
   if (adminView === "dashboard") {
@@ -800,13 +804,16 @@ export default function App() {
       if (
         adminView === "messages" ||
         adminView === "dashboard" ||
-        adminView === "visitors"
+        adminView === "visitors" ||
+        adminView === "votes"
       ) {
         setMessagesAdminInitialTab(
           adminView === "messages"
             ? "inbox"
             : adminView === "visitors"
               ? "visitors"
+              : adminView === "votes"
+                ? "votes"
               : "overview"
         );
         setMessagesAdminOpen(true);

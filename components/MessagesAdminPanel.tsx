@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  BarChart3,
   Clock3,
   Globe2,
   Inbox,
@@ -34,7 +35,7 @@ const DATE_RANGE_OPTIONS: Array<{ value: DateRangeFilter; label: string }> = [
   { value: "30d", label: "Last 30d" },
 ];
 
-type AdminTab = "overview" | "visitors" | "inbox";
+type AdminTab = "overview" | "visitors" | "votes" | "inbox";
 type DateRangeFilter = "all" | "24h" | "7d" | "30d";
 type ThreadStatusFilter =
   | "all"
@@ -66,6 +67,7 @@ type DashboardTrendPoint = {
   label: string;
   visits: number;
   conversations: number;
+  votes: number;
 };
 
 type DashboardVisitor = {
@@ -102,6 +104,22 @@ type DashboardOverview = {
   archived_threads: number;
 };
 
+type DashboardVoteOverview = {
+  total_votes: number;
+  votes_24h: number;
+  top_vote_label: string;
+  top_vote_count: number;
+  vote_conversion_rate: number;
+  conversation_conversion_rate: number;
+};
+
+type DashboardVoteReceipt = {
+  id: number;
+  selected_choice: string;
+  label: string;
+  created_at: string;
+};
+
 type DashboardPayload = {
   ok?: boolean;
   generatedAt?: string;
@@ -111,12 +129,16 @@ type DashboardPayload = {
   topCountries?: DashboardMetric[];
   topPages?: DashboardMetric[];
   topReferrers?: DashboardMetric[];
+  voteOverview?: DashboardVoteOverview;
+  voteBreakdown?: DashboardMetric[];
   activityByDay?: DashboardTrendPoint[];
   recentVisitors?: DashboardVisitor[];
   recentThreads?: ChatThread[];
+  recentVotes?: DashboardVoteReceipt[];
   issues?: {
     visits?: string | null;
     chat?: string | null;
+    votes?: string | null;
   };
   reason?: string;
 };
@@ -170,6 +192,8 @@ type LoadState = "idle" | "loading" | "ready" | "error";
 const EMPTY_DASHBOARD_TREND_POINTS: DashboardTrendPoint[] = [];
 const EMPTY_DASHBOARD_VISITORS: DashboardVisitor[] = [];
 const EMPTY_CHAT_THREADS: ChatThread[] = [];
+const EMPTY_DASHBOARD_METRICS: DashboardMetric[] = [];
+const EMPTY_DASHBOARD_VOTES: DashboardVoteReceipt[] = [];
 
 type MessagesAdminPanelProps = {
   onClose: () => void;
@@ -190,6 +214,10 @@ function getRequestedAdminTab(): AdminTab | null {
 
   if (adminView === "visitors") {
     return "visitors";
+  }
+
+  if (adminView === "votes") {
+    return "votes";
   }
 
   if (adminView === "dashboard") {
@@ -291,6 +319,11 @@ function formatDuration(seconds: number | null | undefined) {
   return `${safeValue}s`;
 }
 
+function formatPercentage(value: number | null | undefined) {
+  const safeValue = Number(value || 0);
+  return `${Number.isFinite(safeValue) ? Math.max(0, safeValue) : 0}%`;
+}
+
 function threadNeedsReply(thread: ChatThread) {
   if (thread.status === "handled" || thread.status === "archived") {
     return false;
@@ -318,6 +351,8 @@ function reasonToMessage(reason?: string | null) {
       return "Chat tables are missing in Supabase.";
     case "visit_schema_missing":
       return "Visit log tables are missing in Supabase.";
+    case "vote_schema_missing":
+      return "Vote tables are missing in Supabase.";
     case "invalid_admin_key":
       return "Invalid admin key.";
     case "untrusted_request_source":
@@ -569,7 +604,7 @@ function MiniTrendChart({
 }: {
   title: string;
   data: DashboardTrendPoint[];
-  metric: "visits" | "conversations";
+  metric: "visits" | "conversations" | "votes";
   tone?: "red" | "amber";
 }) {
   const maxValue = Math.max(...data.map((item) => item[metric]), 1);
@@ -809,6 +844,50 @@ function VisitorTranscriptPanel({
                   {line.detail}
                 </p>
               </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ConversionPulsePanel({
+  items,
+}: {
+  items: Array<{ label: string; value: string | number; progress: number }>;
+}) {
+  return (
+    <div className="rounded-[1.7rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,196,96,0.13),transparent_34%),rgba(255,255,255,0.04)] p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-300">
+            Conversion pulse
+          </p>
+          <p className="mt-2 text-sm text-white/55">
+            How traffic turns into votes, messages, and reply work.
+          </p>
+        </div>
+        <BarChart3 className="h-5 w-5 text-red-200/70" />
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {items.map((item) => (
+          <div
+            key={`conversion-${item.label}`}
+            className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-red-200/75">
+                {item.label}
+              </p>
+              <p className="text-lg font-black text-white">{item.value}</p>
+            </div>
+            <div className="mt-3 h-2 rounded-full bg-white/5">
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,215,120,0.95),rgba(255,45,92,0.9))]"
+                style={{ width: `${Math.max(0, Math.min(100, item.progress))}%` }}
+              />
             </div>
           </div>
         ))}
@@ -1360,6 +1439,9 @@ export default function MessagesAdminPanel({
   const recentVisitors =
     dashboardData?.recentVisitors ?? EMPTY_DASHBOARD_VISITORS;
   const recentThreads = dashboardData?.recentThreads ?? EMPTY_CHAT_THREADS;
+  const voteOverview = dashboardData?.voteOverview;
+  const voteBreakdown = dashboardData?.voteBreakdown ?? EMPTY_DASHBOARD_METRICS;
+  const recentVotes = dashboardData?.recentVotes ?? EMPTY_DASHBOARD_VOTES;
   const visitorAnalytics = useMemo(() => {
     const visitEvents = dashboardOverview?.visit_events ?? 0;
     const uniqueVisitors = dashboardOverview?.unique_visitors ?? 0;
@@ -1431,6 +1513,73 @@ export default function MessagesAdminPanel({
       ],
     };
   }, [dashboardData, dashboardOverview, recentVisitors]);
+  const conversionAnalytics = useMemo(() => {
+    const uniqueVisitors = dashboardOverview?.unique_visitors ?? 0;
+    const totalVotes = voteOverview?.total_votes ?? 0;
+    const conversations = dashboardOverview?.conversations ?? 0;
+    const waitingReplies = dashboardOverview?.waiting_replies ?? 0;
+    const topVote = voteBreakdown[0];
+    const voteShare = voteOverview?.total_votes
+      ? Math.round(((topVote?.count ?? 0) / voteOverview.total_votes) * 100)
+      : 0;
+
+    return {
+      pulse: [
+        {
+          label: "Vote conversion",
+          value: formatPercentage(voteOverview?.vote_conversion_rate ?? 0),
+          progress: voteOverview?.vote_conversion_rate ?? 0,
+        },
+        {
+          label: "Chat conversion",
+          value: formatPercentage(
+            voteOverview?.conversation_conversion_rate ?? 0
+          ),
+          progress: voteOverview?.conversation_conversion_rate ?? 0,
+        },
+        {
+          label: "Votes 24h",
+          value: voteOverview?.votes_24h ?? 0,
+          progress: totalVotes
+            ? Math.round(((voteOverview?.votes_24h ?? 0) / totalVotes) * 100)
+            : 0,
+        },
+        {
+          label: "Reply queue",
+          value: waitingReplies,
+          progress: conversations
+            ? Math.round((waitingReplies / conversations) * 100)
+            : 0,
+        },
+      ],
+      readout: [
+        {
+          label: "Votes",
+          value: `${totalVotes} total`,
+          detail: `${uniqueVisitors} unique visitors are visible while votes show a ${formatPercentage(voteOverview?.vote_conversion_rate ?? 0)} conversion rate for the selected date window.`,
+        },
+        {
+          label: "Top reaction",
+          value: voteOverview?.top_vote_label ?? "None",
+          detail: topVote
+            ? `${topVote.label} leads with ${topVote.count} votes, about ${voteShare}% of all captured votes.`
+            : "No vote has enough data to lead yet.",
+        },
+        {
+          label: "Messages",
+          value: `${conversations} threads`,
+          detail: `${formatPercentage(voteOverview?.conversation_conversion_rate ?? 0)} of unique visitors have created a conversation in the selected view.`,
+        },
+        {
+          label: "Queue",
+          value: `${waitingReplies} waiting`,
+          detail: waitingReplies
+            ? "There are conversations waiting for an admin reply."
+            : "No visitor conversation is waiting for a reply right now.",
+        },
+      ],
+    };
+  }, [dashboardOverview, voteBreakdown, voteOverview]);
   const filteredThreads = useMemo(
     () =>
       threads.filter((thread) => {
@@ -1508,6 +1657,13 @@ export default function MessagesAdminPanel({
       description:
         "Recent human traffic with page, duration, referrer, and location.",
     },
+    votes: {
+      label: "Votes",
+      icon: BarChart3,
+      eyebrow: "Reaction analytics",
+      description:
+        "Report votes, vote share, visitor conversion, and recent voting pulse.",
+    },
     inbox: {
       label: "Inbox",
       icon: Inbox,
@@ -1543,6 +1699,7 @@ export default function MessagesAdminPanel({
   const tabCounts = {
     overview: dashboardOverview?.unique_visitors ?? 0,
     visitors: dashboardData?.recentVisitors?.length ?? 0,
+    votes: voteOverview?.total_votes ?? 0,
     inbox: unreadThreadCount,
   };
 
@@ -1645,6 +1802,12 @@ export default function MessagesAdminPanel({
                   label: "Visitors",
                   icon: Users,
                   count: tabCounts.visitors,
+                },
+                {
+                  id: "votes" as const,
+                  label: "Votes",
+                  icon: BarChart3,
+                  count: tabCounts.votes,
                 },
                 {
                   id: "inbox" as const,
@@ -1817,6 +1980,64 @@ export default function MessagesAdminPanel({
                     No visitor data yet.
                   </div>
                 )
+              ) : activeTab === "votes" ? (
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+                      Vote split
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {voteBreakdown.length ? (
+                        voteBreakdown.map((vote) => (
+                          <div
+                            key={`rail-vote-${vote.label}`}
+                            className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2"
+                          >
+                            <span className="text-sm font-semibold text-white/82">
+                              {vote.label}
+                            </span>
+                            <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
+                              {vote.count}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-white/10 bg-black/15 px-3 py-4 text-sm text-white/45">
+                          No vote data yet.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-300">
+                      Recent votes
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {recentVotes.length ? (
+                        recentVotes.slice(0, 8).map((vote) => (
+                          <div
+                            key={`rail-recent-vote-${vote.id}`}
+                            className="rounded-xl border border-white/8 bg-black/20 px-3 py-2"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="text-sm font-bold text-white">
+                                {vote.label}
+                              </span>
+                              <span className="text-[10px] uppercase tracking-[0.12em] text-white/42">
+                                {formatParisTime(vote.created_at)}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-white/10 bg-black/15 px-3 py-4 text-sm text-white/45">
+                          No recent vote receipts yet.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-3">
                   <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
@@ -1848,6 +2069,19 @@ export default function MessagesAdminPanel({
                           )}
                         >
                           {dashboardIssues?.chat ? "Check" : "Ready"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+                        <span>Votes feed</span>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                            dashboardIssues?.votes
+                              ? "border border-amber-300/25 bg-amber-300/12 text-amber-100"
+                              : "border border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+                          )}
+                        >
+                          {dashboardIssues?.votes ? "Check" : "Ready"}
                         </span>
                       </div>
                     </div>
@@ -1954,57 +2188,88 @@ export default function MessagesAdminPanel({
 
           {activeTab !== "inbox" ? (
             <div className="border-b border-white/8 px-6 py-4">
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                <DashboardFilterSelect
-                  label="Country"
-                  value={filters.country}
-                  options={filterSelectOptions.countries}
-                  onChange={(value) =>
-                    setFilters((current) => ({ ...current, country: value }))
-                  }
-                />
-                <DashboardFilterSelect
-                  label="Page"
-                  value={filters.page}
-                  options={filterSelectOptions.pages}
-                  onChange={(value) =>
-                    setFilters((current) => ({ ...current, page: value }))
-                  }
-                />
-                <DashboardFilterSelect
-                  label="Referrer"
-                  value={filters.referrer}
-                  options={filterSelectOptions.referrers}
-                  onChange={(value) =>
-                    setFilters((current) => ({ ...current, referrer: value }))
-                  }
-                />
-                <DashboardFilterSelect
-                  label="Date"
-                  value={filters.dateRange}
-                  options={DATE_RANGE_OPTIONS}
-                  onChange={(value) =>
-                    setFilters((current) => ({
-                      ...current,
-                      dateRange: value as DateRangeFilter,
-                    }))
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFilters({
-                      country: "",
-                      page: "",
-                      referrer: "",
-                      dateRange: "all",
-                    })
-                  }
-                  className="self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
-                >
-                  Reset filters
-                </button>
-              </div>
+              {activeTab === "votes" ? (
+                <div className="grid gap-3 md:grid-cols-[minmax(0,280px)_160px]">
+                  <DashboardFilterSelect
+                    label="Date"
+                    value={filters.dateRange}
+                    options={DATE_RANGE_OPTIONS}
+                    onChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        dateRange: value as DateRangeFilter,
+                      }))
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFilters((current) => ({
+                        ...current,
+                        dateRange: "all",
+                      }))
+                    }
+                    className="self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                  >
+                    Reset date
+                  </button>
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                  <DashboardFilterSelect
+                    label="Country"
+                    value={filters.country}
+                    options={filterSelectOptions.countries}
+                    onChange={(value) =>
+                      setFilters((current) => ({ ...current, country: value }))
+                    }
+                  />
+                  <DashboardFilterSelect
+                    label="Page"
+                    value={filters.page}
+                    options={filterSelectOptions.pages}
+                    onChange={(value) =>
+                      setFilters((current) => ({ ...current, page: value }))
+                    }
+                  />
+                  <DashboardFilterSelect
+                    label="Referrer"
+                    value={filters.referrer}
+                    options={filterSelectOptions.referrers}
+                    onChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        referrer: value,
+                      }))
+                    }
+                  />
+                  <DashboardFilterSelect
+                    label="Date"
+                    value={filters.dateRange}
+                    options={DATE_RANGE_OPTIONS}
+                    onChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        dateRange: value as DateRangeFilter,
+                      }))
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFilters({
+                        country: "",
+                        page: "",
+                        referrer: "",
+                        dateRange: "all",
+                      })
+                    }
+                    className="self-end rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:border-red-500/25 hover:bg-red-500/[0.08] hover:text-red-200"
+                  >
+                    Reset filters
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="border-b border-white/8 px-6 py-4">
@@ -2059,8 +2324,13 @@ export default function MessagesAdminPanel({
                     Chat feed: {reasonToMessage(dashboardIssues.chat)}
                   </div>
                 ) : null}
+                {dashboardIssues?.votes ? (
+                  <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm text-amber-50">
+                    Votes feed: {reasonToMessage(dashboardIssues.votes)}
+                  </div>
+                ) : null}
 
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <MetricCard
                     label="Visit events"
                     value={dashboardOverview?.visit_events ?? 0}
@@ -2084,6 +2354,20 @@ export default function MessagesAdminPanel({
                     )}
                   />
                   <MetricCard
+                    label="Total votes"
+                    value={voteOverview?.total_votes ?? 0}
+                  />
+                  <MetricCard
+                    label="Votes 24h"
+                    value={voteOverview?.votes_24h ?? 0}
+                  />
+                  <MetricCard
+                    label="Vote conversion"
+                    value={formatPercentage(
+                      voteOverview?.vote_conversion_rate ?? 0
+                    )}
+                  />
+                  <MetricCard
                     label="Waiting replies"
                     value={dashboardOverview?.waiting_replies ?? 0}
                     tone="alert"
@@ -2102,6 +2386,11 @@ export default function MessagesAdminPanel({
                   />
                 </div>
 
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                  <ConversionPulsePanel items={conversionAnalytics.pulse} />
+                  <VisitorTranscriptPanel lines={conversionAnalytics.readout} />
+                </div>
+
                 <div className="grid gap-4 xl:grid-cols-2">
                   <ShareBreakdownChart
                     title="Country pressure"
@@ -2112,6 +2401,20 @@ export default function MessagesAdminPanel({
                     title="Page pressure"
                     subtitle="Which guide pages are pulling the most attention."
                     items={dashboardData?.topPages ?? []}
+                    tone="amber"
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <ShareBreakdownChart
+                    title="Vote pressure"
+                    subtitle="How visitors are reacting to the report question."
+                    items={voteBreakdown}
+                  />
+                  <MiniTrendChart
+                    title="Vote trend"
+                    data={activityByDay}
+                    metric="votes"
                     tone="amber"
                   />
                 </div>
@@ -2400,6 +2703,96 @@ export default function MessagesAdminPanel({
                       No visitor data available yet.
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {activeTab === "votes" ? (
+            <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
+              <div className="space-y-5">
+                {dashboardIssues?.votes ? (
+                  <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm text-amber-50">
+                    Votes feed: {reasonToMessage(dashboardIssues.votes)}
+                  </div>
+                ) : null}
+
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <MetricCard
+                    label="Total votes"
+                    value={voteOverview?.total_votes ?? 0}
+                  />
+                  <MetricCard
+                    label="Votes 24h"
+                    value={voteOverview?.votes_24h ?? 0}
+                  />
+                  <MetricCard
+                    label="Top vote"
+                    value={voteOverview?.top_vote_label ?? "None"}
+                  />
+                  <MetricCard
+                    label="Vote conversion"
+                    value={formatPercentage(
+                      voteOverview?.vote_conversion_rate ?? 0
+                    )}
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+                  <ShareBreakdownChart
+                    title="Vote split"
+                    subtitle="The current balance between UP, DOWN, and POOP."
+                    items={voteBreakdown}
+                  />
+                  <ConversionPulsePanel items={conversionAnalytics.pulse} />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                  <MiniTrendChart
+                    title="Votes by day"
+                    data={activityByDay}
+                    metric="votes"
+                    tone="amber"
+                  />
+                  <VisitorTranscriptPanel lines={conversionAnalytics.readout} />
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-red-300">
+                      Recent vote receipts
+                    </p>
+                    <span className="text-xs text-white/45">
+                      {recentVotes.length} shown
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {recentVotes.length ? (
+                      recentVotes.map((vote) => (
+                        <div
+                          key={`recent-vote-${vote.id}`}
+                          className="rounded-2xl border border-white/8 bg-black/20 p-4"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-lg font-black text-white">
+                              {vote.label}
+                            </span>
+                            <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/65">
+                              receipt
+                            </span>
+                          </div>
+                          <p className="mt-3 text-sm text-white/55">
+                            {formatParisTime(vote.created_at)}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-black/15 px-4 py-8 text-center text-sm text-white/45">
+                        No vote receipts available for this date filter.
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -6,11 +6,14 @@ import {
 
 const VISIT_LIMIT = 360;
 const THREAD_LIMIT = 80;
+const VOTE_RECEIPT_LIMIT = 360;
 const TOP_LIST_LIMIT = 8;
 const RECENT_VISITOR_LIMIT = 60;
 const RECENT_THREAD_LIMIT = 10;
+const RECENT_VOTE_LIMIT = 14;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DASHBOARD_TREND_DAYS = 7;
+const VOTE_CHOICES = ["up", "down", "poop"];
 
 function normalizeSecret(value) {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -71,6 +74,14 @@ function inferReason(errorText) {
     return "chat_schema_missing";
   }
 
+  if (
+    normalized.includes("report_votes") ||
+    normalized.includes("report_vote_receipts") ||
+    normalized.includes("selected_choice")
+  ) {
+    return "vote_schema_missing";
+  }
+
   return "dashboard_fetch_failed";
 }
 
@@ -106,6 +117,29 @@ function normalizeCountryLabel(value) {
 
 function normalizePageLabel(value) {
   return sanitize(value || "", 80) || "Unknown";
+}
+
+function normalizeVoteChoice(value) {
+  const normalized = (sanitize(value || "", 20) || "").toLowerCase();
+  return VOTE_CHOICES.includes(normalized) ? normalized : "unknown";
+}
+
+function formatVoteChoice(value) {
+  const normalized = normalizeVoteChoice(value);
+
+  if (normalized === "up") {
+    return "UP";
+  }
+
+  if (normalized === "down") {
+    return "DOWN";
+  }
+
+  if (normalized === "poop") {
+    return "POOP";
+  }
+
+  return "UNKNOWN";
 }
 
 function getParisDayKey(value) {
@@ -279,6 +313,19 @@ function applyThreadFilters(threadRows, filters) {
   });
 }
 
+function applyVoteFilters(voteReceiptRows, filters) {
+  const dateThreshold = getDateThreshold(filters.dateRange);
+
+  if (!dateThreshold) {
+    return voteReceiptRows;
+  }
+
+  return voteReceiptRows.filter((vote) => {
+    const timestamp = Date.parse(vote.created_at || "");
+    return Number.isFinite(timestamp) && timestamp >= dateThreshold;
+  });
+}
+
 function formatReferrerBreakdown(visitRows) {
   const referrers = new Map();
 
@@ -309,7 +356,54 @@ function formatPageBreakdown(visitRows) {
   return sortMetricMap(pages);
 }
 
-function buildActivityByDay(visitRows, threadRows) {
+function formatVoteBreakdown(voteRows, voteReceiptRows, dateRange) {
+  const votes = new Map(VOTE_CHOICES.map((choice) => [formatVoteChoice(choice), 0]));
+
+  if (dateRange === "all" && voteRows.length) {
+    voteRows.forEach((row) => {
+      const label = formatVoteChoice(row.option_key);
+      votes.set(label, Number(row.count || 0));
+    });
+  } else {
+    voteReceiptRows.forEach((row) => {
+      const label = formatVoteChoice(row.selected_choice);
+      votes.set(label, (votes.get(label) || 0) + 1);
+    });
+  }
+
+  return [...votes.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+function buildVoteOverview(voteBreakdown, voteReceiptRows, visitors, threads) {
+  const totalVotes = voteBreakdown.reduce((sum, item) => sum + item.count, 0);
+  const topVote = voteBreakdown.find((item) => item.count > 0);
+  const now = Date.now();
+  const votes24h = voteReceiptRows.filter((vote) => {
+    const timestamp = Date.parse(vote.created_at || "");
+    return Number.isFinite(timestamp) && now - timestamp <= DAY_MS;
+  }).length;
+  const uniqueVisitors = Math.max(visitors.length, 0);
+  const conversations = Math.max(threads.length, 0);
+  const voteConversionRate = uniqueVisitors
+    ? Math.round((totalVotes / uniqueVisitors) * 100)
+    : 0;
+  const conversationConversionRate = uniqueVisitors
+    ? Math.round((conversations / uniqueVisitors) * 100)
+    : 0;
+
+  return {
+    total_votes: totalVotes,
+    votes_24h: votes24h,
+    top_vote_label: topVote?.label || "None",
+    top_vote_count: topVote?.count || 0,
+    vote_conversion_rate: voteConversionRate,
+    conversation_conversion_rate: conversationConversionRate,
+  };
+}
+
+function buildActivityByDay(visitRows, threadRows, voteReceiptRows = []) {
   const now = new Date();
   const buckets = [];
 
@@ -322,6 +416,7 @@ function buildActivityByDay(visitRows, threadRows) {
       label: getParisDayLabel(day.toISOString()),
       visits: 0,
       conversations: 0,
+      votes: 0,
     });
   }
 
@@ -342,6 +437,14 @@ function buildActivityByDay(visitRows, threadRows) {
 
     if (bucket) {
       bucket.conversations += 1;
+    }
+  });
+
+  voteReceiptRows.forEach((vote) => {
+    const bucket = bucketMap.get(getParisDayKey(vote.created_at));
+
+    if (bucket) {
+      bucket.votes += 1;
     }
   });
 
@@ -508,8 +611,11 @@ export default async function handler(request, response) {
 
     let visitRows = [];
     let threadRows = [];
+    let voteRows = [];
+    let voteReceiptRows = [];
     let visitIssue = null;
     let chatIssue = null;
+    let voteIssue = null;
     const filters = buildDashboardFilters(request);
 
     try {
@@ -534,9 +640,30 @@ export default async function handler(request, response) {
       chatIssue = inferReason(error instanceof Error ? error.message : "");
     }
 
+    try {
+      voteRows = await fetchRows(supabaseUrl, serviceRoleKey, "report_votes", {
+        select: "option_key,count",
+        limit: 12,
+      });
+
+      voteReceiptRows = await fetchRows(
+        supabaseUrl,
+        serviceRoleKey,
+        "report_vote_receipts",
+        {
+          select: "id,selected_choice,created_at",
+          order: "created_at.desc",
+          limit: VOTE_RECEIPT_LIMIT,
+        }
+      );
+    } catch (error) {
+      voteIssue = inferReason(error instanceof Error ? error.message : "");
+    }
+
     const filterOptions = buildFilterOptions(visitRows);
     const filteredVisitRows = applyVisitFilters(visitRows, filters);
     const filteredThreadRows = applyThreadFilters(threadRows, filters);
+    const filteredVoteReceiptRows = applyVoteFilters(voteReceiptRows, filters);
     const aggregatedVisitors = aggregateVisitors(
       filteredVisitRows,
       filteredThreadRows
@@ -550,10 +677,30 @@ export default async function handler(request, response) {
     const topCountries = formatCountryBreakdown(aggregatedVisitors);
     const topPages = formatPageBreakdown(filteredVisitRows);
     const topReferrers = formatReferrerBreakdown(filteredVisitRows);
+    const voteBreakdown = formatVoteBreakdown(
+      voteRows,
+      filteredVoteReceiptRows,
+      filters.dateRange
+    );
+    const voteOverview = buildVoteOverview(
+      voteBreakdown,
+      voteReceiptRows,
+      aggregatedVisitors,
+      filteredThreadRows
+    );
     const recentThreads = filteredThreadRows.slice(0, RECENT_THREAD_LIMIT);
+    const recentVotes = filteredVoteReceiptRows
+      .slice(0, RECENT_VOTE_LIMIT)
+      .map((vote) => ({
+        id: vote.id,
+        selected_choice: normalizeVoteChoice(vote.selected_choice),
+        label: formatVoteChoice(vote.selected_choice),
+        created_at: vote.created_at,
+      }));
     const activityByDay = buildActivityByDay(
       filteredVisitRows,
-      filteredThreadRows
+      filteredThreadRows,
+      filteredVoteReceiptRows
     );
 
     return response.status(200).json({
@@ -565,12 +712,16 @@ export default async function handler(request, response) {
       topCountries,
       topPages,
       topReferrers,
+      voteOverview,
+      voteBreakdown,
       activityByDay,
       recentVisitors,
       recentThreads,
+      recentVotes,
       issues: {
         visits: visitIssue,
         chat: chatIssue,
+        votes: voteIssue,
       },
     });
   } catch (error) {
