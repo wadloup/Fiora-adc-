@@ -388,7 +388,7 @@ export default function MangaDock({
               Read - Manga
             </p>
             <p className="mt-1 truncate text-xl font-black uppercase tracking-[0.06em] text-white">
-              Just for my pleasure
+              THIS IS SO PEAK
             </p>
           </div>
           <span className="rounded-2xl border border-red-400/25 bg-red-500/12 p-2 text-red-200">
@@ -396,11 +396,11 @@ export default function MangaDock({
           </span>
         </div>
 
-        <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-black/35">
+        <div className="mt-3 aspect-[1055/1491] overflow-hidden rounded-2xl border border-white/10 bg-red-950/10">
           <img
             src="/manga/last-rebirth-cover-preview.jpg"
             alt="The World's Last Rebirth Fiora cover preview"
-            className="h-[310px] w-full bg-black/70 object-contain object-center opacity-90 transition duration-200 hover:opacity-100"
+            className="h-full w-full object-cover object-center opacity-95 transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />
