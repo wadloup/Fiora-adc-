@@ -398,9 +398,9 @@ export default function MangaDock({
 
         <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-black/35">
           <img
-            src="/manga/planche-1-preview.jpg"
-            alt="Manga page 1 preview"
-            className="h-[310px] w-full object-cover object-top opacity-90 transition duration-200 hover:opacity-100"
+            src="/manga/last-rebirth-cover-preview.jpg"
+            alt="The World's Last Rebirth Fiora cover preview"
+            className="h-[310px] w-full bg-black/70 object-contain object-center opacity-90 transition duration-200 hover:opacity-100"
             loading="lazy"
             decoding="async"
           />
