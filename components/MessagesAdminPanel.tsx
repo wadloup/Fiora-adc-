@@ -167,6 +167,10 @@ type ThreadDeletePayload = {
 
 type LoadState = "idle" | "loading" | "ready" | "error";
 
+const EMPTY_DASHBOARD_TREND_POINTS: DashboardTrendPoint[] = [];
+const EMPTY_DASHBOARD_VISITORS: DashboardVisitor[] = [];
+const EMPTY_CHAT_THREADS: ChatThread[] = [];
+
 type MessagesAdminPanelProps = {
   onClose: () => void;
   initialTab?: AdminTab;
@@ -253,6 +257,16 @@ function formatParisTime(value: string | null) {
 function formatLocation(thread: ChatThread) {
   const parts = [thread.country, thread.region, thread.city].filter(Boolean);
   return parts.length ? parts.join(" / ") : "Unknown location";
+}
+
+function formatVisitorLocation(visitor: DashboardVisitor) {
+  const parts = [
+    visitor.latest_country,
+    visitor.latest_region,
+    visitor.latest_city,
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(" / ") : "Unknown visitor";
 }
 
 function formatDuration(seconds: number | null | undefined) {
@@ -593,6 +607,209 @@ function MiniTrendChart({
             <span className="text-[10px] uppercase tracking-[0.08em] text-white/40">
               {item.label}
             </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VisitorFunnelChart({ items }: { items: DashboardMetric[] }) {
+  const maxCount = Math.max(...items.map((item) => item.count), 1);
+
+  return (
+    <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.025)_100%)] p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-300">
+            Visitor flow
+          </p>
+          <p className="mt-2 text-sm text-white/55">
+            From raw traffic to repeat visits and conversations.
+          </p>
+        </div>
+        <Users className="h-5 w-5 text-red-200/70" />
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {items.map((item, index) => (
+          <div
+            key={`visitor-flow-${item.label}`}
+            className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-xs font-black text-white/75">
+                  {index + 1}
+                </span>
+                <span className="truncate text-sm font-semibold text-white/82">
+                  {item.label}
+                </span>
+              </div>
+              <span className="text-lg font-black text-white">{item.count}</span>
+            </div>
+            <div className="mt-3 h-2 rounded-full bg-white/5">
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,120,145,0.98),rgba(255,45,92,0.92))] shadow-[0_0_18px_rgba(255,80,120,0.18)]"
+                style={{
+                  width: `${Math.max(
+                    item.count ? 14 : 0,
+                    Math.round((item.count / maxCount) * 100)
+                  )}%`,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VisitorEngagementChart({
+  visitors,
+}: {
+  visitors: DashboardVisitor[];
+}) {
+  const rankedVisitors = [...visitors]
+    .sort(
+      (first, second) =>
+        second.total_duration_seconds - first.total_duration_seconds ||
+        second.visit_count - first.visit_count
+    )
+    .slice(0, 6);
+  const maxDuration = Math.max(
+    ...rankedVisitors.map((visitor) => visitor.total_duration_seconds),
+    1
+  );
+  const maxVisits = Math.max(
+    ...rankedVisitors.map((visitor) => visitor.visit_count),
+    1
+  );
+
+  return (
+    <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.025)_100%)] p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-300">
+            Engagement ranking
+          </p>
+          <p className="mt-2 text-sm text-white/55">
+            Visitors sorted by total active time, then visit count.
+          </p>
+        </div>
+        <Clock3 className="h-5 w-5 text-red-200/70" />
+      </div>
+
+      <div className="mt-5 space-y-4">
+        {rankedVisitors.length ? (
+          rankedVisitors.map((visitor, index) => {
+            const durationWidth = Math.max(
+              visitor.total_duration_seconds ? 12 : 0,
+              Math.round((visitor.total_duration_seconds / maxDuration) * 100)
+            );
+            const visitsWidth = Math.max(
+              visitor.visit_count ? 12 : 0,
+              Math.round((visitor.visit_count / maxVisits) * 100)
+            );
+
+            return (
+              <div
+                key={`visitor-engagement-${visitor.visitor_key}`}
+                className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-xs font-black text-white/75">
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-white">
+                        {formatVisitorLocation(visitor)}
+                      </p>
+                      <p className="mt-1 truncate text-[11px] uppercase tracking-[0.12em] text-white/42">
+                        {visitor.latest_guide_page}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-black text-white">
+                      {formatDuration(visitor.total_duration_seconds)}
+                    </p>
+                    <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/42">
+                      {visitor.visit_count} visits
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  <div className="h-2 rounded-full bg-white/5">
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,125,155,0.98),rgba(255,35,88,0.9))]"
+                      style={{ width: `${durationWidth}%` }}
+                    />
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/5">
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,218,130,0.95),rgba(255,145,48,0.88))]"
+                      style={{ width: `${visitsWidth}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 px-4 py-8 text-center text-sm text-white/45">
+            No visitor engagement data yet.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VisitorTranscriptPanel({
+  lines,
+}: {
+  lines: Array<{ label: string; value: string; detail: string }>;
+}) {
+  return (
+    <div className="rounded-[1.7rem] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(255,56,98,0.15),transparent_34%),rgba(255,255,255,0.04)] p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-300">
+            Visitor readout
+          </p>
+          <p className="mt-2 text-sm text-white/55">
+            A plain-language transcript of what the visitor data is saying.
+          </p>
+        </div>
+        <MessageSquareText className="h-5 w-5 text-red-200/70" />
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {lines.map((line, index) => (
+          <div
+            key={`visitor-readout-${line.label}`}
+            className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-red-300/20 bg-red-500/10 text-[11px] font-black text-red-100">
+                {index + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-200/75">
+                  {line.label}
+                </p>
+                <p className="mt-1 text-lg font-black text-white">
+                  {line.value}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-white/58">
+                  {line.detail}
+                </p>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -1138,9 +1355,82 @@ export default function MessagesAdminPanel({
     pages: [],
     referrers: [],
   };
-  const activityByDay = dashboardData?.activityByDay ?? [];
-  const recentVisitors = dashboardData?.recentVisitors ?? [];
-  const recentThreads = dashboardData?.recentThreads ?? [];
+  const activityByDay =
+    dashboardData?.activityByDay ?? EMPTY_DASHBOARD_TREND_POINTS;
+  const recentVisitors =
+    dashboardData?.recentVisitors ?? EMPTY_DASHBOARD_VISITORS;
+  const recentThreads = dashboardData?.recentThreads ?? EMPTY_CHAT_THREADS;
+  const visitorAnalytics = useMemo(() => {
+    const visitEvents = dashboardOverview?.visit_events ?? 0;
+    const uniqueVisitors = dashboardOverview?.unique_visitors ?? 0;
+    const visitors24h = dashboardOverview?.unique_visitors_24h ?? 0;
+    const averageDuration = dashboardOverview?.average_duration_seconds ?? 0;
+    const repeatVisitors = recentVisitors.filter(
+      (visitor) => visitor.visit_count > 1
+    ).length;
+    const chatLinkedVisitors = recentVisitors.filter(
+      (visitor) => visitor.has_conversation
+    ).length;
+    const needsReplyVisitors = recentVisitors.filter(
+      (visitor) => visitor.needs_reply
+    ).length;
+    const topCountry = dashboardData?.topCountries?.[0];
+    const topPage = dashboardData?.topPages?.[0];
+    const topReferrer = dashboardData?.topReferrers?.[0];
+    const mostEngagedVisitor = [...recentVisitors].sort(
+      (first, second) =>
+        second.total_duration_seconds - first.total_duration_seconds ||
+        second.visit_count - first.visit_count
+    )[0];
+
+    return {
+      flow: [
+        { label: "Visit events", count: visitEvents },
+        { label: "Unique visitors", count: uniqueVisitors },
+        { label: "Visitors 24h", count: visitors24h },
+        { label: "Repeat visitors shown", count: repeatVisitors },
+        { label: "Chat linked", count: chatLinkedVisitors },
+        { label: "Needs reply", count: needsReplyVisitors },
+      ],
+      readout: [
+        {
+          label: "Traffic",
+          value: `${uniqueVisitors} unique`,
+          detail: `${visitEvents} visit events are tracked in this filter, with ${visitors24h} unique visitors active in the last 24 hours.`,
+        },
+        {
+          label: "Best page",
+          value: topPage?.label ?? "No page yet",
+          detail: topPage
+            ? `${topPage.count} visits currently point here, so this is the guide page pulling the most attention.`
+            : "No page signal is available for this filter yet.",
+        },
+        {
+          label: "Top country",
+          value: topCountry?.label ?? "No country yet",
+          detail: topCountry
+            ? `${topCountry.count} visits come from this country in the selected window.`
+            : "No country signal is available for this filter yet.",
+        },
+        {
+          label: "Referrer",
+          value: topReferrer?.label ?? "No referrer yet",
+          detail: topReferrer
+            ? `${topReferrer.count} visits are attributed to this source.`
+            : "No referrer source has enough data to stand out yet.",
+        },
+        {
+          label: "Engagement",
+          value: formatDuration(
+            mostEngagedVisitor?.total_duration_seconds ?? averageDuration
+          ),
+          detail: mostEngagedVisitor
+            ? `${formatVisitorLocation(mostEngagedVisitor)} is the strongest recent visitor by active time. Average duration is ${formatDuration(averageDuration)}.`
+            : `Average duration is ${formatDuration(averageDuration)} while the visitor list fills up.`,
+        },
+      ],
+    };
+  }, [dashboardData, dashboardOverview, recentVisitors]);
   const filteredThreads = useMemo(
     () =>
       threads.filter((thread) => {
@@ -1983,101 +2273,134 @@ export default function MessagesAdminPanel({
 
           {activeTab === "visitors" ? (
             <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(10,8,10,0.92)_0%,rgba(8,8,10,0.98)_100%)] px-6 py-5">
-              <div className="grid gap-4 xl:grid-cols-2">
-                {recentVisitors.length ? (
-                  recentVisitors.map((visitor) => (
-                    <div
-                      key={`visitor-card-${visitor.visitor_key}`}
-                      className="rounded-2xl border border-white/10 bg-white/[0.045] p-4"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="flex items-center gap-2 text-lg font-black text-white">
-                            <Globe2 className="h-4.5 w-4.5 text-red-300" />
-                            <span className="truncate">
-                              {[
-                                visitor.latest_country,
-                                visitor.latest_region,
-                                visitor.latest_city,
-                              ]
-                                .filter(Boolean)
-                                .join(" / ") || "Unknown visitor"}
-                            </span>
-                          </p>
-                          <p className="mt-2 text-xs text-white/52">
-                            Last seen {formatParisTime(visitor.last_seen_at)}
-                          </p>
-                        </div>
-
-                        <div className="flex shrink-0 items-center gap-2">
-                          {visitor.needs_reply ? (
-                            <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
-                              Needs reply
-                            </span>
-                          ) : null}
-                          {visitor.has_conversation ? (
-                            <span className="rounded-full border border-red-300/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100">
-                              Chat linked
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
-                            Visits
-                          </p>
-                          <p className="mt-2 text-xl font-black text-white">
-                            {visitor.visit_count}
-                          </p>
-                        </div>
-                        <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
-                            Total duration
-                          </p>
-                          <p className="mt-2 text-xl font-black text-white">
-                            {formatDuration(visitor.total_duration_seconds)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 space-y-2 text-sm text-white/72">
-                        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
-                          <span className="text-white/52">Latest page</span>
-                          <span className="truncate font-semibold text-white">
-                            {visitor.latest_guide_page}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
-                          <span className="text-white/52">Path</span>
-                          <span className="truncate font-semibold text-white">
-                            {visitor.latest_pathname}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
-                          <span className="text-white/52">Referrer</span>
-                          <span className="truncate font-semibold text-white">
-                            {visitor.latest_referrer_label}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 rounded-xl border border-white/8 bg-black/20 px-3 py-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
-                          User agent
-                        </p>
-                        <p className="mt-2 break-words text-xs leading-relaxed text-white/58">
-                          {visitor.latest_user_agent || "Unknown"}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-full flex min-h-[260px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-sm text-white/45">
-                    No visitor data available yet.
+              <div className="space-y-5">
+                {dashboardIssues?.visits ? (
+                  <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-sm text-amber-50">
+                    Visits feed: {reasonToMessage(dashboardIssues.visits)}
                   </div>
-                )}
+                ) : null}
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                  <VisitorFunnelChart items={visitorAnalytics.flow} />
+                  <VisitorTranscriptPanel lines={visitorAnalytics.readout} />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                  <VisitorEngagementChart visitors={recentVisitors} />
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+                    <MiniTrendChart
+                      title="Visitor timeline"
+                      data={activityByDay}
+                      metric="visits"
+                    />
+                    <BreakdownPanel
+                      title="Visitor pages"
+                      items={dashboardData?.topPages ?? []}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <BreakdownPanel
+                    title="Visitor countries"
+                    items={dashboardData?.topCountries ?? []}
+                  />
+                  <BreakdownPanel
+                    title="Visitor referrers"
+                    items={dashboardData?.topReferrers ?? []}
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {recentVisitors.length ? (
+                    recentVisitors.map((visitor) => (
+                      <div
+                        key={`visitor-card-${visitor.visitor_key}`}
+                        className="rounded-2xl border border-white/10 bg-white/[0.045] p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="flex items-center gap-2 text-lg font-black text-white">
+                              <Globe2 className="h-4.5 w-4.5 text-red-300" />
+                              <span className="truncate">
+                                {formatVisitorLocation(visitor)}
+                              </span>
+                            </p>
+                            <p className="mt-2 text-xs text-white/52">
+                              Last seen {formatParisTime(visitor.last_seen_at)}
+                            </p>
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-2">
+                            {visitor.needs_reply ? (
+                              <span className="rounded-full border border-amber-300/25 bg-amber-300/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+                                Needs reply
+                              </span>
+                            ) : null}
+                            {visitor.has_conversation ? (
+                              <span className="rounded-full border border-red-300/20 bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100">
+                                Chat linked
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                              Visits
+                            </p>
+                            <p className="mt-2 text-xl font-black text-white">
+                              {visitor.visit_count}
+                            </p>
+                          </div>
+                          <div className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                              Total duration
+                            </p>
+                            <p className="mt-2 text-xl font-black text-white">
+                              {formatDuration(visitor.total_duration_seconds)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 space-y-2 text-sm text-white/72">
+                          <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                            <span className="text-white/52">Latest page</span>
+                            <span className="truncate font-semibold text-white">
+                              {visitor.latest_guide_page}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                            <span className="text-white/52">Path</span>
+                            <span className="truncate font-semibold text-white">
+                              {visitor.latest_pathname}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                            <span className="text-white/52">Referrer</span>
+                            <span className="truncate font-semibold text-white">
+                              {visitor.latest_referrer_label}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                            User agent
+                          </p>
+                          <p className="mt-2 break-words text-xs leading-relaxed text-white/58">
+                            {visitor.latest_user_agent || "Unknown"}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full flex min-h-[260px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-sm text-white/45">
+                      No visitor data available yet.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : null}
