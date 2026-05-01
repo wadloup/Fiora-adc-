@@ -30,6 +30,7 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import FirstVisitIntro from "./components/FirstVisitIntro";
 import GuideProgress from "./components/GuideProgress";
 import GuideQuickStart from "./components/GuideQuickStart";
+import HomeDraftPlanner from "./components/HomeDraftPlanner";
 import HomeSupportShowcase from "./components/HomeSupportShowcase";
 import IQTest from "./components/IQTest";
 import MangaDock from "./components/MangaDock";
@@ -1402,6 +1403,15 @@ export default function App() {
               onOpenIQTest={() => setIqTestOpen(true)}
               onOpenManga={openMangaReader}
               onResume={resumeGuideProgress}
+            />
+          ) : null}
+
+          {currentPage === "Home" ? (
+            <HomeDraftPlanner
+              onOpenSupport={() => goPage("Fiora's Support")}
+              onOpenLaneSupport={() => goLaneSection("support")}
+              onOpenRunes={() => goPage("Runes")}
+              onOpenBuild={() => goPage("Build")}
             />
           ) : null}
 
