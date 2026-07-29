@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:sites": "tsc -b && vite build --config vite.sites.config.mjs --configLoader runner && node scripts/prepare-sites-build.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
