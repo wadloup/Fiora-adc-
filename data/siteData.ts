@@ -9,6 +9,7 @@ export const pages = [
   "Fiora's Support",
   "Mid/Late Game",
   "Mechanical Tips",
+  "Vital Rush",
   "Videos / Clips",
 ] as const;
 
@@ -108,6 +109,14 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "Mechanics are not just speed. They are angle, timing, restraint, and nerve.",
     position: "60% center",
   },
+  "Vital Rush": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
+    mood: "Arcade focus",
+    summary:
+      "A small reflex arena for dashing vitals, parrying shots, and keeping the lane alive under pressure.",
+    position: "center 24%",
+  },
   "Videos / Clips": {
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_2.jpg",
@@ -130,6 +139,7 @@ export const pageSubtitle: Record<PageName, string> = {
   "Fiora's Support": "How support turns this pick from joke to threat.",
   "Mid/Late Game": "If lane is won, this is how you cash it in.",
   "Mechanical Tips": "Short execution reminders before queue.",
+  "Vital Rush": "Dash vitals, parry shots, and chain the bot-lane arcade run.",
   "Videos / Clips": "Clips for setup, spacing, entries, and cleanup.",
 };
 
@@ -154,6 +164,8 @@ export const voiceText: Record<PageName, string> = {
     "After lane, pick one job and commit to it. Split, flank, pick, or group, but stop drifting between ideas and bleeding pressure for free.",
   "Mechanical Tips":
     "Good Fiora mechanics are not just fast fingers. They are calm timing, correct angles, and knowing exactly when the lane wants patience instead of ego.",
+  "Vital Rush":
+    "Vital Rush is the quick arcade lab. Dash through weak points, parry incoming pressure, and keep the combo moving before bot lane turns into a disaster.",
   "Videos / Clips":
     "Use clips to study decisions, spacing, entry timing, and reset windows. If a clip only shows the kill, it is hiding the part that actually mattered.",
 };

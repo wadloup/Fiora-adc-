@@ -99,8 +99,8 @@ export default function MangaDock({
   const pausedSiteMediaRef = useRef<HTMLMediaElement[]>([]);
   const pausedSpeechByMangaRef = useRef(false);
   const playAfterTrackChangeRef = useRef(false);
-  const handledOpenRequestRef = useRef(openRequest);
-  const handledAutoOpenRequestRef = useRef(autoOpenRequest);
+  const handledOpenRequestRef = useRef(0);
+  const handledAutoOpenRequestRef = useRef(0);
   const autoOpenExpandTimeoutRef = useRef<number | null>(null);
   const autoOpenClickTimeoutRef = useRef<number | null>(null);
   const autoOpenResetTimeoutRef = useRef<number | null>(null);

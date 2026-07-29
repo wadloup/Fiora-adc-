@@ -270,7 +270,7 @@ export default function SpeakableCard({
         <audio
           ref={audioRef}
           src={audioSrc}
-          preload="auto"
+          preload="none"
           onEnded={() => {
             if (activeSpeakableId === speakableId) {
               activeSpeakableId = null;

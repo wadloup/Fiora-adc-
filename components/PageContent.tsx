@@ -1,4 +1,5 @@
 ﻿import type React from "react";
+import { lazy, Suspense } from "react";
 import {
   ChevronRight,
   Crosshair,
@@ -16,7 +17,6 @@ import NeonCard from "./ui/NeonCard";
 import SpeakableCard from "./ui/SpeakableCard";
 import StatCard from "./ui/StatCard";
 import ItemPath from "./ui/ItemPath";
-import SupportCompatibilityScanner from "./SupportCompatibilityScanner";
 import {
   homeFeatureCards,
   homeStatCards,
@@ -43,6 +43,17 @@ import {
   recoverAssetImage,
   recoverImage,
 } from "../utils/imageFallback";
+
+const LazySupportCompatibilityScanner = lazy(
+  () => import("./SupportCompatibilityScanner")
+);
+const LazyVitalRushGame = lazy(() => import("./VitalRushGame"));
+
+const deferredFeatureFallback = (
+  <NeonCard className="p-6">
+    <div className="h-48 animate-pulse rounded-2xl bg-white/[0.04]" />
+  </NeonCard>
+);
 
 const supportPickGuide = [
   {
@@ -734,7 +745,9 @@ export default function PageContent({
             ))}
           </div>
 
-          <SupportCompatibilityScanner />
+          <Suspense fallback={deferredFeatureFallback}>
+            <LazySupportCompatibilityScanner />
+          </Suspense>
 
           <SectionTitle
             icon={PlayCircle}
@@ -832,6 +845,12 @@ export default function PageContent({
             ))}
           </div>
         </>
+      ) : null}
+
+      {currentPage === "Vital Rush" ? (
+        <Suspense fallback={deferredFeatureFallback}>
+          <LazyVitalRushGame />
+        </Suspense>
       ) : null}
 
       {currentPage === "Videos / Clips" ? (

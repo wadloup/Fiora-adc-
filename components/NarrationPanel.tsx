@@ -451,7 +451,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
               <audio
                 ref={audioRef}
                 src={recordedAudioSrc}
-                preload="auto"
+                preload="none"
                 onEnded={() => setSpeaking(false)}
                 onError={() => setSpeaking(false)}
               />

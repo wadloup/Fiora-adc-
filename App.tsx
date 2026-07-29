@@ -26,17 +26,9 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import AnimatedBackground from "./components/AnimatedBackground";
 import FirstVisitIntro from "./components/FirstVisitIntro";
 import GuideProgress from "./components/GuideProgress";
-import GuideQuickStart from "./components/GuideQuickStart";
-import HomeDraftPlanner from "./components/HomeDraftPlanner";
-import HomeSupportShowcase from "./components/HomeSupportShowcase";
-import IQTest from "./components/IQTest";
-import MangaDock from "./components/MangaDock";
-import MessageDock from "./components/MessageDock";
 import MusicPlayer from "./components/MusicPlayer";
-import NarrationPanel from "./components/NarrationPanel";
 import NeonCard from "./components/ui/NeonCard";
 import PageButton from "./components/ui/PageButton";
 import {
@@ -66,6 +58,24 @@ import { logVisitorPageView } from "./utils/visitLogger";
 
 const LazyPageContent = lazy(() => import("./components/PageContent"));
 const LazyReportVoteBlock = lazy(() => import("./components/ReportVoteBlock"));
+const LazyAnimatedBackground = lazy(
+  () => import("./components/AnimatedBackground")
+);
+const LazyGuideQuickStart = lazy(
+  () => import("./components/GuideQuickStart")
+);
+const LazyHomeDraftPlanner = lazy(
+  () => import("./components/HomeDraftPlanner")
+);
+const LazyHomeSupportShowcase = lazy(
+  () => import("./components/HomeSupportShowcase")
+);
+const LazyIQTest = lazy(() => import("./components/IQTest"));
+const LazyMangaDock = lazy(() => import("./components/MangaDock"));
+const LazyMessageDock = lazy(() => import("./components/MessageDock"));
+const LazyNarrationPanel = lazy(
+  () => import("./components/NarrationPanel")
+);
 const LazyMessagesAdminPanel = lazy(
   () => import("./components/MessagesAdminPanel")
 );
@@ -208,6 +218,8 @@ const PAGE_FOCUS_TEXT: Record<PageName, string> = {
     "Pick your job after lane and stop drifting between split, flank, and group.",
   "Mechanical Tips":
     "Use this when you need reminders on spacing, Riposte timing, and clean execution.",
+  "Vital Rush":
+    "Play the arcade lab when you want reflex practice instead of another text page.",
   "Videos / Clips":
     "Watch clips for setup and cleanup, not just the kill at the end.",
 };
@@ -1038,7 +1050,7 @@ export default function App() {
           ref={audioRef}
           src={currentTrack.src}
           loop
-          preload="auto"
+          preload="none"
           onPlay={() => {
             setMusicPlaying(true);
             setMusicBlocked(false);
@@ -1050,7 +1062,14 @@ export default function App() {
           }}
       />
 
-      <AnimatedBackground theme={currentTrack} />
+      {!firstVisitIntroOpen ? (
+        <Suspense fallback={null}>
+          <LazyAnimatedBackground
+            theme={currentTrack}
+            active={!iqTestOpen && !mangaReaderOpen}
+          />
+        </Suspense>
+      ) : null}
 
       <AnimatePresence>
         {firstVisitIntroOpen ? (
@@ -1076,18 +1095,24 @@ export default function App() {
         ) : null}
       </AnimatePresence>
 
-      <IQTest
-        open={iqTestOpen}
-        onClose={() => setIqTestOpen(false)}
-        onGoHome={() => {
-          setIqTestOpen(false);
-          closeFirstVisitIntro();
-          goPage("Home");
-          void playBackgroundMusic();
-        }}
-        musicSlot={musicControlDock}
-      />
+      {iqTestOpen ? (
+        <Suspense fallback={null}>
+          <LazyIQTest
+            open
+            onClose={() => setIqTestOpen(false)}
+            onGoHome={() => {
+              setIqTestOpen(false);
+              closeFirstVisitIntro();
+              goPage("Home");
+              void playBackgroundMusic();
+            }}
+            musicSlot={musicControlDock}
+          />
+        </Suspense>
+      ) : null}
 
+      {!firstVisitIntroOpen ? (
+        <>
       <header className="sticky top-0 z-50 border-b border-red-500/20 bg-[rgba(6,6,8,0.66)] shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-3 py-4 md:px-5">
             <div className="flex shrink-0 items-center gap-2">
@@ -1388,35 +1413,47 @@ export default function App() {
                   </div>
                 </div>
                 <div className="relative z-10 hidden min-[1500px]:block">
-                  <HomeSupportShowcase />
+                  <Suspense fallback={null}>
+                    <LazyHomeSupportShowcase />
+                  </Suspense>
                 </div>
               </div>
             </NeonCard>
           ) : null}
 
           {currentPage === "Home" ? (
-            <GuideQuickStart
-              activeMode={guideMode}
-              resumePage={lastVisitedPage}
-              onChooseSupport={openSupportQuickStart}
-              onChooseAdc={openAdcQuickStart}
-              onOpenIQTest={() => setIqTestOpen(true)}
-              onOpenManga={openMangaReader}
-              onResume={resumeGuideProgress}
-            />
+            <div className="deferred-render-section">
+              <Suspense fallback={null}>
+                <LazyGuideQuickStart
+                  activeMode={guideMode}
+                  resumePage={lastVisitedPage}
+                  onChooseSupport={openSupportQuickStart}
+                  onChooseAdc={openAdcQuickStart}
+                  onOpenIQTest={() => setIqTestOpen(true)}
+                  onOpenManga={openMangaReader}
+                  onResume={resumeGuideProgress}
+                />
+              </Suspense>
+            </div>
           ) : null}
 
           {currentPage === "Home" ? (
-            <HomeDraftPlanner
-              onOpenSupport={() => goPage("Fiora's Support")}
-              onOpenLaneSupport={() => goLaneSection("support")}
-              onOpenRunes={() => goPage("Runes")}
-              onOpenBuild={() => goPage("Build")}
-            />
+            <div className="deferred-render-section">
+              <Suspense fallback={null}>
+                <LazyHomeDraftPlanner
+                  onOpenSupport={() => goPage("Fiora's Support")}
+                  onOpenLaneSupport={() => goLaneSection("support")}
+                  onOpenRunes={() => goPage("Runes")}
+                  onOpenBuild={() => goPage("Build")}
+                />
+              </Suspense>
+            </div>
           ) : null}
 
           {!firstVisitIntroOpen && !iqTestOpen && !mangaReaderOpen ? (
-            <NarrationPanel page={currentPage} />
+            <Suspense fallback={null}>
+              <LazyNarrationPanel page={currentPage} />
+            </Suspense>
           ) : null}
 
         <AnimatePresence mode="sync">
@@ -1443,15 +1480,19 @@ export default function App() {
                 </NeonCard>
               }
             >
-              <LazyPageContent
-                currentPage={currentPage}
-                laneRefs={laneRefs}
-                goLaneSection={goLaneSection}
-              />
+              <div className="guide-page-content">
+                <LazyPageContent
+                  currentPage={currentPage}
+                  laneRefs={laneRefs}
+                  goLaneSection={goLaneSection}
+                />
+              </div>
             </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
+        </>
+      ) : null}
 
       <AnimatePresence>
         {launchFxBursts.map((burstId) => (
@@ -1604,6 +1645,8 @@ export default function App() {
         ))}
       </AnimatePresence>
 
+      {!firstVisitIntroOpen ? (
+        <>
       <button
         onClick={requestAllVoiceStop}
         className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-[rgba(8,8,10,0.94)] px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
@@ -1629,8 +1672,12 @@ export default function App() {
             initialTab={messagesAdminInitialTab}
           />
         </Suspense>
+      ) : !firstVisitIntroOpen ? (
+        <Suspense fallback={null}>
+          <LazyMessageDock />
+        </Suspense>
       ) : (
-        <MessageDock />
+        null
       )}
 
       <div className="fixed right-4 top-[10.35rem] z-[59] hidden w-[280px] rounded-3xl border border-red-500/30 bg-[rgba(8,8,10,0.94)] p-4 shadow-[0_0_28px_rgba(255,0,60,0.22)] lg:block sm:right-5 md:right-6">
@@ -1710,12 +1757,16 @@ export default function App() {
         mobile
       />
 
-      <MangaDock
-        onOpen={pauseSiteAudioForManga}
-        onClose={resumeSiteAudioAfterManga}
-        openRequest={mangaOpenRequest}
-        autoOpenRequest={mangaAutoOpenRequest}
-      />
+      {!firstVisitIntroOpen ? (
+        <Suspense fallback={null}>
+          <LazyMangaDock
+            onOpen={pauseSiteAudioForManga}
+            onClose={resumeSiteAudioAfterManga}
+            openRequest={mangaOpenRequest}
+            autoOpenRequest={mangaAutoOpenRequest}
+          />
+        </Suspense>
+      ) : null}
 
       <button
         onClick={scrollTopSmooth}
@@ -1724,6 +1775,8 @@ export default function App() {
       >
         <ArrowUp className="h-5 w-5" />
       </button>
+        </>
+      ) : null}
 
       <Analytics />
     </div>

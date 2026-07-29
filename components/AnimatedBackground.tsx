@@ -1,9 +1,10 @@
 import { AnimatePresence, motion, useMotionValue } from "framer-motion";
 import { memo, useEffect, useRef, useState } from "react";
-import { musicThemes, type MusicTheme } from "../data/musicThemes";
+import type { MusicTheme } from "../data/musicThemes";
 
 type AnimatedBackgroundProps = {
   theme: MusicTheme;
+  active?: boolean;
 };
 
 type ThemeId = MusicTheme["id"];
@@ -155,7 +156,10 @@ function renderThemeScene(themeId: ThemeId) {
   return null;
 }
 
-function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
+function AnimatedBackground({
+  theme,
+  active = true,
+}: AnimatedBackgroundProps) {
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
@@ -166,6 +170,10 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   const cursorY = useMotionValue(0);
   const cursorVisibleRef = useRef(false);
   const activeVideoRef = useRef<HTMLVideoElement | null>(null);
+  const shouldRenderVideo = Boolean(artworkIsVideo && active && !liteMode);
+  const stillArtworkSrc = artworkIsVideo
+    ? artwork?.posterSrc || artwork?.src
+    : artwork?.src;
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -264,37 +272,29 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
   }, [cursorFxEnabled]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    musicThemes.forEach((themeOption) => {
-      const themeArtwork = themeOption.background.artwork;
-      if (!themeArtwork) {
-        return;
-      }
-
-      const posterSrc = themeArtwork.posterSrc || themeArtwork.src;
-      if (!posterSrc) {
-        return;
-      }
-
-      const image = new Image();
-      image.src = posterSrc;
-    });
-  }, []);
-
-  useEffect(() => {
     const video = activeVideoRef.current;
-    if (!video || !artworkIsVideo) {
+    if (!video || !shouldRenderVideo) {
       return;
     }
 
     const startPlayback = () => {
+      if (document.hidden) {
+        return;
+      }
+
       void video.play().catch(() => {
         // Decorative only: if autoplay is blocked for any reason,
         // the poster still gives an immediate visual switch.
       });
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        video.pause();
+        return;
+      }
+
+      startPlayback();
     };
 
     video.load();
@@ -305,11 +305,14 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
     }
 
     video.addEventListener("canplay", startPlayback, { once: true });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       video.removeEventListener("canplay", startPlayback);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      video.pause();
     };
-  }, [artwork?.src, artworkIsVideo]);
+  }, [artwork?.src, shouldRenderVideo]);
 
   const cursorLens =
     cursorFxEnabled && cursorVisible ? (
@@ -380,7 +383,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
             style={{ background: theme.background.base }}
           />
 
-        {artwork && artworkIsVideo ? (
+        {artwork && shouldRenderVideo ? (
           <motion.div
             className="absolute inset-0 overflow-hidden"
             initial={{ opacity: 1, scale: 1.006 }}
@@ -397,7 +400,7 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               className="h-full w-full"
               initial={{ opacity: artwork.opacity ?? 0.7 }}
               animate={{ opacity: artwork.opacity ?? 0.7 }}
@@ -444,25 +447,54 @@ function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
           </motion.div>
         ) : null}
 
-        {artwork && !artworkIsGif && !artworkIsVideo ? (
+        {artwork && stillArtworkSrc && !artworkIsGif && !shouldRenderVideo ? (
           <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0, scale: (artwork.scale || 1.04) + 0.025 }}
-            animate={{
-              opacity: artwork.opacity ?? 0.18,
-              scale: [artwork.scale || 1.04, (artwork.scale || 1.04) + 0.03, artwork.scale || 1.04],
-              x: [0, -18, 0],
-              y: [0, 10, 0],
-            }}
+            animate={
+              liteMode || !active
+                ? {
+                    opacity: artwork.opacity ?? 0.18,
+                    scale: artwork.scale || 1.04,
+                    x: 0,
+                    y: 0,
+                  }
+                : {
+                    opacity: artwork.opacity ?? 0.18,
+                    scale: [
+                      artwork.scale || 1.04,
+                      (artwork.scale || 1.04) + 0.03,
+                      artwork.scale || 1.04,
+                    ],
+                    x: [0, -18, 0],
+                    y: [0, 10, 0],
+                  }
+            }
             exit={{ opacity: 0, scale: artwork.scale || 1.04 }}
-            transition={{
-              opacity: backgroundLayerTransition,
-              scale: { duration: 16, repeat: Infinity, ease: "easeInOut" },
-              x: { duration: 16, repeat: Infinity, ease: "easeInOut" },
-              y: { duration: 16, repeat: Infinity, ease: "easeInOut" },
-            }}
+            transition={
+              liteMode || !active
+                ? backgroundLayerTransition
+                : {
+                    opacity: backgroundLayerTransition,
+                    scale: {
+                      duration: 16,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                    x: {
+                      duration: 16,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                    y: {
+                      duration: 16,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                  }
+            }
             style={{
-              backgroundImage: `url("${artwork.src}")`,
+              backgroundImage: `url("${stillArtworkSrc}")`,
               backgroundPosition: artwork.position || "center center",
               backgroundSize: artwork.fit || "cover",
               filter:
