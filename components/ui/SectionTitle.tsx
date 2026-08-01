@@ -10,17 +10,20 @@ export default function SectionTitle({
   subtitle: string;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs uppercase tracking-[0.16em] text-red-200">
-        <Icon className="h-4 w-4" />
-        Section
+    <div className="border-b border-white/12 pb-4 md:pb-5">
+      <div className="flex items-start gap-3.5 md:gap-4">
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-red-300/30 bg-red-500/[0.1] text-red-100 shadow-[0_0_16px_rgba(255,0,60,0.1)] md:h-10 md:w-10">
+          <Icon className="h-4 w-4 md:h-[1.125rem] md:w-[1.125rem]" />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-2xl font-black leading-tight text-white md:text-[2rem]">
+            {title}
+          </h2>
+          <p className="mt-1 max-w-[72ch] text-sm leading-relaxed text-white/64 md:text-[15px]">
+            {subtitle}
+          </p>
+        </div>
       </div>
-      <h2 className="text-2xl font-black tracking-tight text-white md:text-4xl">
-        {title}
-      </h2>
-      <p className="max-w-3xl text-sm leading-relaxed text-white/70 md:text-base">
-        {subtitle}
-      </p>
     </div>
   );
 }

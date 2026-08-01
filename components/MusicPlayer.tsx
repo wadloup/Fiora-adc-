@@ -108,10 +108,10 @@ function MusicPlayer({
 
   if (mobile) {
     return (
-      <div className="fixed bottom-5 left-5 z-50 flex max-w-[calc(100vw-5.5rem)] items-center gap-2 rounded-2xl border border-red-500/35 bg-[rgba(8,8,10,0.92)] px-3 py-2 shadow-[0_0_18px_rgba(255,0,60,0.22)] lg:hidden">
+      <div className="mobile-music-player fixed left-3 right-[4.25rem] z-50 flex min-h-12 items-center gap-2 rounded-lg border border-red-500/35 bg-[rgba(8,8,10,0.94)] px-2 py-1.5 shadow-[0_0_18px_rgba(255,0,60,0.22)] backdrop-blur-xl lg:hidden">
         <button
           onClick={onToggle}
-          className="text-red-300"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-red-400/28 bg-red-500/10 text-red-300"
           aria-label="Toggle background music"
         >
           {musicPlaying ? (
@@ -124,7 +124,7 @@ function MusicPlayer({
         {onPrevious ? (
           <button
             onClick={onPrevious}
-            className="rounded-xl border border-white/15 bg-white/5 p-1.5 text-white/80"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/5 text-white/80"
             aria-label="Previous track"
           >
             <SkipBack className="h-4 w-4" />
@@ -136,7 +136,7 @@ function MusicPlayer({
           onChange={(event) =>
             onTrackChange(event.target.value as MusicTrackId)
           }
-          className="music-select min-w-0 flex-1 rounded-xl border border-red-500/30 bg-black/60 px-2 py-1 text-xs text-white outline-none"
+          className="music-select h-9 min-w-0 flex-1 rounded-md border border-red-500/30 bg-black/60 px-2 text-xs text-white outline-none"
           aria-label="Select music track"
         >
           {tracks.map((track) => (
@@ -153,7 +153,7 @@ function MusicPlayer({
         {onNext ? (
           <button
             onClick={onNext}
-            className="rounded-xl border border-white/15 bg-white/5 p-1.5 text-white/80"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/5 text-white/80"
             aria-label="Next track"
           >
             <SkipForward className="h-4 w-4" />

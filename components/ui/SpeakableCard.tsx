@@ -89,6 +89,7 @@ type SpeakableCardProps = {
   analyticsLabel?: string;
   className?: string;
   contentClassName?: string;
+  compactControl?: boolean;
   children: ReactNode;
 };
 
@@ -98,11 +99,13 @@ export default function SpeakableCard({
   analyticsLabel,
   className,
   contentClassName,
+  compactControl = false,
   children,
 }: SpeakableCardProps) {
   const speakableId = useId();
   const [active, setActive] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const speakableLabel = analyticsLabel || text.split(".")[0] || text.slice(0, 80);
 
   useEffect(() => {
     const updateActiveState = (event: Event) => {
@@ -210,9 +213,7 @@ export default function SpeakableCard({
     activeSpeakableId = speakableId;
     setActiveSpeakable(speakableId);
     playActivationSound();
-    trackSpeakableBlockPlayed(
-      analyticsLabel || text.split(".")[0] || text.slice(0, 80)
-    );
+    trackSpeakableBlockPlayed(speakableLabel);
 
     if (audioSrc && audioRef.current) {
       const audio = audioRef.current;
@@ -259,10 +260,10 @@ export default function SpeakableCard({
   return (
     <NeonCard
       className={cn(
-        "relative overflow-hidden transition duration-300",
+        "relative overflow-hidden transition duration-300 hover:-translate-y-0.5",
         active
           ? "border-red-400/55 shadow-[0_0_34px_rgba(255,0,60,0.26)]"
-          : "hover:border-red-500/35 hover:shadow-[0_0_18px_rgba(255,0,60,0.12)]",
+          : "hover:border-red-300/50 hover:shadow-[0_0_22px_rgba(255,0,60,0.16)]",
         className
       )}
     >
@@ -313,16 +314,19 @@ export default function SpeakableCard({
         type="button"
         onClick={handleSpeak}
         aria-pressed={active}
+        aria-label={`${active ? "Stop" : "Listen to"} ${speakableLabel}`}
+        title={active ? "Stop audio" : "Listen to this card"}
         className={cn(
-          "block h-full w-full cursor-pointer rounded-[inherit] bg-transparent text-left transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black/70",
+          "group/speakable block h-full w-full cursor-pointer rounded-[inherit] bg-transparent text-left transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black/70",
           active ? "scale-[1.01]" : ""
         )}
       >
         <motion.span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute right-3 top-3 inline-flex rounded-full border bg-black/45 p-1.5 text-red-200 backdrop-blur-sm",
-            active ? "border-red-400/45" : "border-red-500/25"
+            "pointer-events-none absolute right-3 top-3 z-10 inline-flex min-h-8 items-center justify-center rounded-md border bg-black/72 text-red-100 shadow-[0_8px_18px_rgba(0,0,0,0.28)] backdrop-blur-sm transition group-hover/speakable:border-red-200/65 group-hover/speakable:bg-red-500/18",
+            compactControl ? "w-8 px-0" : "gap-1.5 px-2.5",
+            active ? "border-red-300/65 bg-red-500/20" : "border-white/18"
           )}
           animate={
             active
@@ -350,8 +354,15 @@ export default function SpeakableCard({
           ) : (
             <Volume2 className="h-3.5 w-3.5" />
           )}
+          {!compactControl ? (
+            <span className="text-[9px] font-black uppercase tracking-[0.1em]">
+              {active ? "Stop" : "Listen"}
+            </span>
+          ) : null}
         </motion.span>
-        <div className={cn("pr-9", contentClassName)}>{children}</div>
+        <div className={cn(compactControl ? "pr-10" : "pr-24", contentClassName)}>
+          {children}
+        </div>
       </button>
     </NeonCard>
   );

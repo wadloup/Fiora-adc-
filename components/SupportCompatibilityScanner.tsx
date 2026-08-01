@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Brain, Gauge, Radar, Shield, Sword, Zap } from "lucide-react";
 import {
   enemyLaneProfiles,
-  scannerRoasts,
   supportMentalProfiles,
   supportScannerOptions,
   type EnemyLaneKey,
@@ -32,9 +31,9 @@ function clamp(value: number) {
 function getVerdict(score: number, supportId: SupportKey, mentalId: MentalKey) {
   if (supportId === "yuumi" && mentalId === "roamer") {
     return {
-      label: "Yuumi passenger detected",
+      label: "Contradictory input",
       tone: "cyan",
-      detail: "She cannot roam, but somehow the mental still left lane.",
+      detail: "Yuumi cannot express a normal roam profile. Read this selection as early detachment or lane absence: Fiora loses attached protection, bush presence, and wave help at the same time.",
     };
   }
 
@@ -42,7 +41,7 @@ function getVerdict(score: number, supportId: SupportKey, mentalId: MentalKey) {
     return {
       label: "Compatible",
       tone: "green",
-      detail: "Real lane. Real plan. Try not to ruin it by typing.",
+      detail: "The selected support profile supplies both usable access and protection for this lane family. The score is role fit, not a win probability; the sequence and failure point below still decide the lane.",
     };
   }
 
@@ -50,30 +49,30 @@ function getVerdict(score: number, supportId: SupportKey, mentalId: MentalKey) {
     return {
       label: "Playable",
       tone: "cyan",
-      detail: "Good enough to lock. Still requires fingers and basic honesty.",
+      detail: "The pairing has a coherent contact pattern, but one dimension is conditional. Play through the strongest metric and do not force the lane through the missing access, protection, sustain, or discipline.",
     };
   }
 
   if (score >= 58) {
     return {
-      label: "Mentally ill but legal",
+      label: "Narrow execution window",
       tone: "yellow",
-      detail: "The court allows it. The court is not proud.",
+      detail: "The draft can work only through the listed trigger. A generic engage or repeated neutral trade exposes the pairing's weak dimensions faster than its strength can pay off.",
     };
   }
 
   if (score >= 43) {
     return {
-      label: "Autofill liability",
+      label: "High support dependency",
       tone: "orange",
-      detail: "Technically a support pick. Spiritually a warning label.",
+      detail: "Access, protection, or wave control is too low for repeated mistakes. Preserve HP and shorten the lane until jungle pressure, a missed enemy control spell, or an item threshold supplies the missing part.",
     };
   }
 
   return {
-    label: "Reportable",
+    label: "Draft does not solve access",
     tone: "red",
-    detail: "Dodge, pray, or prepare a documentary about botlane collapse.",
+    detail: "The current support behavior and enemy lane leave Fiora without a reliable first target or protected exit. Do not manufacture an all-in; play for a held wave, jungle route, and Hydra timing.",
   };
 }
 
@@ -157,10 +156,6 @@ function evaluateDraft(
     (100 - metrics.chaos) * 0.1;
 
   const score = clamp(weighted + mental.score + enemy.score + synergy);
-  const roastIndex =
-    (supportId.length * 3 + mentalId.length * 5 + enemyId.length * 7) %
-    scannerRoasts.length;
-
   return {
     support,
     mental,
@@ -168,7 +163,6 @@ function evaluateDraft(
     metrics,
     score,
     verdict: getVerdict(score, supportId, mentalId),
-    roast: scannerRoasts[roastIndex],
     plan: [support.plan, enemy.advice, mental.note],
     risk: support.risk,
   };
@@ -261,7 +255,7 @@ export default function SupportCompatibilityScanner() {
             </span>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.28em] text-red-300">
-                Local fake brain
+                Local rule model
               </p>
               <h3 className="text-2xl font-black text-white md:text-3xl">
                 Support Compatibility Scanner
@@ -270,8 +264,9 @@ export default function SupportCompatibilityScanner() {
           </div>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/68 md:text-base">
-            Pick the support, their mental state, and the enemy lane. The site
-            returns a verdict using local rules, no API, no payment, no mercy.
+            Pick the support, their lane behavior, and the enemy lane family.
+            The score compares access, protection, sustain, discipline and
+            chaos risk; it is a draft explanation, not a fabricated win rate.
           </p>
 
           <div className="mt-5">
@@ -376,13 +371,10 @@ export default function SupportCompatibilityScanner() {
             <div className="flex items-center gap-2">
               <Gauge className="h-4 w-4 text-red-200" />
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-200">
-                Court notes
+                Model limit and failure point
               </p>
             </div>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-white/82">
-              {result.roast}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-white/58">
+            <p className="mt-3 text-sm leading-relaxed text-white/68">
               Risk: {result.risk}
             </p>
           </div>

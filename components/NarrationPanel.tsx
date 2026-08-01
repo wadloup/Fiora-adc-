@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Volume2, VolumeX } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Headphones, Volume2, VolumeX } from "lucide-react";
+import { useId } from "react";
 import NeonCard from "./ui/NeonCard";
 import {
   narrationAudio,
@@ -35,8 +36,10 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
   const [rate, setRate] = useState(0.92);
   const [pitch, setPitch] = useState(0.84);
   const [displayText, setDisplayText] = useState(voiceText[page]);
+  const [expanded, setExpanded] = useState(false);
   const tickerRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const briefPanelId = useId();
   const pausedByMangaRef = useRef(false);
   const speechPausedByMangaRef = useRef(false);
   const recordedAudioSrc = narrationAudio[page];
@@ -280,6 +283,7 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
   useEffect(() => {
     setDisplayText(voiceText[page]);
+    setExpanded(false);
 
     if (!auto) {
       stop();
@@ -318,8 +322,18 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
 
   return (
     <NeonCard className="overflow-hidden">
-      <div className="grid gap-0 lg:grid-cols-[300px_1fr] xl:grid-cols-[320px_1fr]">
-        <div className="relative min-h-[280px] overflow-hidden bg-black/40 lg:min-h-[320px]">
+      {recordedAudioSrc ? (
+        <audio
+          ref={audioRef}
+          src={recordedAudioSrc}
+          preload="none"
+          onEnded={() => setSpeaking(false)}
+          onError={() => setSpeaking(false)}
+        />
+      ) : null}
+
+      <div className="grid min-h-[116px] grid-cols-[92px_minmax(0,1fr)] md:grid-cols-[132px_minmax(0,1fr)]">
+        <div className="relative overflow-hidden border-r border-white/10 bg-black/40">
           <motion.img
             key={config.image}
             src={config.image}
@@ -339,141 +353,164 @@ export default function NarrationPanel({ page }: NarrationPanelProps) {
             onError={(event) => recoverImage(event, DEFAULT_CHAMPION_IMAGE)}
             style={{ objectPosition: config.position || "center 14%" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-red-300">
-              Fiora
-            </p>
-            <p className="mt-1 font-semibold text-white">{config.mood}</p>
-            <div className="mt-3 flex items-center gap-2 text-xs text-white/65">
-              <span
-                className={cn(
-                  "inline-block h-2.5 w-2.5 rounded-full",
-                  speaking
-                    ? "bg-red-400 shadow-[0_0_12px_rgba(255,0,60,0.55)]"
-                    : "bg-white/30"
-                )}
-              />
-              {speaking ? "Narration live" : "Ready"}
-            </div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/8 to-transparent" />
+          <span
+            className={cn(
+              "absolute bottom-3 left-3 h-2.5 w-2.5 rounded-full border border-black/40",
+              speaking
+                ? "bg-red-400 shadow-[0_0_12px_rgba(255,0,60,0.65)]"
+                : "bg-white/40"
+            )}
+          />
         </div>
 
-        <div className="space-y-4 bg-gradient-to-br from-white/[0.03] to-red-500/[0.08] p-5 md:p-6 lg:p-8">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs text-red-200">
-              <span className="inline-block h-2 w-2 rounded-full bg-red-400" />
-              Narration
-            </div>
-
-            <button
-              onClick={() => void speak({ manual: true })}
-              className="rounded-full border border-red-500/30 bg-black/40 px-3 py-1.5 text-xs text-white hover:bg-red-500/10"
-            >
-              <span className="inline-flex items-center gap-2">
-                <Volume2 className="h-3.5 w-3.5" />
-                Speak
-              </span>
-            </button>
-
-            <button
-              onClick={stop}
-              className="rounded-full border border-red-500/30 bg-black/40 px-3 py-1.5 text-xs text-white hover:bg-red-500/10"
-            >
-              <span className="inline-flex items-center gap-2">
-                <VolumeX className="h-3.5 w-3.5" />
-                Stop
-              </span>
-            </button>
-
-            <button
-              onClick={() => setAuto((value) => !value)}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs",
-                auto
-                  ? "border-red-500/40 bg-red-500/10 text-red-200"
-                  : "border-white/15 bg-black/40 text-white"
-              )}
-            >
-              Auto: {auto ? "ON" : "OFF"}
-            </button>
-          </div>
-
-          {hasRecordedNarration ? null : (
-            <div className="grid gap-3 md:grid-cols-3">
-              <label className="flex flex-col gap-2 text-xs text-white/65">
-                Voice
-                <select
-                  value={selectedVoice}
-                  onChange={(event) => setSelectedVoice(event.target.value)}
-                  className="rounded-xl border border-red-500/25 bg-black/45 px-3 py-2 text-sm text-white outline-none"
-                >
-                  {voices
-                    .filter((voice) => voice.lang.toLowerCase().startsWith("en"))
-                    .map((voice) => (
-                      <option key={voice.voiceURI} value={voice.voiceURI}>
-                        {voice.name}
-                      </option>
-                    ))}
-                </select>
-              </label>
-
-              <label className="flex flex-col gap-2 text-xs text-white/65">
-                Rate: {rate.toFixed(2)}
-                <input
-                  type="range"
-                  min="0.75"
-                  max="1.05"
-                  step="0.01"
-                  value={rate}
-                  onChange={(event) => setRate(Number(event.target.value))}
-                  className="control-slider"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-xs text-white/65">
-                Pitch: {pitch.toFixed(2)}
-                <input
-                  type="range"
-                  min="0.7"
-                  max="1.1"
-                  step="0.01"
-                  value={pitch}
-                  onChange={(event) => setPitch(Number(event.target.value))}
-                  className="control-slider"
-                />
-              </label>
-            </div>
-          )}
-
-          <div className="relative rounded-[28px] border border-red-500/25 bg-black/35 p-5 shadow-[0_0_22px_rgba(255,0,60,0.12)] md:p-6">
-            {recordedAudioSrc ? (
-              <audio
-                ref={audioRef}
-                src={recordedAudioSrc}
-                preload="none"
-                onEnded={() => setSpeaking(false)}
-                onError={() => setSpeaking(false)}
-              />
-            ) : null}
-            <p className="min-h-[132px] text-base leading-relaxed text-white md:text-lg lg:text-xl">
-              {displayText}
-              {speaking ? (
-                <motion.span
-                  animate={{ opacity: [0, 1, 0] }}
-                  transition={{ repeat: Infinity, duration: 0.9 }}
-                  className="ml-1 text-red-300"
-                >
-                  |
-                </motion.span>
-              ) : null}
-            </p>
-            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/60">
+        <div className="flex min-w-0 flex-col justify-center gap-3 bg-gradient-to-br from-white/[0.025] to-red-500/[0.065] p-3 md:p-4">
+          <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-normal">
+                <span className="inline-flex items-center gap-1.5 text-red-200">
+                  <Headphones className="h-3.5 w-3.5" />
+                  Page brief
+                </span>
+                <span className="text-white/24">/</span>
+                <span className="text-white/52">{config.mood}</span>
+                <span className={speaking ? "text-red-200" : "text-white/38"}>
+                  {speaking ? "Playing" : "Ready"}
+                </span>
+              </div>
+              <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-white/72">
               {config.summary}
-            </p>
+              </p>
+            </div>
+
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void speak({ manual: true })}
+                className="inline-flex h-9 items-center gap-2 rounded-md border border-red-400/32 bg-red-500/[0.1] px-3 text-xs font-black uppercase tracking-normal text-red-100 transition hover:border-red-200/55 hover:bg-red-500/[0.17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/60"
+              >
+                <Volume2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Play</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={stop}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/12 bg-black/35 text-white/68 transition hover:border-white/28 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/60"
+                aria-label="Stop page narration"
+                title="Stop narration"
+              >
+                <VolumeX className="h-3.5 w-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAuto((value) => !value)}
+                aria-pressed={auto}
+                className={cn(
+                  "inline-flex h-9 items-center rounded-md border px-2.5 text-[10px] font-black uppercase tracking-normal transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/60",
+                  auto
+                    ? "border-red-400/34 bg-red-500/[0.1] text-red-100"
+                    : "border-white/12 bg-black/35 text-white/52"
+                )}
+              >
+                Auto {auto ? "on" : "off"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExpanded((value) => !value)}
+                aria-expanded={expanded}
+                aria-controls={briefPanelId}
+                className="inline-flex h-9 items-center gap-2 rounded-md border border-white/14 bg-white/[0.045] px-3 text-xs font-black uppercase tracking-normal text-white/74 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/60"
+              >
+                <span>{expanded ? "Hide" : "Open"}</span>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    expanded ? "rotate-180" : ""
+                  )}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <AnimatePresence initial={false}>
+        {expanded ? (
+          <motion.div
+            id={briefPanelId}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="overflow-hidden border-t border-white/10 bg-black/32"
+          >
+            <div className="space-y-4 p-4 md:p-5">
+              {hasRecordedNarration ? null : (
+                <div className="grid gap-4 border-b border-white/10 pb-4 md:grid-cols-3">
+                  <label className="flex flex-col gap-2 text-xs text-white/65">
+                    Voice
+                    <select
+                      value={selectedVoice}
+                      onChange={(event) => setSelectedVoice(event.target.value)}
+                      className="rounded-md border border-red-500/25 bg-black/45 px-3 py-2 text-sm text-white outline-none"
+                    >
+                      {voices
+                        .filter((voice) => voice.lang.toLowerCase().startsWith("en"))
+                        .map((voice) => (
+                          <option key={voice.voiceURI} value={voice.voiceURI}>
+                            {voice.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+
+                  <label className="flex flex-col gap-2 text-xs text-white/65">
+                    Rate: {rate.toFixed(2)}
+                    <input
+                      type="range"
+                      min="0.75"
+                      max="1.05"
+                      step="0.01"
+                      value={rate}
+                      onChange={(event) => setRate(Number(event.target.value))}
+                      className="control-slider"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2 text-xs text-white/65">
+                    Pitch: {pitch.toFixed(2)}
+                    <input
+                      type="range"
+                      min="0.7"
+                      max="1.1"
+                      step="0.01"
+                      value={pitch}
+                      onChange={(event) => setPitch(Number(event.target.value))}
+                      className="control-slider"
+                    />
+                  </label>
+                </div>
+              )}
+
+              <p className="text-base leading-relaxed text-white md:text-lg">
+                {displayText}
+                {speaking ? (
+                  <motion.span
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.9 }}
+                    className="ml-1 text-red-300"
+                  >
+                    |
+                  </motion.span>
+                ) : null}
+              </p>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </NeonCard>
   );
 }

@@ -15,13 +15,19 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
+  BookOpen,
   Brain,
+  Clapperboard,
+  Compass,
+  House,
+  Layers3,
   Menu,
   Pause,
   Play,
   Search,
   SkipBack,
   SkipForward,
+  Swords,
   Volume2,
   VolumeX,
   X,
@@ -56,6 +62,45 @@ import {
 } from "./utils/audioControl";
 import { logVisitorPageView } from "./utils/visitLogger";
 
+const NAV_GROUPS: ReadonlyArray<{
+  id: string;
+  label: string;
+  icon: typeof House;
+  pages: readonly PageName[];
+}> = [
+  { id: "home", label: "Home", icon: House, pages: ["Home"] },
+  {
+    id: "why",
+    label: "Why Fiora",
+    icon: BookOpen,
+    pages: ["Why Fiora ADC Works"],
+  },
+  {
+    id: "loadout",
+    label: "Runes / Build / Skill Order",
+    icon: Layers3,
+    pages: ["Runes", "Build", "Skill Order"],
+  },
+  {
+    id: "lane",
+    label: "Matchups / Lane Phase / Support",
+    icon: Swords,
+    pages: ["Matchups", "Lane Phase", "Fiora's Support"],
+  },
+  {
+    id: "gameplan",
+    label: "Gameplan",
+    icon: Compass,
+    pages: ["Mid/Late Game", "Mechanical Tips", "Vital Rush"],
+  },
+  {
+    id: "clips",
+    label: "Clips",
+    icon: Clapperboard,
+    pages: ["Videos / Clips"],
+  },
+];
+
 const LazyPageContent = lazy(() => import("./components/PageContent"));
 const LazyReportVoteBlock = lazy(() => import("./components/ReportVoteBlock"));
 const LazyAnimatedBackground = lazy(
@@ -64,8 +109,11 @@ const LazyAnimatedBackground = lazy(
 const LazyGuideQuickStart = lazy(
   () => import("./components/GuideQuickStart")
 );
-const LazyHomeDraftPlanner = lazy(
-  () => import("./components/HomeDraftPlanner")
+const LazyHomePregameDesk = lazy(
+  () => import("./components/HomePregameDeskPatch")
+);
+const LazyHomeGameplanPreview = lazy(
+  () => import("./components/HomeGameplanPreview")
 );
 const LazyHomeSupportShowcase = lazy(
   () => import("./components/HomeSupportShowcase")
@@ -204,18 +252,18 @@ const PAGE_FOCUS_TEXT: Record<PageName, string> = {
   Home: "Pick the right route before you start wandering through the guide.",
   "Why Fiora ADC Works":
     "Understand the lane logic before you judge the pick by random clips.",
-  Runes: "Decide whether lane opens with pure bite or with movement and reset.",
-  Build: "Choose greed, balance, or safety without pretending all games want the same items.",
+  Runes: "Decide whether lane needs immediate burst or extended contact.",
+  Build: "Lock Hydra, Greaves, and Hubris, then choose the pivot that earns the Cyclosword finish.",
   "Skill Order":
     "Your first levels decide whether lane survives or actually becomes dangerous.",
   Matchups:
     "Read the danger correctly so you stop forcing the same trade into every duo.",
   "Lane Phase":
-    "Health, brush, tempo, and commit timing matter more than random confidence.",
+    "Health, bush, tempo, and commit timing matter more than random confidence.",
   "Fiora's Support":
     "Support sync is the fastest way to make the lane look intentional instead of cursed.",
   "Mid/Late Game":
-    "Pick your job after lane and stop drifting between split, flank, and group.",
+    "Cross waves, vision, cooldowns, team tempo, target access, and failure cost before committing.",
   "Mechanical Tips":
     "Use this when you need reminders on spacing, Riposte timing, and clean execution.",
   "Vital Rush":
@@ -346,6 +394,10 @@ export default function App() {
     currentGuideStep < activeGuideFlow.length - 1
       ? activeGuideFlow[currentGuideStep + 1]
       : null;
+  const activeNavGroup =
+    NAV_GROUPS.find((group) => group.pages.includes(currentPage)) ??
+    NAV_GROUPS[0];
+  const ActivePageIcon = activeNavGroup.icon;
 
   const scrollTopSmooth = useCallback(
     () => window.scrollTo({ top: 0, behavior: "smooth" }),
@@ -401,10 +453,10 @@ export default function App() {
       },
       {
         id: "page-runes",
-        label: "Runes / PTA / Phase Rush",
+        label: "Runes / Hail of Blades / PTA",
         description: "Open the rune page fast when you need setup, not theory.",
         badge: "Runes",
-        keywords: ["runes", "pta", "phase rush", "keystone", "tempo"],
+        keywords: ["runes", "hail of blades", "hob", "pta", "keystone", "tempo"],
         run: () => goPage("Runes"),
       },
       {
@@ -433,10 +485,10 @@ export default function App() {
       },
       {
         id: "lane-wave",
-        label: "Wave / brush control",
-        description: "Brush timing, wave shape, crash timing, and jungle punish windows.",
+        label: "Wave / bush control",
+        description: "Bush timing, wave shape, crash timing, and jungle punish windows.",
         badge: "Lane",
-        keywords: ["wave", "brush", "bush", "vision", "crash", "tempo"],
+        keywords: ["wave", "bush", "vision", "crash", "tempo"],
         run: () => goLaneSection("wave"),
       },
       {
@@ -935,8 +987,8 @@ export default function App() {
   const searchBlock = (
     <div
       className={cn(
-        "w-full",
-        currentPage === "Home" ? "lg:w-[280px] lg:flex-none" : "lg:w-[360px]"
+        "min-w-0 w-full",
+        currentPage === "Home" ? "lg:w-[280px] lg:flex-none" : "lg:w-auto"
       )}
     >
       <div className="relative">
@@ -944,8 +996,9 @@ export default function App() {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search page, matchup, rune, or lane concept"
-          className="w-full rounded-2xl border border-red-500/25 bg-black/40 py-3 pl-10 pr-4 text-white placeholder:text-white/40"
+          placeholder="Search the guide"
+          aria-label="Search the guide"
+          className="min-h-10 w-full rounded-md border border-white/16 bg-black/55 py-2 pl-10 pr-4 text-sm text-white shadow-inner outline-none transition placeholder:text-white/38 hover:border-white/28 focus:border-red-300/55 focus:ring-2 focus:ring-red-300/18"
         />
       </div>
       {query ? (
@@ -999,7 +1052,7 @@ export default function App() {
       onClick={() => setIqTestOpen(true)}
       whileHover={{ y: -2, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
-      className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-red-300/32 bg-red-500/[0.11] px-4 py-3 text-sm font-black uppercase tracking-[0.15em] text-red-100 shadow-[0_0_20px_rgba(255,30,80,0.08)] transition hover:border-red-200/55 hover:bg-red-500/[0.16] sm:w-auto"
+      className="group relative inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 overflow-hidden rounded-md border border-red-300/32 bg-red-500/[0.11] px-3 py-2 text-xs font-black uppercase tracking-normal text-red-100 shadow-[0_0_20px_rgba(255,30,80,0.08)] transition hover:border-red-200/55 hover:bg-red-500/[0.16] sm:w-auto"
     >
       <span className="absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-red-100/70 to-transparent opacity-0 transition group-hover:opacity-100" />
       <Brain className="h-4 w-4" />
@@ -1045,7 +1098,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-white">
+    <div className="relative min-h-screen overflow-x-clip bg-[#050505] text-white">
         <audio
           ref={audioRef}
           src={currentTrack.src}
@@ -1126,27 +1179,68 @@ export default function App() {
             </div>
           </div>
 
-          <nav className="hide-scrollbar hidden min-w-0 flex-1 overflow-x-auto xl:block">
-            <div className="flex w-max min-w-full items-center justify-center gap-1 whitespace-nowrap rounded-[1.35rem] border border-white/10 bg-[rgba(255,255,255,0.035)] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-              {pages.map((page) => (
+          <nav
+            className="hide-scrollbar hidden min-w-0 flex-1 overflow-x-auto lg:block"
+            aria-label="Primary guide navigation"
+          >
+            <div className="flex w-max min-w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-white/10 bg-[rgba(255,255,255,0.035)] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              {NAV_GROUPS.map((group) => (
                 <PageButton
-                  key={page}
-                  label={page}
-                  active={currentPage === page}
-                  onClick={() => goPage(page)}
+                  key={group.id}
+                  label={group.label}
+                  icon={group.icon}
+                  count={group.pages.length}
+                  active={activeNavGroup.id === group.id}
+                  onClick={() =>
+                    goPage(
+                      group.pages.includes(currentPage)
+                        ? currentPage
+                        : group.pages[0]
+                    )
+                  }
                 />
               ))}
             </div>
           </nav>
 
           <button
-            className="rounded-xl border border-red-500/30 p-2 xl:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/35 bg-red-500/[0.08] text-red-100 lg:hidden"
             onClick={() => setMobileOpen((value) => !value)}
             aria-label="Toggle navigation"
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
+
+        {activeNavGroup.pages.length > 1 ? (
+          <div className="hidden border-t border-white/8 bg-black/48 lg:block">
+            <div className="mx-auto flex max-w-[96rem] items-center gap-3 px-5 py-2 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+1rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+2rem)]">
+              <div className="flex shrink-0 items-center gap-2 text-xs font-black uppercase tracking-normal text-red-200">
+                <activeNavGroup.icon className="h-3.5 w-3.5" />
+                {activeNavGroup.label}
+              </div>
+              <span className="h-5 w-px bg-white/12" />
+              <nav
+                className="hide-scrollbar flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto"
+                aria-label={`${activeNavGroup.label} pages`}
+              >
+                {activeNavGroup.pages.map((page) => (
+                  <PageButton
+                    key={page}
+                    compact
+                    label={page}
+                    active={currentPage === page}
+                    onClick={() => goPage(page)}
+                  />
+                ))}
+              </nav>
+              <span className="shrink-0 text-xs font-semibold text-white/45">
+                {currentGuideStep + 1}/{activeGuideFlow.length}
+              </span>
+            </div>
+          </div>
+        ) : null}
 
         <AnimatePresence>
           {mobileOpen ? (
@@ -1154,31 +1248,67 @@ export default function App() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden border-t border-white/10 xl:hidden"
+              className="overflow-hidden border-t border-white/10 lg:hidden"
             >
-              <div className="flex flex-col gap-2 bg-black/85 px-4 pb-4 pt-3">
-                {pages.map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => goPage(page)}
-                    className={cn(
-                      "rounded-xl px-4 py-3 text-left",
-                      currentPage === page
-                        ? "bg-red-500/15 text-red-300"
-                        : "bg-white/5 text-white/80"
-                    )}
-                  >
-                    {page}
-                  </button>
-                ))}
+              <div className="max-h-[calc(100dvh-5rem)] space-y-4 overflow-y-auto bg-[rgba(5,5,7,0.97)] px-4 pb-28 pt-4">
+                {NAV_GROUPS.map((group) => {
+                  const GroupIcon = group.icon;
+
+                  return (
+                    <section key={group.id}>
+                      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-normal text-red-200">
+                        <GroupIcon className="h-3.5 w-3.5" />
+                        {group.label}
+                      </div>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        {group.pages.map((page) => {
+                          const active = currentPage === page;
+
+                          return (
+                            <button
+                              key={page}
+                              type="button"
+                              onClick={() => goPage(page)}
+                              aria-current={active ? "page" : undefined}
+                              className={cn(
+                                "flex min-h-11 items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/65",
+                                active
+                                  ? "border-red-300/60 bg-red-500/16 text-white"
+                                  : "border-white/10 bg-white/[0.035] text-white/76 hover:border-white/24 hover:bg-white/[0.07] hover:text-white"
+                              )}
+                            >
+                              <span>{page}</span>
+                              <ArrowRight
+                                className={cn(
+                                  "h-4 w-4 shrink-0",
+                                  active ? "text-red-200" : "text-white/35"
+                                )}
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
             </motion.div>
           ) : null}
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl space-y-7 px-4 py-7 md:px-6 md:py-10 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+1rem)] lg:max-w-none xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+2rem)]">
-        <NeonCard noBlur className="p-4 md:p-5 lg:p-6">
+      <main
+        className={cn(
+          "guide-shell relative z-10 mx-auto min-w-0 max-w-7xl space-y-7 px-4 pb-28 md:px-6 md:pb-28 lg:ml-[calc(var(--chat-dock-width)+2.75rem)] lg:mr-[calc(var(--manga-dock-width)+1rem)] lg:max-w-none lg:pb-10 xl:ml-[calc(var(--chat-dock-width)+3.25rem)] 2xl:ml-[calc(var(--chat-dock-width)+3.5rem)] min-[1900px]:mr-[calc(var(--manga-dock-width)+2rem)]",
+          currentPage === "Home" ? "pt-7 md:pt-10" : "pt-5 md:pt-6"
+        )}
+      >
+        <NeonCard
+          noBlur
+          className={cn(
+            currentPage === "Home" ? "p-4 md:p-5 lg:p-6" : "p-4 md:p-5"
+          )}
+        >
           {currentPage === "Home" ? (
             <div className="space-y-4">
               <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
@@ -1319,32 +1449,37 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-red-300 md:text-xs">
-                    Draft read
-                  </p>
-                  <h1 className="mt-2 text-2xl font-black leading-tight md:text-[2.1rem]">
-                    <>
-                      {currentPage}
-                      <span className="mt-1 block text-base font-medium text-white/70 md:text-lg">
-                        {pageSubtitle[currentPage]}
-                      </span>
-                    </>
-                  </h1>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {iqTestTrigger}
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,360px)] lg:items-center">
+              <div className="flex min-w-0 items-start gap-3.5 md:gap-4">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-red-300/30 bg-red-500/[0.1] text-red-100 shadow-[0_0_18px_rgba(255,0,60,0.1)]">
+                  <ActivePageIcon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-black uppercase tracking-normal text-white/42">
+                    <span className="text-red-200/80">{activeNavGroup.label}</span>
+                    <span aria-hidden="true">/</span>
+                    <span>
+                      Step {currentGuideStep + 1} of {activeGuideFlow.length}
+                    </span>
                   </div>
+                  <h1 className="mt-1 text-2xl font-black leading-tight text-white md:text-[2rem]">
+                    {currentPage}
+                  </h1>
+                  <p className="mt-1 max-w-2xl text-sm font-medium leading-relaxed text-white/62 md:text-[15px]">
+                    {pageSubtitle[currentPage]}
+                  </p>
                 </div>
               </div>
 
-              {searchBlock}
+              <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_auto]">
+                {searchBlock}
+                {iqTestTrigger}
+              </div>
             </div>
           )}
         </NeonCard>
 
-            {currentPage !== "Home" ? (
+          {currentPage !== "Home" ? (
               <GuideProgress
                 routeLabel={activeGuideMeta.label}
                 routeSummary={activeGuideSummary}
@@ -1359,10 +1494,22 @@ export default function App() {
             />
           ) : null}
 
+          {currentPage === "Matchups" ? (
+            <Suspense fallback={null}>
+              <LazyHomePregameDesk
+                onOpenSupport={() => goPage("Fiora's Support")}
+                onOpenLaneSupport={() => goLaneSection("support")}
+                onOpenRunes={() => goPage("Runes")}
+                onOpenBuild={() => goPage("Build")}
+                onOpenMacro={() => goPage("Mid/Late Game")}
+              />
+            </Suspense>
+          ) : null}
+
           {currentPage === "Home" ? (
             <NeonCard className="overflow-hidden">
               <div ref={homeSupportSectionRef} />
-              <div className="relative overflow-hidden min-[1500px]:grid min-[1500px]:grid-cols-[1.15fr_0.85fr]">
+              <div className="home-support-layout relative overflow-hidden">
                 <img
                   src={homeHeroImage}
                   alt="Aggressive Fiora"
@@ -1374,7 +1521,7 @@ export default function App() {
                   style={{ objectPosition: "center 26%" }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/82 via-black/30 to-black/16" />
-                <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-gradient-to-l from-black/22 via-transparent to-transparent min-[1500px]:block" />
+                <div className="home-support-wide-gradient absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-black/22 via-transparent to-transparent" />
                 <div className="relative z-10 min-h-[360px] overflow-hidden">
                   <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
                     <div className="max-w-3xl rounded-3xl border border-red-500/20 bg-black/35 p-5 backdrop-blur-sm md:p-6">
@@ -1388,7 +1535,7 @@ export default function App() {
                       </h2>
                       <p className="mt-4 max-w-2xl text-white/75">
                         If you are the support, start here: engage timing, lane
-                        sync, wave pressure, brush control, and the exact moments
+                        sync, wave pressure, bush control, and the exact moments
                         Fiora can really go in.
                       </p>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -1412,7 +1559,7 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                <div className="relative z-10 hidden min-[1500px]:block">
+                <div className="home-support-showcase-slot relative z-10 hidden lg:block">
                   <Suspense fallback={null}>
                     <LazyHomeSupportShowcase />
                   </Suspense>
@@ -1438,16 +1585,11 @@ export default function App() {
           ) : null}
 
           {currentPage === "Home" ? (
-            <div className="deferred-render-section">
-              <Suspense fallback={null}>
-                <LazyHomeDraftPlanner
-                  onOpenSupport={() => goPage("Fiora's Support")}
-                  onOpenLaneSupport={() => goLaneSection("support")}
-                  onOpenRunes={() => goPage("Runes")}
-                  onOpenBuild={() => goPage("Build")}
-                />
-              </Suspense>
-            </div>
+            <Suspense fallback={null}>
+              <LazyHomeGameplanPreview
+                onOpenGameplan={() => goPage("Matchups")}
+              />
+            </Suspense>
           ) : null}
 
           {!firstVisitIntroOpen && !iqTestOpen && !mangaReaderOpen ? (
@@ -1649,13 +1791,14 @@ export default function App() {
         <>
       <button
         onClick={requestAllVoiceStop}
-        className="fixed right-4 top-24 z-[60] inline-flex min-h-[64px] items-center gap-3 rounded-2xl border border-red-400/45 bg-[rgba(8,8,10,0.94)] px-4 py-3 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:px-5 md:right-6"
+        className="fixed right-3 top-20 z-[60] inline-flex h-12 w-12 items-center justify-center rounded-lg border border-red-400/45 bg-[rgba(8,8,10,0.94)] p-0 text-left text-white shadow-[0_0_28px_rgba(255,0,60,0.28)] transition hover:scale-[1.02] hover:bg-red-950/60 sm:right-5 sm:top-24 sm:h-auto sm:w-auto sm:min-h-[64px] sm:justify-start sm:gap-3 sm:px-5 sm:py-3 md:right-6"
         aria-label="Stop every voice"
+        title="Stop all voices"
       >
-        <span className="rounded-xl border border-red-400/35 bg-red-500/15 p-2.5 text-red-300">
+        <span className="rounded-md border border-red-400/35 bg-red-500/15 p-2 text-red-300 sm:p-2.5">
           <VolumeX className="h-5 w-5" />
         </span>
-        <span className="flex flex-col">
+        <span className="hidden flex-col sm:flex">
           <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-red-300">
             Global mute
           </span>
@@ -1770,7 +1913,7 @@ export default function App() {
 
       <button
         onClick={scrollTopSmooth}
-        className="fixed bottom-5 right-5 z-50 rounded-full border border-red-500/40 bg-black/70 p-3 text-red-300 shadow-[0_0_18px_rgba(255,0,60,0.25)]"
+        className="mobile-safe-bottom fixed right-3 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full border border-red-500/40 bg-black/80 text-red-300 shadow-[0_0_18px_rgba(255,0,60,0.25)] backdrop-blur-xl lg:bottom-5 lg:right-5"
         aria-label="Back to top"
       >
         <ArrowUp className="h-5 w-5" />

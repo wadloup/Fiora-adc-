@@ -33,73 +33,76 @@ export default function GuideProgress({
   );
 
   return (
-    <div className="rounded-[1.55rem] border border-red-500/18 bg-[rgba(16,8,11,0.6)] p-3.5 shadow-[0_0_14px_rgba(255,0,60,0.08)]">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-red-400/25 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-200">
-              <Compass className="h-3.5 w-3.5" />
-              {routeLabel}
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/62">
-              Step {safeStep}/{Math.max(totalSteps, 1)}
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/58">
-              Next: {nextPage || "done"}
-            </span>
+    <div
+      className="overflow-hidden rounded-lg border border-white/12 bg-[rgba(10,8,10,0.72)] shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
+      aria-label={`${currentPage} guide progress. ${routeSummary}`}
+    >
+      <div className="flex flex-col gap-3 px-3 py-3 sm:px-4 lg:flex-row lg:items-center">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-red-400/28 bg-red-500/10 text-red-200">
+            <Compass className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-black uppercase tracking-normal">
+              <span className="text-red-200">{routeLabel}</span>
+              <span className="text-white/24">/</span>
+              <span className="text-white/58">
+                Step {safeStep} of {Math.max(totalSteps, 1)}
+              </span>
+              {nextPage ? (
+                <>
+                  <span className="text-white/24">/</span>
+                  <span className="text-white/42">Next: {nextPage}</span>
+                </>
+              ) : null}
+            </div>
+            <p className="mt-1 text-sm leading-snug text-white/82">
+              <span className="font-black text-white">Focus: </span>
+              {currentFocus}
+            </p>
           </div>
-
-          <p className="mt-2 text-base font-black text-white md:text-lg">
-            {currentPage}
-          </p>
-          <p className="mt-1 text-[0.92rem] leading-relaxed text-white/66">
-            {routeSummary}
-          </p>
         </div>
 
-        <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto] xl:min-w-[420px]">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300">
-              Focus now
-            </div>
-            <p className="mt-1.5 text-[0.92rem] text-white/82">{currentFocus}</p>
-          </div>
-
+        <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
           <button
             type="button"
             onClick={onPrevious}
             disabled={!previousPage}
+            aria-label={previousPage ? `Open previous page: ${previousPage}` : "No previous page"}
+            title={previousPage || "No previous page"}
             className={cn(
-              "inline-flex min-w-[118px] items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition",
+              "inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-3 text-xs font-black uppercase tracking-normal transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/60",
               previousPage
-                ? "border-white/12 bg-white/[0.05] text-white/84 hover:border-red-500/25 hover:bg-red-500/[0.07]"
-                : "cursor-not-allowed border-white/8 bg-white/[0.03] text-white/30"
+                ? "border-white/14 bg-white/[0.045] text-white/78 hover:border-white/28 hover:bg-white/[0.08] hover:text-white"
+                : "cursor-not-allowed border-white/8 bg-white/[0.02] text-white/24"
             )}
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Previous
+            <ArrowLeft className="h-4 w-4" />
+            <span>Previous</span>
           </button>
 
           <button
             type="button"
             onClick={onNext}
             disabled={!nextPage}
+            aria-label={nextPage ? `Open next page: ${nextPage}` : "Guide complete"}
+            title={nextPage || "Guide complete"}
             className={cn(
-              "inline-flex min-w-[118px] items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[0.78rem] font-semibold uppercase tracking-[0.12em] transition",
+              "inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-3 text-xs font-black uppercase tracking-normal transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/60",
               nextPage
-                ? "border-red-400/28 bg-red-500/[0.1] text-red-100 hover:bg-red-500/[0.16]"
-                : "cursor-not-allowed border-white/8 bg-white/[0.03] text-white/30"
+                ? "border-red-300/38 bg-red-500/[0.12] text-red-100 hover:border-red-200/60 hover:bg-red-500/[0.2]"
+                : "cursor-not-allowed border-white/8 bg-white/[0.02] text-white/24"
             )}
           >
-            Next
-            <ArrowRight className="h-3.5 w-3.5" />
+            <span>Next</span>
+            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      <div className="mt-3 h-1.5 rounded-full bg-white/[0.05]">
+      <div className="h-1 bg-white/[0.05]">
         <div
-          className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,120,140,0.9),rgba(255,50,95,0.95))] shadow-[0_0_18px_rgba(255,0,60,0.22)]"
+          className="h-full bg-[linear-gradient(90deg,rgba(255,120,140,0.9),rgba(255,50,95,0.95))] shadow-[0_0_16px_rgba(255,0,60,0.24)] transition-[width] duration-500"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
