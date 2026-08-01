@@ -9,6 +9,7 @@ export const pages = [
   "Fiora's Support",
   "Mid/Late Game",
   "Mechanical Tips",
+  "Vital Lab",
   "Vital Rush",
   "Videos / Clips",
 ] as const;
@@ -111,6 +112,14 @@ export const pageMeta: Record<PageName, NarrationEntry> = {
       "Q endpoint, Vital path, auto-E sequencing and Riposte allocation explained through the enemy response they must solve.",
     position: "60% center",
   },
+  "Vital Lab": {
+    image:
+      "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
+    mood: "Tactical geometry",
+    summary:
+      "Move every champion, expose the cooldown state, and price a Vital through Q access, allied cover, enemy answers, wave tax and the route back out.",
+    position: "60% center",
+  },
   "Vital Rush": {
     image:
       "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fiora_4.jpg",
@@ -141,6 +150,7 @@ export const pageSubtitle: Record<PageName, string> = {
   "Fiora's Support": "Exact access, follow-up, protection, wave, and roam responsibilities.",
   "Mid/Late Game": "Map pressure, fight entry, and every reason the call can change.",
   "Mechanical Tips": "Execution patterns tied to specific enemy spells and lane geometry.",
+  "Vital Lab": "A playable contact ledger for deciding whether a Vital is cheap, conditional, or bait.",
   "Vital Rush": "Dash vitals, parry shots, and chain the bot-lane arcade run.",
   "Videos / Clips": "Clips for setup, spacing, entries, and cleanup.",
 };
@@ -166,6 +176,8 @@ export const voiceText: Record<PageName, string> = {
     "After lane, do not reduce the map to split or group. Read your economy, the next waves, relevant vision, enemy arrival tools, objective commitment, allied tempo, and the cost of failure. Clear, disappear, force information, then enter or leave with a real conversion plan.",
   "Mechanical Tips":
     "Mechanical execution begins before the input: choose Q's endpoint, build the enemy control queue, decide where Riposte should land, and identify the escape Vital. Speed matters only after those choices make the sequence legal.",
+  "Vital Lab":
+    "A visible Vital is not automatically a profitable Vital. Move Fiora, her support, the enemy carry and the enemy support, then expose the wave, cooldown and information state. The laboratory separates exact kit geometry from estimated support influence and from hidden information that only the player can supply.",
   "Vital Rush":
     "Vital Rush is the quick arcade lab. Dash through weak points, parry incoming pressure, and keep the combo moving before bot lane turns into a disaster.",
   "Videos / Clips":

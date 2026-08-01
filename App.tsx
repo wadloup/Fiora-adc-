@@ -91,7 +91,7 @@ const NAV_GROUPS: ReadonlyArray<{
     id: "gameplan",
     label: "Gameplan",
     icon: Compass,
-    pages: ["Mid/Late Game", "Mechanical Tips", "Vital Rush"],
+    pages: ["Mid/Late Game", "Mechanical Tips", "Vital Lab", "Vital Rush"],
   },
   {
     id: "clips",
@@ -266,6 +266,8 @@ const PAGE_FOCUS_TEXT: Record<PageName, string> = {
     "Cross waves, vision, cooldowns, team tempo, target access, and failure cost before committing.",
   "Mechanical Tips":
     "Use this when you need reminders on spacing, Riposte timing, and clean execution.",
+  "Vital Lab":
+    "Price the visible Vital through real geometry, cooldown order, wave tax, allied cover, and the route back out.",
   "Vital Rush":
     "Play the arcade lab when you want reflex practice instead of another text page.",
   "Videos / Clips":
@@ -540,6 +542,14 @@ export default function App() {
         badge: "Mechanics",
         keywords: ["mechanics", "riposte", "spacing", "vital", "combo"],
         run: () => goPage("Mechanical Tips"),
+      },
+      {
+        id: "page-vital-lab",
+        label: "Vital Cost Laboratory",
+        description: "Move the full bot lane and test whether a Vital is cheap, conditional, or bait.",
+        badge: "Lab",
+        keywords: ["vital", "cost", "lab", "geometry", "q range", "wave", "riposte"],
+        run: () => goPage("Vital Lab"),
       },
       {
         id: "page-videos",

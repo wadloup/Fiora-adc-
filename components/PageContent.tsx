@@ -63,6 +63,7 @@ const LazySupportCompatibilityScanner = lazy(
   () => import("./SupportCompatibilityScanner")
 );
 const LazyVitalRushGame = lazy(() => import("./VitalRushGame"));
+const LazyVitalCostLaboratory = lazy(() => import("./VitalCostLaboratory"));
 const LazyMidLateCommandRoom = lazy(() => import("./MidLateCommandRoom"));
 
 const deferredFeatureFallback = (
@@ -1501,6 +1502,12 @@ export default function PageContent({
       {currentPage === "Vital Rush" ? (
         <Suspense fallback={deferredFeatureFallback}>
           <LazyVitalRushGame />
+        </Suspense>
+      ) : null}
+
+      {currentPage === "Vital Lab" ? (
+        <Suspense fallback={deferredFeatureFallback}>
+          <LazyVitalCostLaboratory />
         </Suspense>
       ) : null}
 
