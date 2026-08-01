@@ -24,7 +24,7 @@ export type NarrationEntry = {
   position?: string;
 };
 
-export const heroCertifiedImage = "/netanyahu.png";
+export const heroCertifiedImage = "/netanyahu-certified.png";
 export const homeSupportShellAudio = "/voices/blocks/home-support-shell.wav";
 export const homeHeroImage = "/duelist-hero.jpg";
 export const whyWorksVisualImage =

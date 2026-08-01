@@ -98,7 +98,7 @@ body {
   }
 
   .home-support-hero {
-    grid-template-columns: 9rem minmax(0, 1fr);
+    grid-template-columns: 11.7rem minmax(0, 1fr);
   }
 
   .home-support-profile {

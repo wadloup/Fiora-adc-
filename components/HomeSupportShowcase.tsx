@@ -27,7 +27,7 @@ export default function HomeSupportShowcase() {
               NETANYAHU CERTIFIED
             </p>
           </div>
-          <div className="home-support-hero mt-4 grid min-w-0 grid-cols-[7rem_minmax(0,1fr)] items-center gap-4">
+          <div className="home-support-hero mt-4 grid min-w-0 grid-cols-[9.1rem_minmax(0,1fr)] items-center gap-4">
             <img
               src={heroCertifiedImage}
               alt="Certified badge"
