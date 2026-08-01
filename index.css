@@ -447,11 +447,3 @@ body {
     animation: none;
   }
 }
-
-@media (hover: hover) and (pointer: fine) {
-  .custom-cursor-active,
-  .custom-cursor-active body,
-  .custom-cursor-active * {
-    cursor: none !important;
-  }
-}

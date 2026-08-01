@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useMotionValue } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { memo, useEffect, useRef, useState } from "react";
 import type { MusicTheme } from "../data/musicThemes";
 
@@ -163,13 +163,9 @@ function AnimatedBackground({
   const artwork = theme.background.artwork;
   const artworkIsVideo = artwork?.kind === "video";
   const artworkIsGif = artwork?.src.toLowerCase().endsWith(".gif");
-  const [cursorVisible, setCursorVisible] = useState(false);
-  const [cursorFxEnabled, setCursorFxEnabled] = useState(false);
-  const [liteMode, setLiteMode] = useState(false);
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const cursorVisibleRef = useRef(false);
+  const [liteMode, setLiteMode] = useState(true);
   const activeVideoRef = useRef<HTMLVideoElement | null>(null);
+  const reduceEffects = liteMode || !active;
   const shouldRenderVideo = Boolean(artworkIsVideo && active && !liteMode);
   const stillArtworkSrc = artworkIsVideo
     ? artwork?.posterSrc || artwork?.src
@@ -180,7 +176,6 @@ function AnimatedBackground({
       return;
     }
 
-    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
 
@@ -200,76 +195,18 @@ function AnimatedBackground({
         (deviceMemory > 0 && deviceMemory <= 4);
 
       setLiteMode(shouldUseLiteMode);
-      setCursorFxEnabled(mediaQuery.matches && !shouldUseLiteMode);
     };
 
     updateCapability();
 
-    mediaQuery.addEventListener("change", updateCapability);
     reducedMotionQuery.addEventListener("change", updateCapability);
     coarsePointerQuery.addEventListener("change", updateCapability);
 
     return () => {
-      mediaQuery.removeEventListener("change", updateCapability);
       reducedMotionQuery.removeEventListener("change", updateCapability);
       coarsePointerQuery.removeEventListener("change", updateCapability);
     };
   }, []);
-
-  useEffect(() => {
-    if (!cursorFxEnabled || typeof window === "undefined") {
-      cursorVisibleRef.current = false;
-      setCursorVisible(false);
-      return;
-    }
-
-    const onPointerMove = (event: PointerEvent) => {
-      cursorX.set(event.clientX);
-      cursorY.set(event.clientY);
-
-      if (!cursorVisibleRef.current) {
-        cursorVisibleRef.current = true;
-        setCursorVisible(true);
-      }
-    };
-
-    const onPointerLeave = () => {
-      if (!cursorVisibleRef.current) {
-        return;
-      }
-
-      cursorVisibleRef.current = false;
-      setCursorVisible(false);
-    };
-
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("pointerleave", onPointerLeave);
-    window.addEventListener("blur", onPointerLeave);
-
-    return () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerleave", onPointerLeave);
-      window.removeEventListener("blur", onPointerLeave);
-    };
-  }, [cursorFxEnabled, cursorX, cursorY]);
-
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
-    const root = document.documentElement;
-
-    if (cursorFxEnabled) {
-      root.classList.add("custom-cursor-active");
-    } else {
-      root.classList.remove("custom-cursor-active");
-    }
-
-    return () => {
-      root.classList.remove("custom-cursor-active");
-    };
-  }, [cursorFxEnabled]);
 
   useEffect(() => {
     const video = activeVideoRef.current;
@@ -314,57 +251,7 @@ function AnimatedBackground({
     };
   }, [artwork?.src, shouldRenderVideo]);
 
-  const cursorLens =
-    cursorFxEnabled && cursorVisible ? (
-      <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
-        <motion.div
-          className="absolute h-[5rem] w-[5rem] rounded-full"
-          style={{
-            x: cursorX,
-            y: cursorY,
-            translateX: "-50%",
-            translateY: "-50%",
-            background:
-              "radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.07) 44%, transparent 74%)",
-            filter: "blur(7px)",
-            mixBlendMode: "screen",
-            willChange: "transform, opacity",
-            opacity: 0.7,
-          }}
-        />
-
-        <motion.div
-          className="absolute h-[2.95rem] w-[2.95rem] rounded-full"
-          style={{
-            x: cursorX,
-            y: cursorY,
-            translateX: "-50%",
-            translateY: "-50%",
-            background: "transparent",
-            border: "2px solid rgba(16,16,16,0.9)",
-            boxShadow:
-              "0 0 0 1px rgba(255,255,255,0.26), 0 0 10px rgba(255,255,255,0.1)",
-            willChange: "transform",
-          }}
-        />
-
-        <motion.div
-          className="absolute h-[2.15rem] w-[2.15rem] rounded-full"
-          style={{
-            x: cursorX,
-            y: cursorY,
-            translateX: "-50%",
-            translateY: "-50%",
-            background:
-              "radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 52%, transparent 76%)",
-            willChange: "transform",
-          }}
-        />
-      </div>
-    ) : null;
-
   return (
-    <>
       <AnimatePresence initial={false} mode="sync">
         <motion.div
           key={theme.id}
@@ -452,7 +339,7 @@ function AnimatedBackground({
             className="absolute inset-0"
             initial={{ opacity: 0, scale: (artwork.scale || 1.04) + 0.025 }}
             animate={
-              liteMode || !active
+              reduceEffects
                 ? {
                     opacity: artwork.opacity ?? 0.18,
                     scale: artwork.scale || 1.04,
@@ -472,7 +359,7 @@ function AnimatedBackground({
             }
             exit={{ opacity: 0, scale: artwork.scale || 1.04 }}
             transition={
-              liteMode || !active
+              reduceEffects
                 ? backgroundLayerTransition
                 : {
                     opacity: backgroundLayerTransition,
@@ -499,7 +386,7 @@ function AnimatedBackground({
               backgroundSize: artwork.fit || "cover",
               filter:
                 artwork.filter || "grayscale(0.2) contrast(1.04) brightness(0.66)",
-              willChange: "transform, opacity",
+              willChange: reduceEffects ? "auto" : "transform, opacity",
             }}
           />
         ) : null}
@@ -509,13 +396,13 @@ function AnimatedBackground({
             className="absolute inset-0 opacity-55"
             initial={{ opacity: 0 }}
             animate={
-              liteMode
+              reduceEffects
                 ? { opacity: 0.38 }
                 : { opacity: 0.55, backgroundPosition: ["0% 0%", "100% 40%", "0% 0%"] }
             }
             exit={{ opacity: 0 }}
             transition={
-              liteMode
+              reduceEffects
                 ? backgroundLayerTransition
                 : {
                     opacity: backgroundLayerTransition,
@@ -539,7 +426,7 @@ function AnimatedBackground({
             style={{ background: theme.background.overlay }}
             initial={{ opacity: 0 }}
             animate={
-              liteMode
+              reduceEffects
                 ? { opacity: artworkIsVideo ? 0.18 : 0.4 }
                 : {
                     opacity: artworkIsVideo ? [0.22, 0.34, 0.22] : [0.5, 0.82, 0.5],
@@ -547,7 +434,7 @@ function AnimatedBackground({
             }
             exit={{ opacity: 0 }}
             transition={
-              liteMode
+              reduceEffects
                 ? backgroundLayerTransition
                 : {
                     opacity: {
@@ -566,7 +453,7 @@ function AnimatedBackground({
             style={{ background: theme.background.veil }}
             initial={{ opacity: 0 }}
             animate={
-              liteMode
+              reduceEffects
                 ? { opacity: artworkIsVideo ? 0.14 : 0.28 }
                 : {
                     opacity: artworkIsVideo ? [0.18, 0.3, 0.18] : [0.35, 0.8, 0.35],
@@ -574,7 +461,7 @@ function AnimatedBackground({
             }
             exit={{ opacity: 0 }}
             transition={
-              liteMode
+              reduceEffects
                 ? backgroundLayerTransition
                 : {
                     opacity: {
@@ -587,7 +474,7 @@ function AnimatedBackground({
           />
         ) : null}
 
-        {!liteMode ? renderThemeScene(theme.id) : null}
+        {!reduceEffects ? renderThemeScene(theme.id) : null}
 
         {theme.background.glows.map((glow, index) => (
           <motion.div
@@ -602,7 +489,7 @@ function AnimatedBackground({
               opacity: glow.opacity,
             }}
             animate={
-              liteMode
+              reduceEffects
                 ? undefined
                 : {
                     x: glow.x,
@@ -616,7 +503,7 @@ function AnimatedBackground({
                   }
             }
             transition={
-              liteMode
+              reduceEffects
                 ? undefined
                 : {
                     duration: glow.duration,
@@ -631,10 +518,14 @@ function AnimatedBackground({
           <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0 }}
-            animate={liteMode ? { opacity: 0.14 } : { opacity: [0.18, 0.34, 0.18] }}
+            animate={
+              reduceEffects
+                ? { opacity: 0.14 }
+                : { opacity: [0.18, 0.34, 0.18] }
+            }
             exit={{ opacity: 0 }}
             transition={
-              liteMode
+              reduceEffects
                 ? backgroundLayerTransition
                 : {
                     opacity: { duration: 7, repeat: Infinity, ease: "easeInOut" },
@@ -660,8 +551,6 @@ function AnimatedBackground({
         />
         </motion.div>
       </AnimatePresence>
-      {cursorLens}
-    </>
   );
 }
 
